@@ -10,11 +10,31 @@
           />
           <span class="logoname">考拉悠然科技</span>
           <div class="Hright">
-            <div class="headerBtn" style="margin-right:9px">
+            <div class="headerBtn" style="margin-right:30px">
               <img src="../assets/img/组 935.png" alt="" class="btnIcon" />
             </div>
             <div class="headerBtn">
               <img src="../assets/img/组 282.png" alt="" class="btnIcon" />
+            </div>
+            <div style="float:right">
+              <Dropdown style="margin-left: 17px;">
+                <a href="javascript:void(0)">
+                  Avatar
+                  <Icon type="ios-arrow-down"></Icon>
+                </a>
+                <DropdownMenu slot="list">
+                  <DropdownItem>修改密码</DropdownItem>
+                  <DropdownItem>退出</DropdownItem>
+
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+            <div class="avaterD">
+              <img
+                src="../assets/img/QQ截图20190125174844.png"
+                alt=""
+                class="avater"
+              />
             </div>
           </div>
         </div>
@@ -74,7 +94,7 @@
               </template>
               <MenuItem name="6-1">我的消息</MenuItem>
             </Submenu>
-             <Submenu name="7">
+            <Submenu name="7">
               <template slot="title">
                 <Icon type="ios-cog" />
                 应用中心
@@ -97,6 +117,7 @@ export default {};
 .el-main {
   padding: 30px;
   margin-left: 256px;
+  background: #F5F8FC
 }
 .el-header {
   background: rgba(53, 63, 77, 1);
@@ -113,6 +134,9 @@ export default {};
   );
 }
 #index {
+  .ivu-dropdown-rel a{
+    color:rgba(255,255,255,0.7)
+  }
   .ivu-menu-dark.ivu-menu-vertical .ivu-menu-opened .ivu-menu-submenu-title {
     background: #252c35;
   }
@@ -121,6 +145,17 @@ export default {};
   }
   .ivu-menu-submenu-title {
     background: #2f3844;
+  }
+  .avater {
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+  }
+  .avaterD {
+    float: right;
+    margin: 6px 0px 6px 30px;
+    width: 48px;
+    height: 48px;
   }
   .logoname {
     font-size: 22px;
