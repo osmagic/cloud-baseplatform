@@ -96,6 +96,7 @@ export default {};
 <style lang="scss">
 .el-main {
   padding: 30px;
+  margin-left: 256px;
 }
 .el-header {
   background: rgba(53, 63, 77, 1);
