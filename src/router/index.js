@@ -17,6 +17,31 @@ export default new Router({
           path: '/indexPage',
           name: '首页',
           component: () => import('../components/indexPage/indexPage.vue')
+        },
+        {
+          path: '/operationLogs',
+          name:'operationLogs',
+          component: () => import('../components/dataManagement/operationLogs.vue')
+        },
+        {
+          path: '/characterManage',
+          name: 'characterManage',
+          component: () => import('../components/authManage/characterManage')
+        },
+        {
+          path: '/permissionAssign',
+          name:'permissionAssign',
+          component: () => import('../components/authManage/permissionAssign')
+        },
+        {
+          path:'/myMessage',
+          name:'myMessage',
+          component: () => import('../components/messageCenter/myMessage')
+        },
+        {
+          path:'/appList',
+          name:'appList',
+          component: () => import('../components/appCenter/appList')
         }
       ]
     }
