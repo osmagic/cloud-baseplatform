@@ -37,6 +37,11 @@ export default new Router({
           path:'/myMessage',
           name:'myMessage',
           component: () => import('../components/messageCenter/myMessage')
+        },
+        {
+          path:'/appList',
+          name:'appList',
+          component: () => import('../components/appCenter/appList')
         }
       ]
     }
