@@ -17,6 +17,11 @@ export default new Router({
           path: '/indexPage',
           name: '首页',
           component: () => import('../components/indexPage/indexPage.vue')
+        },
+        {
+          path: '/operationLogs',
+          name:'operationLogs',
+          component: () => import('../components/dataManagement/operationLogs.vue')
         }
       ]
     }
