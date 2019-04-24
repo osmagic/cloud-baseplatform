@@ -116,8 +116,11 @@ export default {};
 <style lang="scss">
 .el-main {
   padding: 30px;
-  margin-left: 256px;
+
   background: #F5F8FC
+}
+.el-container{
+  position: relative;
 }
 .el-header {
   background: rgba(53, 63, 77, 1);
@@ -125,8 +128,9 @@ export default {};
   line-height: 60px;
 }
 .el-aside {
-  position: fixed;
-  height: 100%;
+  position: abolute;
+  top: 0;
+  bottom: 0;
   background: linear-gradient(
     180deg,
     rgba(43, 51, 62, 1) 0%,

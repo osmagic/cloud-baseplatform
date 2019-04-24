@@ -114,16 +114,68 @@ color:rgba(43,51,62,1);"
           <img src="../../assets/img/考拉云平台图标 [已恢复].png" alt="" />
         </div>
       </div>
-      <div style="height:288px;clear:both;background:white;">
+      <div style="height:288px;clear:both;">
         <el-row class="row2" :gutter="20">
-          <el-col :span="12" >
-            <div>
-              <div class="ecTitle" style="border:none">消息中心</div>
+          <el-col :span="12">
+            <div class="bcwhite">
+              <div class="ecTitle" style="border:none">
+                <span>消息中心</span
+                ><span
+                  style="color:#3B86FF;font-size:14px;
+font-family:PingFang SC;float:right;margin-right:20px"
+                  >更多</span
+                >
+              </div>
+              <div class="messageList">
+                <div class="messageItem">
+                  <div class="mitemL">
+                    <div class="itemL1">设备告警</div>
+                    <div class="itemL2">啦啦啦啦啦啦啦啦啦啦</div>
+                  </div>
+                  <div class="mitenR">
+                    <span class="mtime">2019-04-19</span>
+                    <el-button round>待处理</el-button>
+                  </div>
+                </div>
+              </div>
             </div>
-            </el-col>
-          <el-col :span="12"
-            ><div class="grid-content bg-purple-light"></div
-          ></el-col>
+          </el-col>
+          <el-col :span="12">
+            <div class="bcwhite">
+            <div class="ecTitle" style="border:none">
+                <span>消息中心</span
+                ><span
+                  style="color:#3B86FF;font-size:14px;
+font-family:PingFang SC;float:right;margin-right:20px"
+                  >更多</span
+                >
+              </div>
+              <div style="padding:0 20px">
+                 <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column
+        prop="date"
+        label="时间"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="name"
+        label="用户"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="address"
+        label="操作类型">
+      </el-table-column>
+      <el-table-column
+        prop="address"
+        label="日志内容">
+      </el-table-column>
+    </el-table>
+              </div>
+          </div>
+          </el-col>
         </el-row>
       </div>
     </div>
@@ -177,6 +229,43 @@ export default {
     font-family: PingFang SC;
     color: rgba(43, 51, 62, 1);
   }
+  .mtime{
+    font-size:12px;
+font-family:PingFang SC;
+font-weight:400;
+line-height:20px;
+color:rgba(43,51,62,0.5);
+margin-right: 16px;
+  }
+  .itemL1 {
+    font-size: 14px;
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 20px;
+    color: rgba(43, 51, 62, 1);
+  }
+  .itemL2 {
+    font-family: PingFang SC;
+    font-weight: 400;
+    line-height: 20px;
+    color: rgba(43, 51, 62, 0.5);
+  }
+  .el-button{
+   width:84px;
+height:24px;
+background:linear-gradient(90deg,rgba(48,214,253,1) 0%,rgba(74,132,251,1) 100%);
+border-radius:12px;
+color:rgba(248,251,255,1);
+  }
+  .el-button.is-round{
+    padding: 0
+  }
+  .mitemL {
+    float: left;
+  }
+  .mitenR {
+    float: right;
+  }
   .desp2 {
     padding: 0 30px;
     font-size: 14px;
@@ -185,10 +274,17 @@ export default {
     line-height: 24px;
     color: rgba(43, 51, 62, 0.5);
   }
+  .messageList {
+    padding: 0 20px;
+  }
   .compile {
     width: 71%;
     float: left;
     margin-bottom: 20px;
+  }
+  .bcwhite {
+    background: white;
+    height: 100%;
   }
   #echarts {
     height: 349px;
@@ -240,11 +336,11 @@ export default {
       width: 100%;
     }
   }
-.row2{
-  .el-col {
+  .row2 {
+    .el-col {
       height: 288px;
     }
-}
+  }
   .col1 {
     background: url("../../assets/img/组931.png") no-repeat;
   }
