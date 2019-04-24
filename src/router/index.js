@@ -22,6 +22,21 @@ export default new Router({
           path: '/operationLogs',
           name:'operationLogs',
           component: () => import('../components/dataManagement/operationLogs.vue')
+        },
+        {
+          path: '/characterManage',
+          name: 'characterManage',
+          component: () => import('../components/authManage/characterManage')
+        },
+        {
+          path: '/permissionAssign',
+          name:'permissionAssign',
+          component: () => import('../components/authManage/permissionAssign')
+        },
+        {
+          path:'/myMessage',
+          name:'myMessage',
+          component: () => import('../components/messageCenter/myMessage')
         }
       ]
     }
