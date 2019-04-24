@@ -21,46 +21,68 @@
       </el-header>
       <el-container>
         <el-aside width="256px">
-           <Menu theme="dark" active-name="1-2" :open-names="['1']" >
-        <Submenu name="1">
-            <template slot="title">
+          <Menu
+            theme="dark"
+            active-name="1-2"
+            :open-names="['1']"
+            width="256px"
+          >
+            <Submenu name="1">
+              <template slot="title">
                 <Icon type="ios-analytics" />
-                Navigation One
-            </template>
-            <MenuGroup title="Item 1">
-                <MenuItem name="1-1">Option 1</MenuItem>
-                <MenuItem name="1-2">Option 2</MenuItem>
-            </MenuGroup>
-            <MenuGroup title="Item 2">
-                <MenuItem name="1-3">Option 3</MenuItem>
-                <MenuItem name="1-4">Option 4</MenuItem>
-            </MenuGroup>
-        </Submenu>
-        <Submenu name="2">
-            <template slot="title">
-                <Icon type="ios-filing" />
-                Navigation Two
-            </template>
-            <MenuItem name="2-1">Option 5</MenuItem>
-            <MenuItem name="2-2">Option 6</MenuItem>
-            <Submenu name="3">
-                <template slot="title">Submenu</template>
-                <MenuItem name="3-1">Option 7</MenuItem>
-                <MenuItem name="3-2">Option 8</MenuItem>
+                工作台
+              </template>
+
+              <MenuItem name="1-1"> 主页</MenuItem>
             </Submenu>
-        </Submenu>
-        <Submenu name="4">
-            <template slot="title">
+            <Submenu name="2">
+              <template slot="title">
+                <Icon type="ios-filing" />
+                设备管理
+              </template>
+              <MenuItem name="2-1">设备列表</MenuItem>
+              <MenuItem name="2-2">设备管理员</MenuItem>
+            </Submenu>
+            <Submenu name="3">
+              <template slot="title">
                 <Icon type="ios-cog" />
-                Navigation Three
-            </template>
-            <MenuItem name="4-1">Option 9</MenuItem>
-            <MenuItem name="4-2">Option 10</MenuItem>
-            <MenuItem name="4-3">Option 11</MenuItem>
-            <MenuItem name="4-4">Option 12</MenuItem>
-        </Submenu>
-    </Menu>
-         </el-aside>
+                人员管理
+              </template>
+              <MenuItem name="3-1">人员列表</MenuItem>
+              <MenuItem name="3-2">人员类型</MenuItem>
+            </Submenu>
+            <Submenu name="4">
+              <template slot="title">
+                <Icon type="ios-cog" />
+                数据管理
+              </template>
+              <MenuItem name="4-1">操作日志</MenuItem>
+            </Submenu>
+            <Submenu name="5">
+              <template slot="title">
+                <Icon type="ios-cog" />
+                权限管理
+              </template>
+              <MenuItem name="5-1">单位管理</MenuItem>
+              <MenuItem name="5-2">角色管理</MenuItem>
+              <MenuItem name="5-3">权限分配</MenuItem>
+            </Submenu>
+            <Submenu name="6">
+              <template slot="title">
+                <Icon type="ios-cog" />
+                消息中心
+              </template>
+              <MenuItem name="6-1">我的消息</MenuItem>
+            </Submenu>
+             <Submenu name="7">
+              <template slot="title">
+                <Icon type="ios-cog" />
+                应用中心
+              </template>
+              <MenuItem name="7-1">应用列表</MenuItem>
+            </Submenu>
+          </Menu>
+        </el-aside>
         <el-main>
           <router-view></router-view>
         </el-main>
@@ -80,7 +102,25 @@ export default {};
   padding: 0 30px;
   line-height: 60px;
 }
+.el-aside {
+  position: fixed;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(43, 51, 62, 1) 0%,
+    rgba(54, 64, 77, 1) 100%
+  );
+}
 #index {
+  .ivu-menu-dark.ivu-menu-vertical .ivu-menu-opened .ivu-menu-submenu-title {
+    background: #252c35;
+  }
+  .ivu-menu-item {
+    background: #252c35;
+  }
+  .ivu-menu-submenu-title {
+    background: #2f3844;
+  }
   .logoname {
     font-size: 22px;
     font-family: PingFang SC;
