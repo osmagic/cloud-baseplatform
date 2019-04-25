@@ -44,6 +44,25 @@ export default new Router({
           component: () => import('../components/appCenter/appList')
         },
         {
+          path:'/deviceList',
+          name:'deviceManage',
+          component: () => import('../components/deviceManage/deviceList')
+        },
+        {
+          path:'/deviceManager',
+          name:'appList',
+          component: () => import('../components/deviceManage/deviceManager')
+        },
+        {
+          path:'/peopleList',
+          name:'appList',
+          component: () => import('../components/peopleManage/peopleList')
+        },
+        {
+          path:'/peopleType',
+          name:'appList',
+          component: () => import('../components/peopleManage/peopleType')
+        },{
           path:'/comShow',
           name:'comShow',
           component: () => import('../components/authManage/comShow')
@@ -53,6 +72,7 @@ export default new Router({
           name:'deptManagement',
           component: () => import('../components/authManage/deptManagement')
         }
+
       ]
     }
   ]

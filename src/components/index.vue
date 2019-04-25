@@ -116,8 +116,9 @@ export default {};
 <style lang="scss">
 .el-main {
   padding: 30px;
-
-  background: #F5F8FC
+  height: 1020px;
+  background: #F5F8FC;
+  overflow: visible;
 }
 .el-container{
   position: relative;

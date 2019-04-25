@@ -250,12 +250,14 @@ margin-right: 16px;
     line-height: 20px;
     color: rgba(43, 51, 62, 0.5);
   }
-  .el-button{
+  .row2{
+    .el-button{
    width:84px;
 height:24px;
 background:linear-gradient(90deg,rgba(48,214,253,1) 0%,rgba(74,132,251,1) 100%);
 border-radius:12px;
 color:rgba(248,251,255,1);
+  }
   }
   .el-button.is-round{
     padding: 0
