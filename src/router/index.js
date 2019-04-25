@@ -42,6 +42,11 @@ export default new Router({
           path:'/appList',
           name:'appList',
           component: () => import('../components/appCenter/appList')
+        },
+        {
+          path:'/comShow',
+          name:'comShow',
+          component: () => import('../components/authManage/comShow')
         }
       ]
     }
