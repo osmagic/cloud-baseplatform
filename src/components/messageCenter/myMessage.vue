@@ -4,9 +4,9 @@
       <p>权限分配</p>
     </div>
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="全部消息" name="first"><allNews></allNews></el-tab-pane>
-      <el-tab-pane label="未读消息" name="second"><unreadNews></unreadNews></el-tab-pane>
-      <el-tab-pane label="已读消息" name="third"><readNews></readNews></el-tab-pane>
+      <el-tab-pane label="全部消息" name="allNews"><allNews></allNews></el-tab-pane>
+      <el-tab-pane label="未读消息" name="unreadNews"><unreadNews></unreadNews></el-tab-pane>
+      <el-tab-pane label="已读消息" name="readNews"><readNews></readNews></el-tab-pane>
     </el-tabs>
   </el-card>
 </template>
@@ -20,7 +20,7 @@
     components:{allNews,unreadNews,readNews},
     data(){
       return{
-        activeName:'全部消息',
+        activeName:'allNews',
       }
     },
     methods:{

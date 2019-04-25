@@ -62,6 +62,15 @@ export default new Router({
           path:'/peopleType',
           name:'appList',
           component: () => import('../components/peopleManage/peopleType')
+        },{
+          path:'/comShow',
+          name:'comShow',
+          component: () => import('../components/authManage/comShow')
+        },
+        {
+          path:'/deptManagement',
+          name:'deptManagement',
+          component: () => import('../components/authManage/deptManagement')
         }
 
       ]
