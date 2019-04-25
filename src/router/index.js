@@ -42,7 +42,28 @@ export default new Router({
           path:'/appList',
           name:'appList',
           component: () => import('../components/appCenter/appList')
+        },
+        {
+          path:'/deviceList',
+          name:'deviceManage',
+          component: () => import('../components/deviceManage/deviceList')
+        },
+        {
+          path:'/deviceManager',
+          name:'appList',
+          component: () => import('../components/deviceManage/deviceManager')
+        },
+        {
+          path:'/peopleList',
+          name:'appList',
+          component: () => import('../components/peopleManage/peopleList')
+        },
+        {
+          path:'/peopleType',
+          name:'appList',
+          component: () => import('../components/peopleManage/peopleType')
         }
+
       ]
     }
   ]

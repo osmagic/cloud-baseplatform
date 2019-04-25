@@ -25,7 +25,7 @@ Vue.use(iView);
 Vue.use(Vuex)
 Vue.use(VueI18n)
 const i18n = new VueI18n({
-  locale: 'en', // 语言标识
+  locale: 'zh', // 语言标识
   messages: {
     'en': Object.assign(require('../static/lang/en'), enLocale),
     'zh': Object.assign(require('../static/lang/zh'), zhLocale),
