@@ -47,6 +47,11 @@ export default new Router({
           path:'/comShow',
           name:'comShow',
           component: () => import('../components/authManage/comShow')
+        },
+        {
+          path:'/deptManagement',
+          name:'deptManagement',
+          component: () => import('../components/authManage/deptManagement')
         }
       ]
     }
