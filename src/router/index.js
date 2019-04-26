@@ -71,9 +71,32 @@ export default new Router({
           path:'/deptManagement',
           name:'deptManagement',
           component: () => import('../components/authManage/deptManagement')
+        },
+        {
+          path:'/accessManager',
+          name:'accessManager',
+
         }
 
       ]
-    }
+    },
+      {
+        path: '/accessLogin',//门禁登陆
+        name: 'accessLogin',
+        component: ()=>import('../components/accessMoniter/login.vue')
+      },
+      {
+        path: '/accessMonitor',//门禁登陆
+        name:'accessMonitor',
+        component:()=>import('../components/accessMoniter/index.vue'),
+        children:[
+          {
+            path: '/accessMonitor/index',//门禁登陆
+            name: '门禁主页',
+            component: ()=>import('../components/accessMoniter/indexPage.vue')
+          },
+        ]
+      }
+
   ]
 })

@@ -53,53 +53,54 @@
                 工作台
               </template>
 
-              <MenuItem name="1-1"> 主页</MenuItem>
+              <MenuItem name="1-1" to='/indexPage'> 主页</MenuItem>
             </Submenu>
             <Submenu name="2">
               <template slot="title">
                 <Icon type="ios-filing" />
                 设备管理
               </template>
-              <MenuItem name="2-1">设备列表</MenuItem>
-              <MenuItem name="2-2">设备管理员</MenuItem>
+              <MenuItem name="2-1" to="/deviceList">设备列表</MenuItem>
+              <MenuItem name="2-2" to="/deviceManager">设备管理员</MenuItem>
             </Submenu>
             <Submenu name="3">
               <template slot="title">
                 <Icon type="ios-cog" />
                 人员管理
               </template>
-              <MenuItem name="3-1">人员列表</MenuItem>
-              <MenuItem name="3-2">人员类型</MenuItem>
+              <MenuItem name="3-1" to="/peopleList">人员列表</MenuItem>
+              <MenuItem name="3-2" to="/peopleType">人员类型</MenuItem>
             </Submenu>
             <Submenu name="4">
               <template slot="title">
                 <Icon type="ios-cog" />
                 数据管理
               </template>
-              <MenuItem name="4-1">操作日志</MenuItem>
+              <MenuItem name="4-1" to="/operationLogs">操作日志</MenuItem>
             </Submenu>
             <Submenu name="5">
               <template slot="title">
                 <Icon type="ios-cog" />
                 权限管理
               </template>
-              <MenuItem name="5-1">单位管理</MenuItem>
-              <MenuItem name="5-2">角色管理</MenuItem>
-              <MenuItem name="5-3">权限分配</MenuItem>
+              <MenuItem name="5-1" to="/deptManagement">单位管理</MenuItem>
+              <MenuItem name="5-2" to="/comshow">单位展示</MenuItem>
+              <MenuItem name="5-3" to="/characterManage">角色管理</MenuItem>
+              <MenuItem name="5-4" to="/permissionAssign">权限分配</MenuItem>
             </Submenu>
             <Submenu name="6">
               <template slot="title">
                 <Icon type="ios-cog" />
                 消息中心
               </template>
-              <MenuItem name="6-1">我的消息</MenuItem>
+              <MenuItem name="6-1" to="/myMessage">我的消息</MenuItem>
             </Submenu>
             <Submenu name="7">
               <template slot="title">
                 <Icon type="ios-cog" />
                 应用中心
               </template>
-              <MenuItem name="7-1">应用列表</MenuItem>
+              <MenuItem name="7-1" to="/appList">应用列表</MenuItem>
             </Submenu>
           </Menu>
         </el-aside>
@@ -114,11 +115,14 @@
 export default {};
 </script>
 <style lang="scss">
-.el-main {
+
+#index {
+  .el-main {
   padding: 30px;
   height: 1020px;
   background: #F5F8FC;
   overflow: visible;
+  margin-left: 256px
 }
 .el-container{
   position: relative;
@@ -129,7 +133,7 @@ export default {};
   line-height: 60px;
 }
 .el-aside {
-  position: abolute;
+  position: absolute;
   top: 0;
   bottom: 0;
   background: linear-gradient(
@@ -138,7 +142,6 @@ export default {};
     rgba(54, 64, 77, 1) 100%
   );
 }
-#index {
   .ivu-dropdown-rel a{
     color:rgba(255,255,255,0.7)
   }

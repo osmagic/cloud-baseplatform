@@ -1,0 +1,101 @@
+<template>
+  <div id="accessIndex">
+    <el-container>
+      <el-header>
+        <img src="../../assets/img/7620.png" alt="" />
+        <span class="name">考拉智能门禁系统</span>
+        <span class="exit">
+          退出登录
+        </span>
+      </el-header>
+      <el-container>
+        <el-aside width="244px">
+          <Menu active-name="1" width="244px">
+            <MenuItem name="1" style="margin:20px 0 10px 0">
+              <Icon type="md-document" />
+              主页
+            </MenuItem>
+            <div class="line"></div>
+            <MenuGroup title="门禁系统管理">
+              <MenuItem name="2">
+                <Icon type="md-document" />
+                门禁设备
+              </MenuItem>
+              <MenuItem name="3">
+                <Icon type="md-chatbubbles" />
+                门禁权限
+              </MenuItem>
+              <MenuItem name="4">
+                <Icon type="md-chatbubbles" />
+                通行记录
+              </MenuItem>
+              <MenuItem name="5">
+                <Icon type="md-chatbubbles" />
+                告警记录
+              </MenuItem>
+            </MenuGroup>
+          </Menu>
+          <div class="line"></div>
+        </el-aside>
+        <el-main>
+           <router-view></router-view>
+        </el-main>
+      </el-container>
+    </el-container>
+  </div>
+</template>
+<script>
+export default {};
+</script>
+<style lang="scss" >
+#accessIndex {
+  .name {
+    font-size: 22px;
+    font-family: PingFang SC;
+    font-weight: bold;
+    color: rgba(77, 79, 92, 0.5);
+  }
+  .line {
+    margin: 0 auto;
+    width: 204px;
+    height: 0px;
+    border: 1px solid rgba(77, 79, 92, 0.1);
+  }
+  .el-main{
+    margin-left: 244px
+  }
+  .el-aside {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+  }
+  .el-container {
+    position: relative;
+  }
+  .ivu-menu-light.ivu-menu-vertical
+    .ivu-menu-item-active:not(.ivu-menu-submenu):after {
+    display: none;
+  }
+  .el-header {
+    padding: 15px 30px;
+    height: 60px;
+    border-bottom: 1px solid rgba(77, 79, 92, 0.1);
+  }
+  .ivu-menu-item-selected {
+    background: #4c83ff;
+    color: white;
+  }
+  .ivu-menu-vertical .ivu-menu-item-group-title {
+    color: #4d4f5c;
+  }
+  .ivu-menu-item {
+    padding: 10px 24px;
+  }
+  .exit {
+    font-size: 14px;
+    font-family: PingFang SC;
+    color: rgba(77, 79, 92, 1);
+    float: right;
+  }
+}
+</style>
