@@ -132,6 +132,10 @@
         </div>
       </div>
     </div>
+    <div class="btmBtn">
+      <el-button type="primary">确定</el-button>
+      <el-button>取消</el-button>
+    </div>
   </el-card>
 </template>
 <script>
@@ -175,7 +179,7 @@
     }
 
     .content {
-      height: 79vh;
+      height: 75vh;
       .innerCont {
         padding: 30px 500px;
         .item{
@@ -191,6 +195,9 @@
           }
         }
       }
+    }
+    .btmBtn{
+      text-align: center;
     }
   }
 
