@@ -1,7 +1,10 @@
 <template>
   <div id="accessIndexPage">
      <div class="dateSelect">
-      <span>{{$t('accessSystem.menjintongji')}}</span>
+      <div style="margin:10px 0 20px 0px;font-size:20px;
+font-family:PingFang SC;
+font-weight:bold;
+color:rgba(77,79,92,1);">{{$t('accessSystem.menjintongji')}}</div>
       <!-- <el-date-picker
         class="datepick"
         v-model="date"
@@ -9,6 +12,9 @@
         placeholder="选择日期"
       >
       </el-date-picker> -->
+      <span class="dateQ">今日</span>
+      <span class="dateQ">本周</span>
+      <span class="dateQ" style="margin-right:40px">本月</span>
       <el-date-picker
         class="picker"
         v-model="date"
@@ -28,7 +34,7 @@
         class="btn"
         @click ="findData"
       >{{$t('accessSystem.chaxun')}}</el-button>
-      <div class="line"></div>
+      <div class="lineH"></div>
 
     </div>
     <div class="acount">
@@ -146,12 +152,12 @@ export default {
 .datepick {
   margin-left: 140px;
 }
-.line {
+.lineH {
   background: rgba(203, 203, 203, 1);
-
+  margin-left:-20px;
   border: 1px solid rgba(203, 203, 203, 1);
   opacity: 0.5;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 .btn {
   box-shadow: 0px 5px 6px 0px rgba(179, 209, 241, 1);
@@ -176,5 +182,16 @@ p {
 
   margin-left: 0.4rem;
   color: rgba(39, 39, 39, 1);
+}
+.dateQ{
+  display: inline-block;
+  width: 85px;
+  height: 34px;
+  border:1px solid rgba(219,220,222,1);
+  text-align: center;
+  font-size:14px;
+font-family:PingFang SC;
+color:rgba(77,79,92,1);
+line-height: 34px
 }
 </style>
