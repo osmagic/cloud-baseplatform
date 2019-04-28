@@ -91,7 +91,20 @@ export default {
     return{
 
     }
-  }
+  },
+  created(){
+    this.getTypeList()
+  },
+  mounted(){
+
+  },
+  methods:{
+    getTypeList:function(){
+      this.$http.getPersonType({}).then(res=>{
+        console.log(res)
+      })
+    }
+  },
 }
 </script>
 <style lang="scss">

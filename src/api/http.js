@@ -23,21 +23,21 @@ axios.interceptors.request.use = instance.interceptors.request.use;
 
 
 //request拦截器
-instance.interceptors.request.use(
-  config => {
-    let loginToken = window.sessionStorage.getItem('token');
-    //每次发送请求之前检测都vuex存有token,那么都要放在请求头发送给服务器
-    if (loginToken) {
-      // 让每个请求携带自定义token 请根据实际情况自行修改
-      config.headers['Authorization'] = 'Bearer-' + loginToken;
-    }
-    return config;
-  },
-  err => {
-    console.log(err);
-    return Promise.reject(err);
-  }
-);
+// instance.interceptors.request.use(
+//   config => {
+//     let loginToken = window.sessionStorage.getItem('token');
+//     //每次发送请求之前检测都vuex存有token,那么都要放在请求头发送给服务器
+//     if (loginToken) {
+//       // 让每个请求携带自定义token 请根据实际情况自行修改
+//       config.headers['Authorization'] = 'Bearer-' + loginToken;
+//     }
+//     return config;
+//   },
+//   err => {
+//     console.log(err);
+//     return Promise.reject(err);
+//   }
+// );
 
 //respone拦截器
 instance.interceptors.response.use(
@@ -70,7 +70,10 @@ export default {
   // getReportOverview(param) {
   //   return instance.get('/api/v2/cmcc/report/basic-resource/overview', {params: param})
   // },
-
+//人员类型查询
+getPersonType(param){
+  return instance.get('/api/v2/personnel/type/find', {params: param})
+}
 
   /*==============首页end===================*/
 }

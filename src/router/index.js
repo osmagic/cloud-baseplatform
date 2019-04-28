@@ -50,17 +50,17 @@ export default new Router({
         },
         {
           path:'/deviceManager',
-          name:'appList',
+          name:'deviceManager',
           component: () => import('../components/deviceManage/deviceManager')
         },
         {
           path:'/peopleList',
-          name:'appList',
+          name:'peopleList',
           component: () => import('../components/peopleManage/peopleList')
         },
         {
           path:'/peopleType',
-          name:'appList',
+          name:'peopleType',
           component: () => import('../components/peopleManage/peopleType')
         },{
           path:'/comShow',
@@ -91,10 +91,31 @@ export default new Router({
         component:()=>import('../components/accessMoniter/index.vue'),
         children:[
           {
-            path: '/accessMonitor/index',//门禁登陆
+            path: '/accessMonitor/index',//门禁主页
             name: '门禁主页',
             component: ()=>import('../components/accessMoniter/indexPage.vue')
           },
+          {
+            path: '/accessMonitor/accessDevice',//门禁设备
+            name: '门禁设备',
+            component: ()=>import('../components/accessMoniter/accessDevice.vue')
+          },
+          {
+            path: '/accessMonitor/accessAuth',//门禁权限
+            name: '门禁权限',
+            component: ()=>import('../components/accessMoniter/accessAuth.vue')
+          },
+          {
+            path: '/accessMonitor/accessRecord',//通行记录
+            name: '通行记录',
+            component: ()=>import('../components/accessMoniter/accessRecord.vue')
+          },
+          {
+            path: '/accessMonitor/alarmRecord',//告警记录
+            name: '告警记录',
+            component: ()=>import('../components/accessMoniter/alarmRecord.vue')
+          },
+
         ]
       }
 

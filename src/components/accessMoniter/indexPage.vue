@@ -40,49 +40,46 @@ color:rgba(77,79,92,1);">{{$t('accessSystem.menjintongji')}}</div>
     <div class="acount">
       <div class=" box1 ac_contain">
         <p>{{$t('accessSystem.yuangongtongxingtongji')}}</p>
-        <div style="display:flex;">
-          <div
-            class="box"
-            style="border-right: 2px solid rgba(228,228,228,1)"
-          >
-            <span class="number">{{persionNumber1}}</span>{{$t('accessSystem.ren')}}
-            <div class="round">{{$t('accessSystem.tongxingrenshu')}}</div>
+        <div class="line2"></div>
+        <div>
+          <div class="accessNumber">
+            通行人数
           </div>
-          <div class="box">
-            <span class="number">{{persionTime1}}</span>{{$t('accessSystem.ci')}}
-            <div class="round">{{$t('accessSystem.tongxingrenci')}}</div>
+          <div class="number">
+            24000
+          </div>
+          <div class="accessTime">
+            通行人次
           </div>
         </div>
       </div>
       <div class="ac_contain">
         <p>{{$t('accessSystem.fangketongxingtongji')}}</p>
-        <div style="display:flex;">
-          <div
-            class="box"
-            style="border-right: 2px solid rgba(228,228,228,1)"
-          >
-            <span class="number">{{persionNumber2}}</span>{{$t('accessSystem.ren')}}
-            <div class="round">{{$t('accessSystem.tongxingrenshu')}}</div>
+        <div class="line2"></div>
+         <div>
+          <div class="accessNumber">
+            通行人数
           </div>
-          <div class="box">
-            <span class="number">{{persionTime2}}</span>{{$t('accessSystem.ci')}}
-            <div class="round">{{$t('accessSystem.tongxingrenci')}}</div>
+          <div class="number">
+            24000
+          </div>
+          <div class="accessTime">
+            通行人次
           </div>
         </div>
       </div>
       <div class="ac_contain">
         <p>{{$t('accessSystem.heimingdanjujuetongji')}}</p>
-        <div style="display:flex;">
-          <div
-            class="box"
-            style="border-right: 2px solid rgba(228,228,228,1)"
-          >
-            <span class="number">{{persionNumber3}}</span>{{$t('accessSystem.ren')}}
-            <div class="round">{{$t('accessSystem.tongxingrenshu')}}</div>
+        <div class="line2"></div>
+         <div>
+          <div class="accessNumber">
+            通行人数
           </div>
-          <div class="box">
-            <span class="number">{{persionTime3}}</span>{{$t('accessSystem.ci')}}
-            <div class="round">{{$t('accessSystem.tongxingrenci')}}</div>
+          <div class="number">
+            24000
+          </div>
+          <div class="accessTime">
+            通行人次
           </div>
         </div>
       </div>
@@ -97,14 +94,29 @@ color:rgba(77,79,92,1);">{{$t('accessSystem.menjintongji')}}</div>
 </template>
 <script>
 export default {
-
+  data(){
+    return{
+      date:''
+    }
+  }
 }
 </script>
-<style lang="scss" scoped>
-#echarts {
+<style lang="scss">
+#accessIndexPage{
+  #echarts {
   height: 330px;
 
   margin: 76px 0 0 0;
+}
+.accessNumber{
+font-size:14px;
+font-family:PingFang SC;
+
+color:rgba(77,79,92,0.6);
+margin: 20px 0 0 30px
+}
+.line2{
+  border:1px solid rgba(77,79,92,0.1);
 }
 .charts {
   clear: both;
@@ -134,11 +146,21 @@ export default {
   margin-top: 16px;
 }
 .number {
-  font-size: 1.2rem;
-  font-family: PingFang-SC-Bold;
-  /* font-weight:bold; */
-  color: rgba(39, 39, 39, 1);
+  font-size:30px;
+  font-family: PingFang SC;
+  color: rgba(77,79,92,1);
   line-height: 36px;
+  margin-left: 30px;
+}
+.accessTime{
+  margin-top: 87px;
+  margin-left: 30px;
+  font-size:14px;
+font-family:PingFang SC;
+font-weight:400;
+line-height:35px;
+color:rgba(77,79,92,0.6);
+
 }
 .box1 {
   margin-left: 0 !important;
@@ -165,7 +187,7 @@ export default {
 }
 .acount {
   display: flex;
-  height: 220px;
+  height: 274px;
   margin-top: 16px;
 }
 .ac_contain {
@@ -179,8 +201,7 @@ p {
   font-size: 0.4rem;
   font-family: PingFang-SC;
   font-weight: 500;
-
-  margin-left: 0.4rem;
+  margin: 0.33rem 0 0.33rem 0.6rem;
   color: rgba(39, 39, 39, 1);
 }
 .dateQ{
@@ -194,4 +215,9 @@ font-family:PingFang SC;
 color:rgba(77,79,92,1);
 line-height: 34px
 }
+.el-date-editor .el-range-separator{
+  width: 7%
+}
+}
+
 </style>

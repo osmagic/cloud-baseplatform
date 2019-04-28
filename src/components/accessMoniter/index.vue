@@ -11,25 +11,25 @@
       <el-container>
         <el-aside width="244px">
           <Menu active-name="1" width="244px">
-            <MenuItem name="1" style="margin:20px 0 10px 0">
+            <MenuItem name="1" style="margin:20px 0 10px 0" to="/accessMonitor/index">
               <Icon type="md-document" />
               主页
             </MenuItem>
             <div class="line"></div>
             <MenuGroup title="门禁系统管理">
-              <MenuItem name="2">
+              <MenuItem name="2" to="/accessMonitor/accessDevice">
                 <Icon type="md-document" />
                 门禁设备
               </MenuItem>
-              <MenuItem name="3">
+              <MenuItem name="3" to="/accessMonitor/accessAuth">
                 <Icon type="md-chatbubbles" />
                 门禁权限
               </MenuItem>
-              <MenuItem name="4">
+              <MenuItem name="4" to="/accessMonitor/accessRecord">
                 <Icon type="md-chatbubbles" />
                 通行记录
               </MenuItem>
-              <MenuItem name="5">
+              <MenuItem name="5" to="/accessMonitor/alarmRecord">
                 <Icon type="md-chatbubbles" />
                 告警记录
               </MenuItem>
@@ -68,6 +68,8 @@ export default {};
     position: absolute;
     top: 0;
     bottom: 0;
+    border-right: 1px solid rgba(77,79,92,0.2);
+    overflow:visible
   }
   .el-container {
     position: relative;
