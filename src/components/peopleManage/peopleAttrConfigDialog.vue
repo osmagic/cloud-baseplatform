@@ -43,12 +43,20 @@ export default {
         yen: ['EntryTime', 'IcCardNumber', 'PhoneNumber', 'IdentifyNumber', 'ValidityPeriod', 'FeatureAttribute'],
         xen: ['Entry time', 'Ic card number', 'Phone number', 'Identify number', 'Validity period', 'Feature attribute']
       },
-      language: localStorage.language
+      language: localStorage.language,
+      words:["basket", "monkey", "bed", "box", "bottle", "chair", "anne",
+"anti", "candle", "clock", "asia", "cover", "away", "desk", "BBC", "drawer",
+"been", "bond", "bone", "both", "but", "hope", "cab", "came",
+"furniture", "come", "furniture", "handbag", "deal", "deck", "deed", "lock",
+"die", "iron", "lamp", "dog", "down", "feed", "fog", "gone",
+"good", "shower", "hood", "kind", "lime", "line", "moon", "noon",
+"pest", "rest",]
     };
   },
   created () {
     // this.netAPI = APICONFIG().get("people_manage");
-    // this.getData();
+    this.getData();
+
   },
   methods: {
     handleClose (raw) {
@@ -63,7 +71,7 @@ export default {
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.1)'
       });
-      this.$http.post(this.netAPI.deletePeopleAttribute, [{
+      this.$http.deletePersonel([{
         no: raw.no
       }]).then(res => {
         loading.close();
@@ -75,13 +83,14 @@ export default {
     },
     submit () {
       this.inputVisible = false
-      var reg = /^[A-Za-z]+$/;
+      // var reg = /^[A-Za-z]+$/;
       if(!this.input) return;
-      if (!reg.test(this.input)) { //判断是否符合正则表达式
-        this.$message.warning(this.$t('peopleManageList.fieldTips'));
-        this.input = ''
-        return false;
-      }
+      var randomNum =Math.round( Math.random() * 50)
+      // if (!reg.test(this.input)) { //判断是否符合正则表达式
+      //   this.$message.warning(this.$t('peopleManageList.fieldTips'));
+      //   this.input = ''
+      //   return false;
+      // }
 
       for (let item of this.attrs) {
         if(this.input === item.description) {
@@ -96,12 +105,22 @@ export default {
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.1)'
       });
-      this.$http
-        .post(this.netAPI.insertPeopleAttribute, {
-          description: this.input
-        })
+      this.$http.insertPersonel({
+        dictionary:{
+           columnName:this.words[randomNum],
+        columnComment:this.input,
+        columnType:'varchar',
+        columnLen:64,
+        nullable:'1'
+        }
+
+      })
+      // this.$http
+      //   .post(this.netAPI.insertPeopleAttribute, {
+      //     description: this.input
+      //   })
         .then(res => {
-          if (res.body.status == 200) {
+          if (res.data.status == 200) {
             loading.close();
             this.$message.success("success!");
             this.input = ''
@@ -119,15 +138,12 @@ export default {
     },
     getData () {
       let self = this
-      this.$http
-        .get(this.netAPI.findPeopleAttribute, {
-          params: { categoryNo: 10001001 }
-        })
-        .then(
+      this.$http.getPersonelList({}) .then(
           res => {
-            if (res.body.status == 200) {
+            // console.log(res.data)
+            if (res.data.status == 200) {
               this.attrs = [];
-              let newData = res.body.data
+              let newData = res.data.data
 
               newData.forEach((item, dex) => {
                 self.enWorld.yen.forEach((item2, index) => {

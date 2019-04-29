@@ -24,7 +24,7 @@
             <span style="float: right;">
                <el-popover
                   placement="right"
-                  width="500"
+                  width="530"
                   trigger="click">
                   <template>
                     <el-transfer
@@ -44,7 +44,6 @@
       </el-form-item>
       <el-form-item :label="$t('personnelType.group')"  prop="global">
          <el-switch
-          disabled="true"
           v-model="showGroup"
           :active-text="$t('personnelType.yes')"
           :inactive-text="$t('personnelType.no')">
@@ -129,7 +128,8 @@ export default {
       let send = {
         name: this.Form.peopleType,
         children: [],
-        isGroup: this.showGroup
+        needGroup: this.showGroup,
+
       };
       //根据名字绑定数据
       for (let item of this.res) {
@@ -153,11 +153,11 @@ export default {
           }
         })
         if(isTrue) {
-          item.note = {
+          item.details = {
             required: '0'
           }
         } else {
-          item.note = {
+          item.details = {
             required: '1'
           }
         }
@@ -170,9 +170,9 @@ export default {
       if(this.isEditPersonType) {
         send.no = this.peopleBaseInfo.categoryNo
         send.id = this.peopleBaseInfo.id
-        this.$http.post(this.netAPI.typeModify, send).then(
+        this.$http.personTypeModify(send).then(
           res => {
-            if (res.body.status == 200) {
+            if (res.data.status == 200) {
               this.$message.success(this.$t('common.modifySuccess'));
               this.$emit("dialogClosePeopleType");
               this.handleClose("refresh");
@@ -180,9 +180,9 @@ export default {
           }
         );
       } else {
-        this.$http.post(this.netAPI.insertPeopleType, send).then(
+        this.$http.personTypeInsert(send) .then(
           res => {
-            if (res.body.status == 200) {
+            if (res.data.status == 200) {
               this.$message.success(this.$t('common.addSuccess'));
               this.$emit("dialogClosePeopleType")
               this.initData();
@@ -193,21 +193,18 @@ export default {
     },
     getAttributes() {
       //查询所有属性
-      this.$http
-      .get(this.netAPI.findPeopleAttribute, {
-        params: { categoryNo: 10001001 }
-      })
+      this.$http.getPersonelList()
       .then(
         res => {
-          if (res.body.status == 200) {
+          if (res.data.status == 200) {
             this.attributesArr.length = 0;
-            this.attributesArr = res.body.data;
+            this.attributesArr = res.data.data;
             this.attributesArr.forEach((item, index) => {
               if(item.no === '100010011001' || item.no === '100010011002') {
                 this.attributesArr[index].disabled = true
               }
             })
-            this.res = res.body.data;
+            this.res = res.data.data;
             // console.log(JSON.stringify(this.res))
           }
         }
@@ -228,10 +225,12 @@ export default {
     // 获取绑定人员类型的属性字段名称集合
     getPersonFieldName() {
       this.initData()
+      console.log(this.peopleTypeInfo)
       this.peopleTypeInfo.forEach(item => {
         if(item.description !== this.$t('personnelType.name') && item.description !== this.$t('personnelType.code')) {
           this.Form.attribute.push(item.description)
-          if(item.note.required === '0') {
+          var isrequired = JSON.parse(item.value)
+          if(isrequired.required === '0') {
             this.Form.checkList.push(item.description)
           }
         }
@@ -249,7 +248,7 @@ export default {
     }
   },
   created() {
-    this.netAPI = APICONFIG().get("people_manage")
+    // this.netAPI = APICONFIG().get("people_manage")
     this.getAttributes()
     if(this.isEditPersonType) {
       this.getPersonFieldName()

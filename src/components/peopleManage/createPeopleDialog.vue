@@ -133,6 +133,7 @@ export default {
   methods: {
     // 覆盖http
     sunk() {
+
     },
     removeImg(file, fileList) {
       let self = this

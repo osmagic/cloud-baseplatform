@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import module1 from './module1.js'
-import module2 from './module2.js'
+import module1 from './mainStore.js'
+import module2 from './accessMonitorStore.js'
 Vue.use(Vuex)
 export default new Vuex.Store({
   modules:{
