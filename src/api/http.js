@@ -17,6 +17,7 @@ axios.defaults.timeout = 60000;
 axios.defaults.baseURL = baseUrl;
 axios.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
 axios.defaults.headers.common['language'] = 'en_US';
+axios.defaults.headers.common['token'] = '7d1e52d3cf0142e19b5901eb1ef91372';
 //创建一个axios实例
 const instance = axios.create();
 axios.interceptors.request.use = instance.interceptors.request.use;
@@ -73,7 +74,75 @@ export default {
 //人员类型查询
 getPersonType(param){
   return instance.get('/api/v2/personnel/type/find', {params: param})
+},
+//字段列表查询
+getPersonelList(param){
+  return instance.get('/api/v2/personnel/field/find', {params: param})
+},
+//添加字段
+insertPersonel(param){
+  return instance.post('/api/v2/personnel/field/insert', param)
+},
+//删除字段
+deletePersonel(param){
+  return instance.post('/api/v2/personnel/field/remove', param)
+},
+//添加类型
+personTypeInsert(param){
+  return instance.post('/api/v2/personnel/type/insert', param)
+},
+//修改类型
+personTypeModify(param){
+  return instance.post('/api/v2/personnel/type/modify', param)
+},
+//删除类型
+personTypeDelete(param){
+  return instance.post('/api/v2/personnel/type/remove', param)
+},
+//人员列表查询
+getPersonList(param){
+  return instance.get('/api/v2/personnel/info/find', {params: param})
+},
+//人员添加
+personInsert(param){
+  return instance.post('/api/v2/personnel/info/insert', param)
+},
+//人员修改
+personModify(param){
+  return instance.post('/api/v2/personnel/info/modify', param)
+},
+//人员删除
+personDelete(param){
+  return instance.post('/api/v2/personnel/info/remove', param)
+},
+//人员分组查询
+personGroupList(param){
+  return instance.get('/api/v2/personnel/group/find', {params: param})
+},
+//人员分组添加
+personGroupInsert(param){
+  return instance.post('/api/v2/personnel/group/insert', param)
+},
+//人员分组修改
+personGroupModify(param){
+  return instance.post('/api/v2/personnel/group/modify', param)
+},
+//人员分组删除
+personGroupDelete(param){
+  return instance.post('/api/v2/personnel/group/remove', param)
+},
+//人员属性查询
+personAttrlist(param){
+  return instance.get('/api/v2/personnel/field/find', {params: param})
+},
+personAttrInsert(param){
+  return instance.post('/api/v2/personnel/field/insert', param)
+},
+personAttrModify(param){
+  return instance.post('/api/v2/personnel/field/modify', param)
+},
+personAttrDelete(param){
+  return instance.post('/api/v2/personnel/field/remove', param)
 }
-
-  /*==============首页end===================*/
+ /*==============首页end===================*/
 }

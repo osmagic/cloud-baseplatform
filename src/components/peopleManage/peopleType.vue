@@ -15,8 +15,8 @@
         </div>
         <div class="show-table">
            <el-table
-              v-loading="tableBoxLoading"
-              :data="showData"
+
+              :data="typeData"
               :header-cell-style="{background:'rgba(245,248,252,1)'}"
               height="631">
               <el-table-column
@@ -26,8 +26,13 @@
                 align="center">
               </el-table-column>
               <el-table-column
-                prop="name"
+                prop="nameZh"
                 :label="$t('personnelType.title')"
+                align="center">
+              </el-table-column>
+              <el-table-column
+                prop="total"
+                label="数量"
                 align="center">
               </el-table-column>
               <el-table-column
@@ -41,8 +46,7 @@
                     {{$t("common.edit")}}
                   </el-button>
                   <el-button
-                    @click.native.prevent="deleteRow(scope.row)"
-                    :disabled="filterName(scope.row)"
+                      @click.native.prevent="deleteRow(scope.row)"
                     type="text"
                     size="small">
                     {{$t("common.delete")}}
@@ -86,10 +90,36 @@
   </div>
 </template>
 <script>
+import newPeopleTypeDialog from './newPeopleTypeDialog';
+import peopleAttrConfigDialog from "./peopleAttrConfigDialog";
 export default {
+   components: {
+    newPeopleTypeDialog,
+    peopleAttrConfigDialog
+  },
   data(){
     return{
-
+      typeData:[],
+        currentPage: 1,
+      pageSize: 10,
+      total: 6,
+      tableData: [],
+      showData: [],
+      dialogPeopleTitle: '新增人员类型',
+      dialogAddPeopleType: false,
+      dialogFixField: false,
+      tableBoxLoading: false,
+      peopleTypeInfo: [],
+      newTableData: [],
+      peopleBaseInfo: {
+        peopleTypeName: '', // 人员类型的名字
+        peopleTypeNo: '', // 人员类型编号
+        categoryValue: '' // 包含是否分组
+      },
+      isEditPersonType: false, // 是否编辑人员类型
+      deleteform: {
+        no: ''
+      }
     }
   },
   created(){
@@ -99,9 +129,76 @@ export default {
 
   },
   methods:{
+     dialogClosePeopleType() {
+      // 关闭窗口
+      this.dialogAddPeopleType = false
+      this.getTypeList()
+    },
+      handleSizeChange(pageSize) {
+    },
+    handleCurrentChange(Current) {
+      this.currentPage = Current
+    },
+     editRow(val) {
+      console.log(val)
+      this.dialogAddPeopleType = true
+      console.log(val.row.children)
+      this.peopleTypeInfo = val.row.children
+      this.peopleBaseInfo.id = val.row.id
+      // 人员类型的名字
+      this.peopleBaseInfo.peopleTypeName = val.row.name
+      // 人员类型的编号
+      this.peopleBaseInfo.categoryNo = val.row.no
+      this.peopleBaseInfo.categoryValue = val.row.value
+      // 处于编辑状态
+      this.isEditPersonType = true
+      this.dialogPeopleTitle = this.$t("personnelType.edit")
+    },
+    deleteRow(row) {
+      this.deleteform.no = row.no;
+      this.deleteform.name = row.name;
+      this.$http.personTypeDelete( [this.deleteform]).then(
+        res => {
+          if(res.data.status == 200) {
+            // this.initParam()
+            this.$message.success(this.$t("delete.success"))
+            this.getTypeList()
+          } else {
+            // this.$message.warning(`${res.body.message}`);
+            // this.$message.warning('Delete failed. Maybe this person has a type of existing person.')
+          }
+        },
+        err => {
+          this.$message.warning(`${err}`);
+        }
+      )
+    },
+    addPeopleType() {
+      this.dialogAddPeopleType = true
+      this.isEditPersonType = false
+      this.peopleBaseInfo.peopleTypeName = ''
+      this.dialogPeopleTitle = this.$t('personnelType.addPersonType')
+    },
+    fixPeopleField() {
+      this.dialogFixField = true
+    },
+    closeDialogFixField() {
+      this.dialogFixField = false
+    },
     getTypeList:function(){
       this.$http.getPersonType({}).then(res=>{
-        console.log(res)
+        console.log(res.data)
+        if(res.data.status==200){
+
+          for (let index = 0; index < res.data.data.length; index++) {
+            const element = res.data.data[index];
+
+            // delete element.children
+            //  console.log(element)
+          }
+          this.typeData = res.data.data
+          console.log(this.typeData)
+        }
       })
     }
   },
