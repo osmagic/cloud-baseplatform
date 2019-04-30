@@ -71,6 +71,46 @@ export default {
   // getReportOverview(param) {
   //   return instance.get('/api/v2/cmcc/report/basic-resource/overview', {params: param})
   // },
+// 门禁系统
+getAccessFindTimes(param){
+  return instance.get('/api/v2/door/main/total-person', {params: param})
+},
+
+
+// 门禁权限
+// 查询权限
+getAccessRuleList(param) {
+  return instance.get('/api/v2/door/rule/find', {params: param})
+},
+// 添加权限
+accessRuleInsert(param) {
+  return instance.get('/api/v2/door/rule/insert', {params: param})
+},
+// 修改权限
+accessRuleModify(param) {
+  return instance.get('/api/v2/door/rule/modify', {params: param})
+},
+// 删除权限
+accessRuleDel(param) {
+  return instance.get('/api/v2/door/rule/remove', {params: param})
+},
+// 权限验证
+accessRuleDel(param) {
+  return instance.get('/api/v2/door/rule/verifier', {params: param})
+},
+// 查询关联得人员列表
+personByDevice(param) {
+  return instance.get('/api/v2/door/rule/person-by-device', {params: param})
+},
+// 设备和规则权限关联查询
+deviceByRuleFind(param) {
+  return instance.get('/api/v2/device/rule/find', {params: param})
+},
+// 设备和规则关联删除
+deviceByRuleDel(param) {
+  return instance.get('/api/v2/device/rule/remove', {params: param})
+},
+
 //人员类型查询
 getPersonType(param){
   return instance.get('/api/v2/personnel/type/find', {params: param})

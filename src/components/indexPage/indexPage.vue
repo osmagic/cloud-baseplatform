@@ -185,7 +185,8 @@ font-family:PingFang SC;float:right;margin-right:20px"
 export default {
   data() {
     return {
-      dateRange: ""
+      dateRange: "",
+      tableData: []
     };
   },
   mounted() {

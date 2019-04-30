@@ -1,6 +1,6 @@
 <template>
   <div id="accessDevice">
-    <div class="groupAside">
+    <!-- <div class="groupAside">
       <div class="asideT">门禁设备分组</div>
       <div class="group">
         <el-tree
@@ -75,14 +75,33 @@
     </el-table-column>
     </el-table>
       </div>
-    </div>
+    </div> -->
+   
+     <dialog-container :di="isDShow" top="0">
+          <div slot="container">
+             <div class="bg-color"></div>
+          </div>
+      </dialog-container>
+
+
   </div>
 </template>
 <script>
+import DialogContainer from './common/DialogWrapper.vue'
+
 export default {
+  components: {
+    DialogContainer
+  },
   data() {
     return {
       tableData:[],
+      isDShow: {
+          Visible: false,
+          Title: '新增组件',
+          Width: '420px',
+          isshowfooter: true
+      },
       data: [
         {
           label: "一级 1",

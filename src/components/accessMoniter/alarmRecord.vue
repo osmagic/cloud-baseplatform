@@ -1,6 +1,6 @@
 <template>
   <div class="accessAuth">
-     <div class="selectGroup">
+     <!-- <div class="selectGroup">
         <span>告警时间</span>
         <el-select v-model="value" placeholder="请选择">
           <el-option key="1" label="进" value="in"> </el-option>
@@ -65,12 +65,74 @@
       </template>
     </el-table-column>
     </el-table>
-      </div>
+      </div> -->
+    
+       <dialog-container :di="isDShow" top="0" @saveDialog="saveDialog" @closeDialog="closeDialog">
+          <div slot="container">
+              <div class="dia-content">
+                <div class="dia-content-h">
+                  <span class="t-tro">陌生人告警</span> 
+                  <span class="s-tro">
+                    <el-switch
+                      v-model="diaForm.swiPush"
+                      active-color="#4C83FF"
+                      inactive-color="#ffffff">
+                    </el-switch>
+                  </span>
+                  <span class="c-tro">
+                    关闭后, 系统将不再推送该类型告警消息
+                  </span>
+                </div>
+
+                <div class="dia-content-time">
+                  <div class="t-tro">
+                    告警时间段设置
+                  </div>
+                  <div class="c-com">
+                    <singgle-time-sel @getTime="getTime"></singgle-time-sel>
+                  </div>
+                </div>
+              </div>
+          </div>
+      </dialog-container>
+
   </div>
 </template>
 <script>
-export default {
+import DialogContainer from './common//DialogWrapper.vue'
+import singgleTimeSel from './common/singgleTimeSel.vue'
 
+export default {
+  components: {
+    DialogContainer,
+    singgleTimeSel
+  },
+  data() {
+    return {
+      diaForm: {
+        swiPush: true  
+      },
+      isDShow: {
+          Visible: false,
+          Title: '告警规则设置',
+          Width: '574px',
+          isshowfooter: true
+      },
+      nowSelTime: ''
+    }
+  },
+  methods: {
+    getTime(v) {
+      console.log(v)
+      this.nowSelTime = v
+    },
+    saveDialog() {
+      this.nowSelTime = ""
+    },
+    closeDialog() {
+
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -102,5 +164,40 @@ margin-right: 20px;
 .table{
   height: 850px;
   margin-top: 20px;
+}
+.dia-content {
+  .dia-content-h {
+    line-height: 34px;
+    margin-top: 12px;
+    .t-tro {
+      margin-left: 27px;
+      margin-right: 12px;
+    }
+    .c-tro {
+      display: inline-block;
+      width: 230px;
+      height: 20px;
+      line-height: 20px;
+      font-size: 12px;
+      color:rgba(230,81,0,1);
+      background:rgba(255,159,0,0.16);
+    } 
+    
+  }
+  .dia-content-time {
+    display: flex;
+    line-height: 34px;
+    .t-tro {
+      flex: 2;
+    }
+    .c-com {
+      flex: 8;
+    }
+    .s-tro {
+      margin-right: 5px;
+    }
+   
+    
+  }
 }
 </style>

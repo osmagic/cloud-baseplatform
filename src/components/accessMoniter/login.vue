@@ -2,7 +2,7 @@
   <div id="accessLogin">
     <div class="header">
       <img src="../../assets/img/7620.png" alt="" />
-      <span>考拉悠然科技</span>
+      <span>考拉智能门禁系统</span>
     </div>
     <div class="loginContainer">
       <div class="cLeft">
