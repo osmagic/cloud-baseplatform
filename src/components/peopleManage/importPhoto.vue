@@ -96,8 +96,8 @@
 
 <script>
 // import APICONFIG from "../../../../config/api.js"
-// import FileSaver from 'file-saver'
-// import XLSX from "xlsx"
+import FileSaver from 'file-saver'
+import XLSX from "xlsx"
 
 export default {
   name: "import_people",
@@ -153,11 +153,13 @@ export default {
         //   form.append('attr', false)
         // }
         // form.append('attr', true)
-        form.append('attr', this.uploadType === '0')
-        form.append('code', 101103)
-        form.append('files', item.raw)
+        // form.append('attr', this.uploadType === '0')
+        // form.append('code', 101103)
+        form.append('picturesBinary', item.raw)
         form.append('typeNo', this.activeTabs)
-        this.$http.post(this.netAPI.uploadPeopleExcel, form).then(res => {
+        form.append('mode', 2)
+
+        this.$http.personPhotoUpload( form).then(res => {
           if(res.data.status === 200) {
             let tipInfo = JSON.parse(res.data.data)
             if(tipInfo.failed !== 0) {

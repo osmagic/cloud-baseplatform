@@ -115,6 +115,10 @@ personModify(param){
 personDelete(param){
   return instance.post('/api/v2/personnel/info/remove', param)
 },
+//人员详情
+peopleDetail(param){
+  return instance.get('/api/v2/personnel/info/detail', {params: param})
+},
 //人员分组查询
 personGroupList(param){
   return instance.get('/api/v2/personnel/group/find', {params: param})
@@ -143,6 +147,42 @@ personAttrModify(param){
 },
 personAttrDelete(param){
   return instance.post('/api/v2/personnel/field/remove', param)
+},
+//特征值提取
+getSpecialValue(param){
+  return instance.post('/api/v2/feature/use-binary-do-feature', param)
+},
+//下载模版
+getExcelTemplate(param){
+  return instance.get('/api/v2/personnel/info/download', {params: param})
+},
+//管理员列表查询
+getManagerList(param){
+  return instance.get('/api/v2/device/admin/find', {params: param})
+},
+//管理员添加
+managerInsert(param){
+  return instance.post('/api/v2/device/admin/insert',  param)
+},
+//管理员修改
+managerModify(param){
+  return instance.post('/api/v2/device/admin/modify',  param)
+},
+//管理员删除
+managerDelete(param){
+  return instance.post('/api/v2/device/admin/remove',  param)
+},
+//管理员详情
+managerDetail(param){
+  return instance.post('/api/v2/device/admin/detail',  param)
+},
+//管理员登录
+managerLogin(param){
+  return instance.post('/api/v2/device/admin/login',  param)
+},
+//人员照片上传
+personPhotoUpload(param){
+  return instance.post('/api/v2/personnel/info/upload',  param)
 }
  /*==============首页end===================*/
 }

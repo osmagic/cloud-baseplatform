@@ -8,15 +8,17 @@
 
             </div>
             <div class="operation">
-            <el-button @click="openaddAdministrator"
+            <!-- <el-button @click="openaddAdministrator"
                        :disabled="!$route.meta['add']"
-                       class="addButton">{{$t("deviceAdministrator.added")}}</el-button>
+                       class="addButton">{{$t("deviceAdministrator.added")}}</el-button> -->
+             <el-button @click="openaddAdministrator"
 
+                       class="addButton">{{$t("deviceAdministrator.added")}}</el-button>
             </div>
         </div>
         <!-- 详情列表 -->
         <div class="table-box">
-          <el-table :data="tableData"
+          <el-table :data="moniterList"
                     v-loading="tableBoxLoading"
                     height="500"
                     :header-cell-style="{background:'rgba(245,248,252,1)'}"
@@ -34,7 +36,7 @@
                 :selectable="filterselectable"
                 >
               </el-table-column>
-              <el-table-column prop="name" :label="$t('deviceAdministrator.name')" align="center">
+              <el-table-column prop="name" label="名称" align="center">
               </el-table-column>
               <el-table-column prop="photo" :label="$t('deviceAdministrator.photo')" align="center">
                   <template slot-scope="scope">
@@ -55,10 +57,14 @@
               </el-table-column>
               <el-table-column prop="password" :label="$t('deviceAdministrator.password')" align="center">
               </el-table-column>
+               <el-table-column prop="connectDevice" label="关联设备" align="center">
+              </el-table-column>
               <el-table-column :label="$t('common.operation')" align="center">
                   <template slot-scope="scope">
-                  <el-button type="text" size="small" @click="updateopen(scope.row)" :disabled="!$route.meta['modify']">{{$t("common.edit")}}</el-button>
-                  <el-button type="text" size="small" @click="deleteRow(scope.row)" :disabled="!$route.meta['remove']">{{$t("common.delete")}}</el-button>
+                  <!-- <el-button type="text" size="small" @click="updateopen(scope.row)" :disabled="!$route.meta['modify']">{{$t("common.edit")}}</el-button> -->
+                  <el-button type="text" size="small" @click="updateopen(scope.row)" >{{$t("common.edit")}}</el-button>
+                  <!-- <el-button type="text" size="small" @click="deleteRow(scope.row)" :disabled="!$route.meta['remove']">{{$t("common.delete")}}</el-button> -->
+                  <el-button type="text" size="small" @click="deleteRow(scope.row)">{{$t("common.delete")}}</el-button>
                   </template>
               </el-table-column>
           </el-table>
@@ -250,6 +256,7 @@ export default {
       pageNumber: 0,
       pageNo: 1,
       isUp: true,
+      moniterList:[],
       // 设置row-key
       getRowKeys(row) {
         return row.id
@@ -259,7 +266,150 @@ export default {
   computed: {
 
   },
-}
+  created() {
+    this.getManagerList()
+  },
+  mounted() {
+
+  },
+  methods: {
+      // 点击取消,关闭添加模态框
+    canceldialogVisible (formName) {
+      this.$refs.createFile.clearFiles();
+      this.$refs[formName].resetFields();
+      this.createFilelist = [];
+      this.createHardwareNameArr = [];
+      this.adddialogVisible = false;
+    },
+     // 点击右上角,关闭添加模态框
+    createFileHandleClose (done) {
+      this.$refs.createform.resetFields();
+      this.$refs.createFile.clearFiles();
+      this.createFilelist = [];
+      this.createHardwareNameArr = [];
+      done();
+    },
+    // 点击取消,关闭编辑模态框
+    updatecanceldialogVisible (formName) {
+      this.$refs.updateform.resetFields();
+      this.$refs.updateFile.clearFiles();
+      this.updateialogVisible = false;
+      this.updateDeviceArr = [];
+      this.updateFilelist = [];
+    },
+    // 点击右上角,关闭编辑模态框
+    updateformHandleClose (done) {
+      this.$refs.updateform.resetFields();
+      this.$refs.updateFile.clearFiles();
+      this.updateDeviceArr = [];
+      this.updateFilelist = [];
+      done();
+    },
+    getManagerList(){
+      this.$http.getManagerList().then(res=>{
+        this.moniterList = res.data.data
+      })
+  },
+   openaddAdministrator() {
+      this.createHardwareNameArr = [];
+      this.createFilelist = [];
+      this.adddialogVisible = true;
+    },
+    updateopen (row) {
+      // console.log(row.photo)
+      this.adminId = row.id
+      this.updateform.id = row.id
+      this.updateform.name = row.name
+      this.updateform.photo = row.photo
+      this.updateform.password = row.password
+      // this.getNotIncludeHardware('update');
+      this.updateialogVisible = true;
+    },
+      // 删除行
+    deleteRow (row) {
+      // console.log(JSON.stringify(row))
+      this.deleteData = [];
+      //判断类型
+      let rowType = row instanceof Array
+      if (rowType == true) {
+        for (let index in row) {
+          this.deleteData.push({ id: row[index].id });
+        }
+      } else {
+        this.deleteData.push({ id: row.id });
+      }
+      // console.log(JSON.stringify(this.deleteData))
+      this.$confirm(this.$t("delete.deleteRow"), this.$t("delete.tips"), {
+        confirmButtonText: this.$t("delete.ok"),
+        cancelButtonText: this.$t("delete.cancel"),
+        type: 'warning'
+      }).then(() => {
+        this.$http.post(this.netAPI.delete, this.deleteData).then(
+        res => {
+          if (res.data.status == 200) {
+            if(this.deleteData.length == this.tableData.length) {
+              this.currentPage = this.currentPage - 1 > 0 ? this.currentPage - 1 : 1
+              this.searchtabledata();
+            } else {
+              this.searchtabledata();
+            }
+            this.$message.success(this.$t("delete.success"));
+            this.$refs.admintable.clearSelection();
+          } else {
+            this.$message.warning(this.$t("common.deleteFailed") + res.data.message);
+          }
+        },
+        err => {
+          this.$message({
+            message: this.$t("common.serviceError") + err,
+            type: "warning"
+          });
+        }
+      );
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: this.$t("delete.canceledDeletion")
+        });
+      });
+    },
+    // 点击确定,编辑设备管理员信息
+    updatedForm (formName) {
+      this.$refs[formName].validate((valid) => {
+        if(valid) {
+          this.updateform.deviceIds = [];
+          this.allNotIncludeHardware.forEach(item => {
+            this.adminIncludeHardwareNames.forEach(i => {
+              if(item.name == i) {
+                this.updateform.deviceIds.push(item.id)
+              }
+            })
+          })
+          // console.log(JSON.stringify(this.updateform))
+          this.$http.post(this.netAPI.modify, this.updateform).then(
+          res => {
+            if (res.data.status == 200) {
+              this.$message.success(this.$t('common.updateSuccess'));
+              this.searchtabledata();
+            } else {
+              this.$message.warning(this.$t('common.updateFailed') + res.data.message);
+            }
+            this.updateialogVisible = false;
+          },
+          err => {
+            this.$message({
+              message: this.$t('common.serviceError') + err,
+              type: "warning"
+            });
+            this.updateialogVisible = false;
+          }
+        )
+        } else {
+          return false;
+        }
+      })
+    },
+}}
 </script>
 <style lang="scss" >
 #deviceManager{
