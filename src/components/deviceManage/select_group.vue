@@ -86,22 +86,21 @@ export default {
 
 
       this.$http
-        .get(api, {
-          params: {
+        .getGroupList( {
             groupNo:groupNo,
-            deviceType: this.$store.state.cloudAccess.deviceType
+            deviceType: this.$store.state.selectGroupStore.cloudAccess.deviceType
           }
-        })
+        )
         .then(res => {
-          if (res.body.status == 200) {
+          if (res.data.status == 200) {
             let newgroupType = [];
-            res.body.data.forEach(item => {
+            res.data.data.forEach(item => {
               // 云平台中，设备组下没设备依然显示设备组
               if(this.platform == 'coala') {
                 // 如果是选择分组的话就不显示组下设备数量
                 if(this.isSelect == 'true') {
                   newgroupType.push({
-                    label: item.groupName,
+                    label: item.groupNameZh,
                     groupNo: item.groupNo,
                     id: item.id,
                     description: item.description,
@@ -109,7 +108,7 @@ export default {
                   });
                 }else{
                   newgroupType.push({
-                    label: item.groupName + ` <${item.deviceNumber}>`,
+                    label: item.groupNameZh + ` <${item.deviceNumber}>`,
                     groupNo: item.groupNo,
                     id: item.id,
                     description: item.description,
@@ -131,10 +130,10 @@ export default {
                       groupNo: item.groupNo
                     }
                   }).then(res => {
-                    if(res.body.status == 200) {
-                      if(res.body.total > 0) {
+                    if(res.data.status == 200) {
+                      if(res.data.total > 0) {
                         newgroupType.push({
-                          label: item.groupName + ` <${res.body.total}>`,
+                          label: item.groupName + ` <${res.data.total}>`,
                           groupNo: item.groupNo,
                           id: item.id,
                           description: item.description,
@@ -158,25 +157,24 @@ export default {
 
       if(this.platform=='monitor'){
         console.log(this.monitorAPI.findSpecialGroup)
-        var api = this.monitorAPI.findSpecialGroup
+        // var api = this.monitorAPI.findSpecialGroup
       }else{
-        var api = this.netAPI2.accessDevice.findAllDevice
+        // var api = this.netAPI2.accessDevice.findAllDevice
       }
-      this.$store.state.accessManage.groupData = data
+      this.$store.state.selectGroupStore.accessManage.groupData = data
       const promise = new Promise((resolve, reject) => {
         this.$http
-          .get(api, {
-            params: {
+          .getDeviceList({
               groupNo: data.groupNo,
-              type: this.$store.state.accessManage.deviceType
-            }
+              type: this.$store.state.selectGroupStore.accessManage.deviceType
+
           })
           .then(res => {
-            if (res.body.status == 200) {
-              this.$store.state.accessManage.deviceList = res.body.data;
-              resolve(res.body.data)
+            if (res.data.status == 200) {
+              this.$store.state.selectGroupStore.accessManage.deviceList = res.data.data;
+              resolve(res.data.data)
             } else {
-              this.$message.error(res.body.message);
+              this.$message.error(res.data.message);
             }
           });
       });
@@ -201,23 +199,22 @@ export default {
     //获取已添加所有设备
     getAddDeviceList() {
       this.$http
-        .get(this.netAPI2.accessDevice.findDeviceAll, {
-          params: {
+        .getAccessDeviceList({
             pageSize: 1000,
             pageNo: 1
-          }
+
         })
         .then(res => {
-          for (const key in res.body.data) {
-            if (res.body.data.hasOwnProperty(key)) {
-              const element = res.body.data[key];
+          for (const key in res.data.data) {
+            if (res.data.data.hasOwnProperty(key)) {
+              const element = res.data.data[key];
               // this.addList.push({
               //   name: element.deviceName,
               //   id: element.deviceId
               // });
-              for (const key2 in this.$store.state.accessManage.deviceList) {
-                if (this.$store.state.accessManage.deviceList.hasOwnProperty(key2)) {
-                  const device = this.$store.state.accessManage.deviceList[key2];
+              for (const key2 in this.$store.state.selectGroupStore.accessManage.deviceList) {
+                if (this.$store.state.selectGroupStore.accessManage.deviceList.hasOwnProperty(key2)) {
+                  const device = this.$store.state.selectGroupStore.accessManage.deviceList[key2];
                   if (element.deviceId == device.id) {
                     // device.isAdd = false;
 

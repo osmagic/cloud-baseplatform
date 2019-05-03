@@ -31,7 +31,7 @@ const i18n = new VueI18n({
     'zh': Object.assign(require('../static/lang/zh'), zhLocale),
   }
 })
-
+Vue.prototype.$EventBus = new Vue()
 Vue.use(ElementUI, {i18n: (key, value) => i18n.t(key, value), zIndex: 3000});
 Vue.config.productionTip = false
 Vue.prototype.$echarts = echarts

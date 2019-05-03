@@ -255,9 +255,15 @@ deviceDetail(param){
 //设备信息分组
 deviceGroup(param){
   return instance.post('/api/v2/device/info/batch',  param)
+},
+//设备分组查询
+getGroupList(param){
+  return instance.get('/api/v2/device/group/find', {params: param})
+},
+//获取门禁设备列表
+getAccessDeviceList(param){
+  return instance.get('/api/v2/door/device/find', {params: param})
 }
-
-
 //设备激活
 //
  /*==============首页end===================*/

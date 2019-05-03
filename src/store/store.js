@@ -1,11 +1,14 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import module1 from './mainStore.js'
-import module2 from './accessMonitorStore.js'
+import mainStore from './mainStore.js'
+import accessMonitorStore from './accessMonitorStore.js'
+import selectGroup from './selectGroup.js'
+import axios from 'axios/index'
 Vue.use(Vuex)
 export default new Vuex.Store({
   modules:{
-    module1:module1,
-    module2:module2
+    mainStore:mainStore,
+    accessMonitorStore:accessMonitorStore,
+    selectGroupStore:selectGroup
   }
 });

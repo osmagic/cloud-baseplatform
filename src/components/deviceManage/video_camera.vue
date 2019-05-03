@@ -175,7 +175,7 @@
         <el-form-item :label="$t('deviceList.passWord')" prop="password">
           <el-input v-model="createfrom.password" :placeholder="$t('deviceList.passWord')"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('deviceList.status')" prop="status">
+        <!-- <el-form-item :label="$t('deviceList.status')" prop="status">
           <el-select v-model="createfrom.status" :placeholder="$t('deviceList.status')">
             <el-option
               v-for="(item,index) in statusType"
@@ -184,7 +184,7 @@
               :value="item.id">
             </el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item :label="$t('deviceList.protocol')" prop="protocol">
           <el-select v-model="createfrom.protocol" :placeholder="$t('deviceList.protocol')">
             <el-option
@@ -201,12 +201,12 @@
         <el-form-item :label="$t('deviceList.modifyGrouping')" prop="groupNo">
           <el-input v-model="createselectGroupName" :placeholder="$t('deviceList.modifyGrouping')" @focus="openselectDeviceGroup"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('deviceList.longitude')" prop="lng">
+        <!-- <el-form-item :label="$t('deviceList.longitude')" prop="lng">
           <el-input v-model="createfrom.lng" :placeholder="$t('deviceList.longitude')"></el-input>
         </el-form-item>
         <el-form-item :label="$t('deviceList.latitude')" prop="lat">
           <el-input v-model="createfrom.lat" :placeholder="$t('deviceList.latitude')"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item :label="$t('deviceList.sourceId')" prop="sourceId">
           <el-input v-model="createfrom.sourceId" :placeholder="$t('deviceList.sourceId')"></el-input>
         </el-form-item>
@@ -241,7 +241,7 @@
         <el-form-item :label="$t('deviceList.passWord')" prop="password">
           <el-input v-model="updatefrom.password"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('deviceList.status')" prop="status">
+        <!-- <el-form-item :label="$t('deviceList.status')" prop="status">
           <el-select v-model="updatefrom.status" :placeholder="$t('deviceList.status')">
             <el-option
               v-for="(item,index) in statusType"
@@ -250,7 +250,7 @@
               :value="item.id">
             </el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item :label="$t('deviceList.protocol')" prop="protocol">
           <el-select v-model="updatefrom.protocol" :placeholder="$t('deviceList.protocol')">
             <el-option
@@ -267,12 +267,12 @@
         <el-form-item :label="$t('deviceList.modifyGrouping')" prop="groupNo">
           <el-input v-model="updateselectGroupName" @focus="openselectDeviceGroup"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('deviceList.longitude')" prop="longitude">
+        <!-- <el-form-item :label="$t('deviceList.longitude')" prop="longitude">
           <el-input v-model="updatefrom.lng" :placeholder="$t('deviceList.longitude')"></el-input>
         </el-form-item>
         <el-form-item :label="$t('deviceList.latitude')" prop="latitude">
           <el-input v-model="updatefrom.lat" :placeholder="$t('deviceList.latitude')"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item :label="$t('deviceList.sourceId')" prop="sourceId">
           <el-input v-model="updatefrom.sourceId" :placeholder="$t('deviceList.sourceId')"></el-input>
         </el-form-item>
@@ -495,7 +495,7 @@ export default {
   methods: {
     changeRow(row) {
       console.log(row)
-      this.$http.post(this.netAPI.update, row).then(
+      this.$http.deviceModify(row).then(
           res => {
             if (res.data.status == 200) {
               this.$message.success(this.$t('deviceControl.modifiedSuccess'));
@@ -548,7 +548,7 @@ export default {
     // 点击确定，批量分组，并关闭模态框
     doBatch() {
       // console.log(JSON.stringify(this.batchgroupfrom))
-      this.$http.post(this.netAPI.batch, this.batchgroupfrom).then(
+      this.$http.deviceGroup(this.batchgroupfrom).then(
           res => {
             if(res.data.status == 200) {
               this.$message.success(this.$t('deviceList.batchGroupSuccess'))
