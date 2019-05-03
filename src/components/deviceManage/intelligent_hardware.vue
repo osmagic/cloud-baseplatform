@@ -541,7 +541,7 @@
         if(newSearch.deviceType == '') {
           delete newSearch.deviceType
         }
-        this.$http.getDeviceList(newSearch ).then(
+        this.$http.getDeviceList(newSearch).then(
         res => {
           if (res.data.status == 200) {
             this.tableData = res.data.data
