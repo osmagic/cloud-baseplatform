@@ -467,6 +467,43 @@ export default {
   },
   mounted() {},
   methods: {
+       // 点击取消关闭批量分组模态框
+    cancelbatchGroupialogVisible() {
+      this.batchGroupialogVisible = false;
+    },
+    // 批量分组点击树
+    handleBtachTreeClick(data) {
+      this.batchgroupCode = data.no
+    },
+    doBatch() {
+      this.batchgroupfrom.forEach(item => {
+        item.groupNo = this.batchgroupCode
+      })
+
+      this.$http.personBatchGroup(this.batchgroupfrom).then(
+        res => {
+          if(res.data.status == 200) {
+            this.$message.success(this.$t('peopleManageList.sucessBatchGroup'))
+            this.getDataList()
+            this.$refs.peopleListTable.clearSelection();
+          }else{
+            this.$message.warning('批量分组失败' + res.data.message)
+          }
+          this.batchGroupialogVisible = false;
+        }
+      )
+    },
+     batchGroupHandleClose(done) {
+      done();
+    },
+     // 关闭导入人员弹窗
+    closeDialogImportExcel() {
+      this.dialogImportExcel = false
+    },
+     // 关闭导入照片弹窗
+    closeDialogImportPhoto() {
+      this.dialogImportPhoto = false
+    },
      search() {
       if (!this.currentPeopleType) {
         this.$message({

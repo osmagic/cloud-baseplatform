@@ -456,7 +456,7 @@ export default {
     // 点击选项卡
     handletabsClick(index) {
       this.$refs.treemenu.initData();
-      // this.$store.commit('changeDiveceType', index + 1)
+      this.$store.commit('changeDiveceType', index + 1)
       this.TabNames.forEach((item, i) => {
         if(index == i) {
           item.active = true

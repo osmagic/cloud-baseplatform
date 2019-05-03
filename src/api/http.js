@@ -159,6 +159,10 @@ personDelete(param){
 peopleDetail(param){
   return instance.get('/api/v2/personnel/info/detail', {params: param})
 },
+//人员批量分组
+personBatchGroup(param){
+  return instance.post('/api/v2/personnel/info/batch', param)
+},
 //人员分组查询
 personGroupList(param){
   return instance.get('/api/v2/personnel/group/find', {params: param})
