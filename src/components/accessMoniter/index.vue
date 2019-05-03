@@ -90,7 +90,7 @@
   </div>
 </template>
 <script>
-import APICONFIG from "../../../../../../config/api.js";
+// import APICONFIG from "../../../../../../config/api.js";
 
 export default {
   data() {
@@ -296,7 +296,7 @@ export default {
 <style scoped>
 #echarts {
   height: 330px;
-  
+
   margin: 76px 0 0 0;
 }
 .charts {

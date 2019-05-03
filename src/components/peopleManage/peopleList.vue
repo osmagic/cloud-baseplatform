@@ -467,6 +467,16 @@ export default {
   },
   mounted() {},
   methods: {
+     search() {
+      if (!this.currentPeopleType) {
+        this.$message({
+          message: this.$t('peopleManageList.pleaseSelType'),
+          type: "warning"
+        });
+        return;
+      }
+      this.getPeopleList();
+    },
       exportExcel(row) {
       // 导出excel标题
       let excelTitle = ''
@@ -482,6 +492,36 @@ export default {
         export_json_to_excel(formatData.tHeader, formatData.data, excelTitle);
       })
       this.$refs.peopleListTable.clearSelection();
+    },
+      //将数组处理成索引数组
+    formatJson(jsonData) {
+      let tHeader = [];
+      let fileds = [];
+      let data = [];
+      this.tableDataLabel.forEach(item => {
+        tHeader.push(item.name)
+        fileds.push({
+          filed: item.property,
+          name: item.name
+        })
+      })
+
+      jsonData.forEach(item1 => {
+        let sArr = []
+        fileds.forEach(item2 => {
+          Object.keys(item1).forEach(key => {
+            if(item2.filed === key) {
+              sArr.push(item1[key])
+            }
+          })
+        })
+        data.push(sArr)
+      })
+
+      return {
+        data,
+        tHeader
+      }
     },
       // 关闭导入人员的窗口
     closeImportExcel(val) {
@@ -954,6 +994,7 @@ export default {
     getPeopleList(
       page = { pageSize: this.pageSize, pageNo: this.currentPage, typeNo: "" }
     ) {
+       page.name = this.searchobj.name;
       page.typeNo = this.currentPeopleType.name;
       page.groupNo = this.organizationId;
       this.$http.getPersonList(page).then(res => {

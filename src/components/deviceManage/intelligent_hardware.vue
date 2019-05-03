@@ -480,7 +480,7 @@
 
       // this.getdivergenceType();
       // this.getAdministrator();
-      // this.searchtabledata();
+      this.searchtabledata();
     },
     methods: {
       // 批量导入
@@ -541,14 +541,14 @@
         if(newSearch.deviceType == '') {
           delete newSearch.deviceType
         }
-        this.$http.get(this.netAPI.find, { params: newSearch }).then(
+        this.$http.getDeviceList(newSearch ).then(
         res => {
-          if (res.body.status == 200) {
-            this.tableData = res.body.data
-            this.total = res.body.total
+          if (res.data.status == 200) {
+            this.tableData = res.data.data
+            this.total = res.data.total
             this.tableBoxLoading = false;
           } else {
-            this.$message.warning(res.body.message);
+            this.$message.warning(res.data.message);
           }
         },
         err => {
@@ -563,11 +563,11 @@
       getdivergenceType() {
         this.$http.get(this.netAPI.ihtype).then(
           res => {
-            if(res.body.status == 200) {
-              // console.log(JSON.stringify(res.body.data))
-              this.alldivergenceType = res.body.data
-              for (let item in res.body.data) {
-                this.alldeviceTypeName.push(res.body.data[item])
+            if(res.data.status == 200) {
+              // console.log(JSON.stringify(res.data.data))
+              this.alldivergenceType = res.data.data
+              for (let item in res.data.data) {
+                this.alldeviceTypeName.push(res.data.data[item])
               }
             }
           }
@@ -577,11 +577,11 @@
       getAdministrator () {
         this.$http.get(this.adminAPI.find, {params: this.administrator}).then(
           res => {
-            if (res.body.status == 200) {
-              // console.log(JSON.stringify(res.body.data[0]))
-              this.allAdministrator = res.body.data
+            if (res.data.status == 200) {
+              // console.log(JSON.stringify(res.data.data[0]))
+              this.allAdministrator = res.data.data
             } else {
-              this.$message.warning(res.body.message);
+              this.$message.warning(res.data.message);
             }
           },
         err => {
@@ -623,8 +623,8 @@
           if(valid) {
             this.$http.post(this.netAPI.insert, newcreate).then(
               res => {
-                if (res.body.status == 200) {
-                  // console.log(JSON.stringify(res.body.data))
+                if (res.data.status == 200) {
+                  // console.log(JSON.stringify(res.data.data))
                   this.$refs.createfrom.resetFields();
                   this.$refs.hardwaretable.clearSelection();
                   this.$emit('initTree')
@@ -634,7 +634,7 @@
                   this.searchtabledata();
                 } else {
                   this.$message.warning(
-                    this.$t('common.insertFailed') + res.body.message
+                    this.$t('common.insertFailed') + res.data.message
                   );
                   this.createfrom.adminIds = [];
                 }
@@ -779,7 +779,7 @@
           if(valid) {
             this.$http.post(this.netAPI.update, newUpdateform).then(
             res => {
-              if (res.body.status == 200) {
+              if (res.data.status == 200) {
                 // console.log(JSON.stringify(res.body.data))
                 this.$message.success(this.$t('deviceControl.modifiedSuccess'));
                 this.$refs.hardwaretable.clearSelection();

@@ -223,6 +223,42 @@ managerLogin(param){
 //人员照片上传
 personPhotoUpload(param){
   return instance.post('/api/v2/personnel/info/upload',  param)
+},
+//获取未关联设备
+getNotRelatedDevice(param){
+  return instance.get('/api/v2/device/admin/find-not-include-devices', {params: param})
+},
+//获取关联设备
+getRelatedDevice(param){
+  return instance.get('/api/v2/device/admin/find-included-devices', {params: param})
+},
+//获取设备列表
+getDeviceList(param){
+  return instance.get('/api/v2/device/info/find', {params: param})
+},
+//设备添加
+deviceInsert(param){
+  return instance.post('/api/v2/device/info/insert',  param)
+},
+//设备修改
+deviceModify(param){
+  return instance.post('/api/v2/device/info/modify',  param)
+},
+//设备删除
+deviceDelete(param){
+  return instance.post('/api/v2/device/info/remove',  param)
+},
+//设备详情
+deviceDetail(param){
+  return instance.get('/api/v2/device/info/detail', {params: param})
+},
+//设备信息分组
+deviceGroup(param){
+  return instance.post('/api/v2/device/info/batch',  param)
 }
+
+
+//设备激活
+//
  /*==============首页end===================*/
 }

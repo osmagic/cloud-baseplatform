@@ -490,14 +490,14 @@ export default {
   created () {
     // this.netAPI = NetAPI().get("device");
     // this.token = localStorage.getItem('token');
-    // this.searchtabledata();
+    this.searchtabledata();
   },
   methods: {
     changeRow(row) {
       console.log(row)
       this.$http.post(this.netAPI.update, row).then(
           res => {
-            if (res.body.status == 200) {
+            if (res.data.status == 200) {
               this.$message.success(this.$t('deviceControl.modifiedSuccess'));
             }
           })
@@ -550,13 +550,13 @@ export default {
       // console.log(JSON.stringify(this.batchgroupfrom))
       this.$http.post(this.netAPI.batch, this.batchgroupfrom).then(
           res => {
-            if(res.body.status == 200) {
+            if(res.data.status == 200) {
               this.$message.success(this.$t('deviceList.batchGroupSuccess'))
               this.$refs.cameratable.clearSelection();
               this.$emit('initTree')
               this.searchtabledata();
             } else {
-              this.$message.warning(res.body.message)
+              this.$message.warning(res.data.message)
             }
           }
         )
@@ -687,16 +687,16 @@ export default {
       // if(this.status !== "") {
       //   this.search.status = this.status
       // }
-      this.$http.headers.common['token'] = this.token;
+      // this.$http.headers.common['token'] = this.token;
       this.search.pageSize = this.pageSize;
       this.search.pageNo = this.currentPage;
       // console.log(JSON.stringify(this.search))
-      this.$http.get(this.netAPI.find, { params: this.search }).then(
+      this.$http.getDeviceList(this.search ).then(
         res => {
-          if (res.body.status == 200) {
-            // console.log(JSON.stringify(res.body.data))
+          if (res.data.status == 200) {
+            // console.log(JSON.stringify(res.data.data))
             // this.parseData(res)
-            let newData = res.body.data
+            let newData = res.data.data
             newData.forEach(item => {
               if(!item.hasOwnProperty('isMonitor')) {
                 item.isMonitor = 0
@@ -708,10 +708,10 @@ export default {
             //      item.isMonitor = 0
             //    }
             // })
-            this.total = res.body.total
+            this.total = res.data.total
             this.tableBoxLoading = false;
           } else {
-            this.$message.warning(res.body.message);
+            this.$message.warning(res.data.message);
           }
         },
         err => {
@@ -727,7 +727,7 @@ export default {
       // console.log(JSON.stringify(this.createfrom))
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$http.headers.common['token'] = this.token;
+          // this.$http.headers.common['token'] = this.token;
           if(this.createfrom.lng) {
             this.createfrom.lng = parseFloat(this.createfrom.lng)
           }else{
@@ -739,10 +739,10 @@ export default {
             delete this.createfrom.lat
           }
           console.log(JSON.stringify(this.createfrom))
-          this.$http.post(this.netAPI.insert, this.createfrom).then(
+          this.$http.deviceInsert(this.createfrom).then(
           res => {
-            if(res.body.status == 200) {
-              // console.log(JSON.stringify(res.body.data))
+            if(res.data.status == 200) {
+              // console.log(JSON.stringify(res.data.data))
               this.$refs.createfrom.resetFields();
               this.$refs.cameraselectgroup.initData();
               this.$emit('initTree')
@@ -751,7 +751,7 @@ export default {
               this.adddialogVisible = false;
               this.$message.success(this.$t('deviceControl.insertSuccess'));
             } else {
-              this.$message.warning(this.$t('common.insertFailed') + res.body.message);
+              this.$message.warning(this.$t('common.insertFailed') + res.data.message);
             }
           },
           err => {
@@ -769,7 +769,7 @@ export default {
     // 编辑数据方法
     updateFrom (formName) {
       console.log(JSON.stringify(this.updatefrom))
-      this.$http.headers.common['token'] = this.token;
+      // this.$http.headers.common['token'] = this.token;
       this.$refs[formName].validate((valid) => {
         if(valid) {
           if(this.updatefrom.lng) {
@@ -782,16 +782,16 @@ export default {
           }else{
             delete this.updatefrom.lat
           }
-          this.$http.post(this.netAPI.update, this.updatefrom).then(
+          this.$http.deviceModify( this.updatefrom).then(
           res => {
-            if (res.body.status == 200) {
-              // console.log(JSON.stringify(res.body.data))
+            if (res.data.status == 200) {
+              // console.log(JSON.stringify(res.data.data))
               this.$message.success(this.$t('deviceControl.modifiedSuccess'));
               this.updateialogVisible = false;
               this.$emit('initTree')
               this.searchtabledata();
             } else {
-              this.$message.warning(this.$t('common.updateFailed') + res.body.message);
+              this.$message.warning(this.$t('common.updateFailed') + res.data.message);
             }
           },
           err => {
@@ -837,7 +837,7 @@ export default {
         confirmButtonText: this.$t('common.delete'),
         cancelButtonText: this.$t('common.cancel')
       }).then(() => {
-        this.$http.post(this.netAPI.delete, ids).then(
+        this.$http.deviceDelete(ids).then(
           res => {
             if (res.data.status == 200) {
               if (ids.length == this.tableData.length) {
@@ -851,7 +851,7 @@ export default {
               this.$refs.cameratable.clearSelection();
             } else {
               this.$message.warning(
-                  this.$t('common.deleteFailed') + res.body.message
+                  this.$t('common.deleteFailed') + res.data.message
                 );
             }
           },
