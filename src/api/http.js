@@ -267,6 +267,30 @@ getGroupList(param){
 //获取门禁设备列表
 getAccessDeviceList(param){
   return instance.get('/api/v2/door/device/find', {params: param})
+},
+//添加设备分组
+deviceGroupInsert(param){
+  return instance.post('/api/v2/device/group/insert',  param)
+},
+//修改设备分组
+deviceGroupModify(param){
+  return instance.post('/api/v2/device/group/modify',  param)
+},
+//删除设备分组
+deviceGroupDelete(param){
+  return instance.post('/api/v2/device/group/remove',  param)
+},
+//设备分组详情
+deviceGroupDetail(param){
+  return instance.get('/api/v2/device/group/detail',   {params: param})
+},
+//设备信息验证及上传
+deviceUploudValidation(param){
+  return instance.post('/api/v2/file/excel-import',  param)
+},
+//智能硬件类型查询
+smartHardwareType(param){
+  return instance.get('/api/v2/device/info/find-ih-type',   {params: param})
 }
 //设备激活
 //

@@ -739,6 +739,7 @@ export default {
             delete this.createfrom.lat
           }
           console.log(JSON.stringify(this.createfrom))
+          this.createfrom.status = 1
           this.$http.deviceInsert(this.createfrom).then(
           res => {
             if(res.data.status == 200) {
