@@ -118,7 +118,7 @@ alertRemove(param) {
 alertDetail(param) {
   return instance.get('/api/v2/door/alarm/detail', {params: param})
 },
-peopleDetail(param) {
+accessPeopleDetail(param) {
   return instance.get('/api/v2/peopleManager/detail', {params: param})
 },
 accessList(param) {
