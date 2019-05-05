@@ -1,104 +1,166 @@
 <template>
-  <div class="time-sel">
-   
-   <div class="time-sel-b" v-for="(item, dex) in selTimes">
-      <span class="time-name">{{ item.name }}</span>
-      <div class="time-contro">
-        <el-time-select
-          class="start-time-sel"
-          placeholder="start"
-          v-model="item.startTime"
-          >
-        </el-time-select>
-        <span class="zhi">
-          至
-        </span>
-        <el-time-select
-          class="end-time-sel"
-          placeholder="end"
-          v-model="item.endTime"
-          :picker-options="{
-            minTime: item.startTime
-          }">
-        </el-time-select>
-     </div>
-      <div v-show="dex !== 0" class="two-fix-time">
-        <div class="fix-b" @click="delTime(dex)">
-          <div class="fix-del"></div>
-        </div>
-        <div class="fix-line"></div>
-        <div class="fix-b" @click="addTime(dex)">
-          <div class="fix-add"></div>
-        </div>
+  <div class="w-time-sel">
+   <div class="time-sel-b" v-for="(item1, index1) in selTimes">
+      <!-- <div class="time-name">{{ item1.name }}</div> -->
+      <div class="time-right">
+         <div v-for="(item2, index2) in item1.times" class="s-week-time">
+              <div class="time-contro">
+                  <el-time-select
+                    class="start-time-sel"
+                    placeholder="start"
+                    :picker-options="{
+                      start: '00:00',
+                      step: '00:10',
+                      end: '24:00'
+                    }"
+                    v-model="item2.startTime"
+                    >
+                  </el-time-select>
+                  <span class="zhi">
+                    至
+                  </span>
+                  <el-time-select
+                    class="end-time-sel"
+                    placeholder="end"
+                    v-model="item2.endTime"
+                    :picker-options="{
+                      start: '00:00',
+                      step: '00:10',
+                      end: '24:00'
+                    }">
+                  </el-time-select>
+              </div>
+              <div v-show="index2 !== 0" class="two-fix-time">
+                <div class="fix-b" @click="delTime(index1, index2)">
+                  <div class="fix-del"></div>
+                </div>
+                <div class="fix-line"></div>
+                <div class="fix-b" @click="addTime(index1, index2)">
+                  <div class="fix-add"></div>
+                </div>
+              </div>
+              <div v-show="index2 === 0" class="one-fix-time" @click="addTime(index1, index2)">
+                  <div class="fix-add"></div>
+              </div>
+          </div>
       </div>
-      <div v-show="dex === 0" class="one-fix-time" @click="addTime(dex)">
-          <div class="fix-add"></div>
-      </div>
+      
+     
    </div>
      
   </div>
 </template>
 
 <script>
+import { debuglog } from 'util';
+
 export default {
+  props: {
+    setWeekTime: {
+      type: Object,
+      default: () => {
+        return {
+        }
+      }
+    }
+  },
   data() {
       return {
-        // startTime: '',
-        // endTime: '',
-        selTimes: [
-         {
-           startTime: '',
-           endTime: '',
-           isRequire: true
-         },
-        //  {
-        //    startTime: '',
-        //    endTime: '',
-        //    isRequire: true
-        //  }        
-        ]
+        weeks: [{
+          name:'周一',
+          file: 'mon'
+        }],
+      
+        selTimes: []
       }
   },
   watch:{
+    'setWeekTime': {
+       handler: function(newVal, oldVal) {
+          this.changeTimeStrToArr()
+       },
+       deep: true
+    },
     'selTimes': {
       handler:function(newVal, oldVal) {
-        //  console.log(newVal)
-         this.$emit('getTime', newVal)
+        if(newVal.length > 0) {
+         let date = {}
+         this.weeks.forEach((item1, index1) => {
+           let t =[]
+           newVal[index1].times.forEach(time => {
+              t.push(`${time.startTime}-${time.endTime}`)
+           })
+           date[item1.file] = t.toLocaleString()
+         })
+         this.$emit('getTime', date)
+        }
       },
       deep: true
     }
   },
   methods: {
-    addTime(dex) {
-      this.selTimes.splice(dex+1, 0, {
+    addTime(dex1, dex2) {
+      this.selTimes[dex1].times.splice(dex2 + 1, 0, {
         startTime: '',
         endTime: '',
       })
     },
-    delTime(dex) {
-      this.selTimes.splice(dex, 1)
+    delTime(dex1, dex2) {
+      this.selTimes[dex1].times.splice(dex2, 1)
+    },
+    changeTimeStrToArr() {
+      let selTimes = []
+      this.weeks.forEach(item => {
+        let times = []
+        console.log( this.setWeekTime[item.file])
+        this.setWeekTime[item.file].split(',').forEach((item2) => {
+          times.push({
+            startTime: item2.split('-')[0],
+            endTime: item2.split('-')[1]
+          })
+        })
+        selTimes.push({
+          name: item.name,
+          times
+        })
+      })
+      this.selTimes = selTimes
     }
+  },
+  mounted() {
+    this.changeTimeStrToArr()
   }
 }
 </script>
 
 <style lang="scss">
-.time-sel {
+.w-time-sel {
   display: inline-block;
   .start-time-sel {
   }
   .end-time-sel {
   }
   .time-sel-b {
-    margin-top: 14px;
+    margin-top: 6px;
+    width: 350px;
+    display: flex;
   }
   .time-name {
+    flex: 1;
     margin-right: 5px;
   }
+  .time-right {
+    flex: 9; 
+  }
+  .s-week-time {
+    display: inline-block;
+  }
+  
   .time-contro {
     border: 1px solid #DBDCDE;
     display: inline-block;
     height: 34px;
+    line-height: 34px;
   }
   .el-input--prefix .el-input__inner {
     padding-left: 10px;

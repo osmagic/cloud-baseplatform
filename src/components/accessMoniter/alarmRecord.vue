@@ -122,10 +122,10 @@
                   <span class="s-tro">
                     <el-switch
                       v-model="diaForm.swiPush"
-                      active-color="#4C83FF"
-                      active-value="1"
-                      inactive-value="0"
-                      inactive-color="#ffffff">
+                     
+                      :active-value='1'
+                      :inactive-value='0'
+                     >
                     </el-switch>
                   </span>
                   <span class="c-tro">
@@ -138,7 +138,7 @@
                     告警时间段设置
                   </div>
                   <div class="c-com">
-                    <singgle-time-sel @getTime="getTime"></singgle-time-sel>
+                    <singgle-time-sel @getTime="getTime" :setWeekTime='setWeekTime'></singgle-time-sel>
                   </div>
                 </div>
               </div>
@@ -149,7 +149,7 @@
 </template>
 <script>
 import DialogContainer from './common//DialogWrapper.vue'
-import singgleTimeSel from './common/singgleTimeSel.vue'
+import singgleTimeSel from './common/singgleTimeSel'
 
 export default {
   components: {
@@ -186,7 +186,10 @@ export default {
       getRowKeys(row) {
         return row.id;
       },
-      ruleTime:''
+      ruleTime:'',
+      setWeekTime:{mon: "00:00-24:00",},
+      isEdit:false,
+      id:''
     }
   },
    created() {
@@ -226,35 +229,56 @@ export default {
     // this.netAPI = APICONFIG().get("accessSystem");
     this.getAlertList();
     this.getAlertType();
+    this.getAlertRule()
   },
   methods: {
     ruleSet(){
       this.isDShow.Visible = true
     },
+    getAlertRule(){
+      this.$http.getAlertSet().then(res=>{
+        if(res.data.status==200){
+         this.diaForm.swiPush = res.data.data[0].stranger;
+         this.setWeekTime = {mon:res.data.data[0].timeInterval};
+        this.id = res.data.data[0].id;
+         if(res.data.data.length>0){
+           this.isEdit = true
+         }
+        }else{
+          this.$message.error(res.data.message)
+        }
+      })
+    },
     getTime(v) {
       console.log(v)
-      this.nowSelTime = v
-      var time = ''
-      for (let index = 0; index <  this.nowSelTime.length; index++) {
-        const element =  this.nowSelTime[index];
-        let a = element.startTime+'-'+element.endTime;
-        if(index>0){
-          time += ','+a
-        }else{
-          time =a
-        }
-        
-      }
-      this.ruleTime = time
+      this.ruleTime = v.mon
+      console.log(this.ruleTime)
+      // var time = ''
+    
+      // this.ruleTime = time
     },
     saveDialog() {
-      this.$http.alertSetAdd({timeInterval:this.ruleTime,stranger:this.diaForm.swiPush}).then(res=>{
+      if(this.ruleTime==''){
+        this.ruleTime=this.setWeekTime.mon
+      }
+      if(this.isEdit == false){
+        this.$http.alertSetAdd({timeInterval:this.ruleTime,stranger:this.diaForm.swiPush}).then(res=>{
         if(res.data.status == 200){
           this.$message.success(res.data.message)
         }else{
            this.$message.error(res.data.message)
         }
       })
+      }else{
+        this.$http.alertSetModify({timeInterval:this.ruleTime,stranger:this.diaForm.swiPush,id:this.id}).then(res=>{
+          if(res.data.status == 200){
+            this.$message.success(res.data.message)
+          }else{
+            this.$message.error(res.data.message)
+          }
+        })
+      }
+      
       this.nowSelTime = ""
        this.ruleTime = ''
        this.isDShow.Visible = false
