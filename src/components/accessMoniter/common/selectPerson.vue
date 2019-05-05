@@ -61,7 +61,7 @@
                       <img
                         :src="scope.row.urls[0]"
                         style="width:50px;height:50px;"
-                        v-if="scope.row.urls.length !== 0"
+                        v-if="scope.row.urls !== null"
                       />
                       <div v-else></div>
                     </div>
@@ -176,7 +176,7 @@ export default {
           number: item.code,
           photo: `data:image/jpeg;base64,${item.base64}`
         })
-        personIds.push(item.personId)
+        personIds.push(item)
       })
       this.$emit('seletPerson', personIds)
       // console.log(this.selPersonTable)

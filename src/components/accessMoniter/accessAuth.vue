@@ -5,12 +5,13 @@
         <el-button class="searchB" @click="queryGroup(seatchWord)">查询</el-button>
         <div class="editGroup">
           <el-button @click="addJur">新增权限组</el-button>
-          <el-button >批量删除权限组</el-button>
+          <el-button @click="delJurs">批量删除权限组</el-button>
         </div>
       </div>
       <div class="table">
         <el-table
           :data="tableData"
+           @selection-change="handleSelectionChange"
           style="width: 100%">
           <el-table-column
           type="selection"
@@ -58,8 +59,8 @@
           label="操作"
           width="200">
           <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">编辑权限组</el-button>
-            <el-button type="text" size="small">删除</el-button>
+            <el-button @click="editJur(scope.row)" type="text" size="small">编辑权限组</el-button>
+            <el-button type="text" size="small" @click="delJur([{id:scope.row.id}])">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -76,10 +77,10 @@
                   <el-input type="textarea" v-model="jurRuleForm.description" placeholder="请输入规则描述" resize="none"></el-input>
                 </el-form-item>
 
-                <el-form-item label="关联人员">
+                <el-form-item label="关联人员" prop="persionIds">
                   <el-button type="primary" @click="showSelPerson">请选择</el-button>
                   <span>
-
+                      {{selPersons.length> 0 ? selPersons[0].name : ''}}
                   </span>
                 </el-form-item>
 
@@ -89,24 +90,23 @@
                       <el-radio v-model="jurRuleForm.allow" label="1">是</el-radio>
                       <el-radio v-model="jurRuleForm.allow" label="2">否</el-radio>
                     </div>
-                    
                   </template>
                 </el-form-item>
   
-                <el-form-item label="可通行设备">
+                <el-form-item label="可通行设备" prop="deviceIds">
                   <el-button type="primary" @click="showDialogDivice">请选择</el-button>
                 </el-form-item>
 
                 <el-form-item label="通行方式" prop="passageMode" v-if="jurRuleForm.allow === '1'">
                   <!-- <el-radio v-model="jurRuleForm.passageMode" label="1">人脸识别</el-radio> -->
-                  <el-checkbox-group v-model="checkList">
+                  <el-checkbox-group v-model="passcheckList">
                      <el-checkbox v-for="(item, index) in waysArr" :label="item.nameZh" ></el-checkbox>
                   </el-checkbox-group>
                 </el-form-item>
 
                 <el-form-item label="通行时间" v-if="jurRuleForm.allow === '1'">
                   <div class="week-time-sel">
-                      <week-time-sel @getTime="getTime"></week-time-sel>
+                      <week-time-sel @getTime="getTime" :setWeekTime="setWeekTime"></week-time-sel>
                   </div>
                 </el-form-item>
 
@@ -193,6 +193,8 @@ export default {
           file: 'sun'
         }],
       jurRuleForm: {
+      },
+      initRuleForm: {
           name: '',
           passageMode: '',
           allow: '1',
@@ -211,17 +213,21 @@ export default {
       jurRules: {
           name: [
             { required: true, message: '请输入权限组名称', trigger: 'blur' },
-            { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
           ]
+
       },
       selPersons: [],
       selDevices: [],
       waysArr: [],
-      checkList:[]
+      passcheckList:[],
+      seletJurs: [], // 选中得门禁
+      setWeekTime: {} // 编辑得时候设时间
     }
   },
   watch: {
-    checkList(newVal) {
+    passcheckList(newVal) {
+      console.log(newVal)
       let w = []
       newVal.forEach(item1 => {
         this.waysArr.forEach(item2 => {
@@ -236,15 +242,60 @@ export default {
     },
   },
   methods: {
+    handleSelectionChange(val) {
+      console.log(val)
+      this.seletJurs = val
+    },
+    // 删除权限
+    delJur(idsArr) {
+      this.$http.accessRuleDel(idsArr).then(res => {
+        this.queryGroup()
+      })
+     
+    },
+    // 编辑权限组
+    editJur(row) {
+      console.log(row)
+      // 后台会将allow转成int类型
+      row.allow = String(row.allow)
+      this.jurRuleForm = row
+      let wayIds = []
+      let wayNames = []
+      // 将通行规则得id转化成数组得name
+      wayIds = this.jurRuleForm.passageMode.split(',')
+      wayIds.forEach(id => {
+         this.waysArr.forEach(item => {
+           if(id === item.categoryNo) {
+             wayNames.push(item.nameZh)
+           }
+         })
+      })
+      this.passcheckList = wayNames
+      
+      // 获取时间
+      let t= {}
+      this.weeks.forEach(item => {
+        t[item.file] = row[item.file]
+      })
+      debugger
+      this.setWeekTime = t
+
+      this.isDShow.Visible = true
+    },
     // 获取时间
     getTime(weekObj) {
+     console.log(weekObj)
+     this.setWeekTime = weekObj
      this.jurRuleForm = Object.assign(this.jurRuleForm, weekObj);
     },
     savePersonDialog() {
-      this.jurRuleForm.persionIds = this.selPersons
+      let personIds = []
+      this.selPersons.forEach(item => {
+        personIds.push(item.personId)
+      })
+      this.jurRuleForm.persionIds = personIds
       this.isShowPerson.Visible = false
     },
-
     saveDiviceDialog() {
         this.jurRuleForm.deviceIds = []
         this.selDevices.forEach(item => {
@@ -253,20 +304,37 @@ export default {
         this.isShowDivice.Visible = false
     },
     saveJurDialog() {
-      this.$http.accessRuleInsert(this.jurRuleForm).then(res => {
-        debugger
-        if(res.status === 200) {
-          this.$message.success('新增成功')
-          this.queryGroup()
-          this.isDShow.Visible = false
-        } else {
-           this.$message.success('新增失败')
-        }
+      this.$refs['ruleForm'].validate((valid) => {
+          if (valid) {
+             if(this.jurRuleForm.id) {
+                 this.$http.accessRuleModify(this.jurRuleForm).then(res => {
+                    if(res.status === 200) {
+                      this.$message.success('编辑成功')
+                      this.isDShow.Visible = false
+                    } else {
+                      this.$message.error('编辑失败')
+                    }
+                 })
+             } else {
+                this.$http.accessRuleInsert(this.jurRuleForm).then(res => {
+                  if(res.status === 200) {
+                    this.$message.success('新增成功')
+                    this.queryGroup()
+                    this.isDShow.Visible = false
+                  } else {
+                    this.$message.error('新增失败')
+                  }
+                })
+             }
+             
+          }
       })
       
+      
     },
-    seletPerson(personNo) {
-      this.selPersons = personNo
+    seletPerson(persons) {
+     
+      this.selPersons = persons
       // console.log(personNo)
       // this.jurRuleForm.persionIds = personNo
     },
@@ -343,7 +411,19 @@ export default {
       
     },
     addJur() {
+      this.jurRuleForm = this.initRuleForm
       this.isDShow.Visible = true
+    },
+    delJurs() {
+      let jurIds = []
+      this.seletJurs.forEach(item => {
+         jurIds.push(
+           {id: item.id
+           })
+      })
+      console.log(jurIds)
+      this.delJur(jurIds)
+
     }
   },
   mounted() {

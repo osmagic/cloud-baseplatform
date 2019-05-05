@@ -171,15 +171,15 @@ accessRuleInsert(param) {
 },
 // 修改权限
 accessRuleModify(param) {
-  return instance.get('/api/v2/door/rule/modify', {params: param})
+  return instance.post('/api/v2/door/rule/modify', param)
 },
 // 删除权限
 accessRuleDel(param) {
-  return instance.get('/api/v2/door/rule/remove', {params: param})
+  return instance.post('/api/v2/door/rule/remove', param)
 },
 // 权限验证
-accessRuleDel(param) {
-  return instance.get('/api/v2/door/rule/verifier', {params: param})
+accessVerifier(param) {
+  return instance.post('/api/v2/door/rule/verifier', param)
 },
 // 查询关联得人员列表
 personByDevice(param) {

@@ -54,10 +54,24 @@
 <script>
 
 export default {
+  props: {
+    setWeekTime: {
+      type: Object,
+      default: () => {
+          return {
+            fri: "00:10-24:00",
+            mon: "00:10-24:00",
+            sat: "00:10-24:00",
+            sun: "00:10-24:00",
+            thu: "00:10-24:00",
+            tue: "00:10-24:00",
+            wed: "00:10-24:00"
+          }
+      }
+    }
+  },
   data() {
       return {
-        // startTime: '',
-        // endTime: '',
         weeks: [{
           name:'周一',
           file: 'mon'
@@ -110,31 +124,41 @@ export default {
   },
   methods: {
     addTime(dex1, dex2) {
-      // this.$set(this.selTimes[dex1].times, this.selTimes[dex1].times.length, {
-      //   startTime: '',
-      //   endTime: '',
-      // })
       this.selTimes[dex1].times.splice(dex2 + 1, 0, {
         startTime: '',
         endTime: '',
       })
-      
     },
     delTime(dex1, dex2) {
       this.selTimes[dex1].times.splice(dex2, 1)
     }
   },
   mounted() {
-    this.weeks.forEach(w => {
-      this.selTimes.push({
-        name: w.name,
-        times: [
-             {
-               startTime: '00:10',
-               endTime: '24:00'
-             }
-           ]
-      })
+    // this.weeks.forEach(w => {
+    //   this.selTimes.push({
+    //     name: w.name,
+    //     times: [
+    //          {
+    //            startTime: '00:10',
+    //            endTime: '24:00'
+    //          }
+    //        ]
+    //   })
+    // })
+
+    console.log(this.setWeekTime)
+    this.weeks.forEach(item => {
+      // let times = []
+      // this.setWeekTime[item.file].split(';').forEach((item2) => {
+      //   times.push({
+      //     startTime: '',
+      //     endTime: ''
+      //   })
+      // })
+      // this.selTimes.push({
+      //   name: item.file,
+       
+      // }
     })
   }
 }
