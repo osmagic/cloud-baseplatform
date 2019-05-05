@@ -19,8 +19,8 @@ import zhLocale from 'element-ui/lib/locale/lang/zh-CN'
 import http from './api/http.js'
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
-// Vue.use(axios)
-// Vue.use(VueAxios)
+Vue.use(axios)
+Vue.use(VueAxios)
 Vue.use(iView);
 
 Vue.use(Vuex)
@@ -32,14 +32,12 @@ const i18n = new VueI18n({
     'zh': Object.assign(require('../static/lang/zh'), zhLocale),
   }
 })
-// 全局注册EventBus
 Vue.prototype.$EventBus = new Vue()
-
 Vue.use(ElementUI, {i18n: (key, value) => i18n.t(key, value), zIndex: 3000});
 Vue.config.productionTip = false
 Vue.prototype.$echarts = echarts
 Vue.prototype.$http = http
-
+Vue.prototype.$axios = axios
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

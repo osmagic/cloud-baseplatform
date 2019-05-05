@@ -87,7 +87,9 @@
               <div>
                 <el-button
                   size="mini"
-                  :disabled="groupForm.code === '' || treeData[0].children.length === 0"
+                  :disabled="
+                    groupForm.code === '' || treeData[0].children.length === 0
+                  "
                   @click="deleteGroup"
                   >{{ $t("peopleManageList.deleteGroup") }}</el-button
                 >
@@ -102,7 +104,7 @@
             <div class="operation-panel">
               <div class="search">
                 <el-input
-                :placeholder="$t('peopleManageList.name')"
+                  :placeholder="$t('peopleManageList.name')"
                   style="width:200px"
                   v-model="searchobj.name"
                 ></el-input>
@@ -209,11 +211,7 @@
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column
-                  fixed="right"
-                  label="操作"
-                  width="200"
-                >
+                <el-table-column fixed="right" label="操作" width="200">
                   <template slot-scope="scope">
                     <el-button
                       @click="peopleDetails(scope.row)"
@@ -247,7 +245,7 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="currentPage"
-                :page-sizes="[5, 10, 20]"
+                :page-sizes="[5, 10, 20,1000]"
                 :page-size="pageSize"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -267,7 +265,6 @@
       @active="createPeople"
       :selectInfo="selectInfo"
       :isEditPeo="isEditPeo"
-
     ></create-people-dialog>
     <!-- <people-details-dialog  :isShow="pdShow" @active="peopleDetails"></people-details-dialog>
             <edit-people-dialog :isShow="epShow" @active="editPeople"></edit-people-dialog> -->
@@ -470,150 +467,361 @@ export default {
   },
   mounted() {},
   methods: {
-      handleSizeChange(pageSize) {
+       // 点击取消关闭批量分组模态框
+    cancelbatchGroupialogVisible() {
+      this.batchGroupialogVisible = false;
+    },
+    // 批量分组点击树
+    handleBtachTreeClick(data) {
+      this.batchgroupCode = data.no
+    },
+    doBatch() {
+      this.batchgroupfrom.forEach(item => {
+        item.groupNo = this.batchgroupCode
+      })
+
+      this.$http.personBatchGroup(this.batchgroupfrom).then(
+        res => {
+          if(res.data.status == 200) {
+            this.$message.success(this.$t('peopleManageList.sucessBatchGroup'))
+            this.getDataList()
+            this.$refs.peopleListTable.clearSelection();
+          }else{
+            this.$message.warning('批量分组失败' + res.data.message)
+          }
+          this.batchGroupialogVisible = false;
+        }
+      )
+    },
+     batchGroupHandleClose(done) {
+      done();
+    },
+     // 关闭导入人员弹窗
+    closeDialogImportExcel() {
+      this.dialogImportExcel = false
+    },
+     // 关闭导入照片弹窗
+    closeDialogImportPhoto() {
+      this.dialogImportPhoto = false
+    },
+     search() {
+      if (!this.currentPeopleType) {
+        this.$message({
+          message: this.$t('peopleManageList.pleaseSelType'),
+          type: "warning"
+        });
+        return;
+      }
+      this.getPeopleList();
+    },
+      exportExcel(row) {
+      // 导出excel标题
+      let excelTitle = ''
+      this.peopleTypes.forEach(item => {
+        if(item.no == this.currentPeopleType.name) {
+          excelTitle = `${item.name}${this.$t('peopleManageList.personInfo')}`
+        }
+      })
+      // 导出
+      require.ensure([], () => {
+        const { export_json_to_excel } = require('../../vendor/Export2Excel');
+        const formatData = this.formatJson(row);
+        export_json_to_excel(formatData.tHeader, formatData.data, excelTitle);
+      })
+      this.$refs.peopleListTable.clearSelection();
+    },
+      //将数组处理成索引数组
+    formatJson(jsonData) {
+      let tHeader = [];
+      let fileds = [];
+      let data = [];
+      this.tableDataLabel.forEach(item => {
+        tHeader.push(item.name)
+        fileds.push({
+          filed: item.property,
+          name: item.name
+        })
+      })
+
+      jsonData.forEach(item1 => {
+        let sArr = []
+        fileds.forEach(item2 => {
+          Object.keys(item1).forEach(key => {
+            if(item2.filed === key) {
+              sArr.push(item1[key])
+            }
+          })
+        })
+        data.push(sArr)
+      })
+
+      return {
+        data,
+        tHeader
+      }
+    },
+      // 关闭导入人员的窗口
+    closeImportExcel(val) {
+      if(val === 1) {
+        this.dialogImportExcel = false
+      } else if(val === 2) {
+        this.dialogImportPhoto = false
+      }
+      this.pageSize = 10
+      this.currentPage = 1
+      this.getPeopleList({ pageSize: this.pageSize, pageNo: this.currentPage });
+    },
+     // 导入人员
+    importInType(val) {
+      if(val === 'excel') {
+        this.dialogImportExcel = true
+      } else {
+        this.dialogImportPhoto = true
+      }
+    },
+     editPeople(row, mes) {
+      // 编辑状态
+      this.isEditPeo = 1
+      this.detailInfo(row)
+    },
+      peopleDetails(row, str) {
+      this.isEditPeo = 2
+      this.detailInfo(row)
+    },
+    detailInfo(row) {
+      const loading = this.$loading({
+        lock: true,
+        text: 'loading',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
+      this.$http.peopleDetail({
+          personId: row.personId,
+          requireBase64: true
+
+      }).then(
+        res => {
+          loading.close()
+          // 查询出来的详情数据
+          this.tableDataLabel.forEach(item => {
+            this.selectInfo[item.property] = res.data.data[item.property]
+          })
+          if(res.data.data.hasOwnProperty('picName')) {
+            this.selectInfo.picName = res.data.data.picName
+          }
+          if(res.data.data.hasOwnProperty('urls')) {
+            this.selectInfo.pictures = res.data.data.urls
+          } else {
+            this.selectInfo.pictures = []
+          }
+
+          this.selectInfo.id = res.data.data.id
+          // this.selectInfo = res.data.data
+          // 所拥有的字段
+          this.cpShow.tableDataLabel = this.tableDataLabel;
+          this.cpShow.show = true
+        })
+    },
+    deleteRow(row) {
+      console.log(row);
+      let ids = [];
+      if (!row) {
+        this.$message({
+          message: this.$t("delete.choose"),
+          type: "warning"
+        });
+        return;
+      }
+      //判断类型
+      let rowType = Object.prototype.toString.call(row);
+      if (rowType == "[object Array]") {
+        for (let index in row) {
+          ids.push({ personId: row[index].personId });
+        }
+      } else {
+        ids.push({ personId: row.personId });
+      }
+      //弹出对话框
+      this.$confirm(this.$t("delete.deleteRow"), this.$t("delete.prompt"), {
+        distinguishCancelAndClose: true,
+        confirmButtonText: this.$t("delete.del"),
+        cancelButtonText: this.$t("delete.cancel")
+      }).then(() => {
+        //确认删除
+        this.$http.personDelete(ids).then(res => {
+          if (res.data.status == 200) {
+            //删除成功
+            if (ids.length == this.tableData.length) {
+              //整页
+              this.getPeopleList({
+                pageSize: this.pageSize,
+                pageNo: this.currentPage - 1 > 0 ? this.currentPage - 1 : 1
+              });
+            } else {
+              this.getPeopleList({
+                pageSize: this.pageSize,
+                pageNo: this.currentPage
+              });
+            }
+            this.$message.success(this.$t("common.updateSuccess"));
+            this.$refs.peopleListTable.clearSelection();
+          }
+        });
+      });
+    },
+    handleSizeChange(pageSize) {
       this.pageSize = pageSize;
-      this.getDataList({ pageSize: this.pageSize, pageNo: this.currentPage });
+      this.getPeopleList({ pageSize: this.pageSize, pageNo: this.currentPage });
     },
     handleCurrentChange(Current) {
       this.currentPage = Current;
-      this.getDataList({ pageSize: this.pageSize, pageNo: this.currentPage });
+      this.getPeopleList({ pageSize: this.pageSize, pageNo: this.currentPage });
     },
-     // 关闭新增分组窗口
+    // 关闭新增分组窗口
     closeDialogGroup() {
       this.dialogAddGroup = false;
     },
     // 新增分组接口
     addGroup() {
-      this.dialogAddGroup = true
-      this.groupForm.groupName = ''
-      this.dialogGroupName = this.$t('peopleManageList.newGroup')
-      this.groupForm.description = ''
-      this.dialogGroupType = 0
+      this.dialogAddGroup = true;
+      this.groupForm.groupName = "";
+      this.dialogGroupName = this.$t("peopleManageList.newGroup");
+      this.groupForm.description = "";
+      this.dialogGroupType = 0;
     },
     // 修改分组接口
     editGroup() {
-      this.dialogAddGroup = true
-      this.groupForm.groupName = this.editGroupName
-      this.dialogGroupName = this.$t('peopleManageList.editGroup')
-      this.dialogGroupType = 1
+      this.dialogAddGroup = true;
+      this.groupForm.groupName = this.editGroupName;
+      this.dialogGroupName = this.$t("peopleManageList.editGroup");
+      this.dialogGroupType = 1;
     },
     deleteGroup() {
-      this.$confirm(this.$t('peopleManageList.isDeleteGroup'), this.$t('delete.prompt'), {
-        distinguishCancelAndClose: true,
-        confirmButtonText: this.$t('common.delete'),
-        cancelButtonText: this.$t('common.cancel'),
-        type: 'warning',
-      }).then(
-        () => {
+      this.$confirm(
+        this.$t("peopleManageList.isDeleteGroup"),
+        this.$t("delete.prompt"),
+        {
+          distinguishCancelAndClose: true,
+          confirmButtonText: this.$t("common.delete"),
+          cancelButtonText: this.$t("common.cancel"),
+          type: "warning"
+        }
+      )
+        .then(() => {
           this.deleteform = [];
           this.deleteform.push({
             no: this.organizationId,
             typeNo: this.peopleTypes[this.tabIndex].no
-          })
-          this.$http.personGroupDelete(this.deleteform).then(
-            res => {
-              if(res.data.status == 200) {
-                this.$message.success(this.$t('peopleManageList.delGroupSucess'))
-                this.groupForm.code = ''
-                this.getGroupList()
-              }else{
-                this.$message.warning(`${this.$t('delete.deleteFail')}${res.data.message}`)
-              }
+          });
+          this.$http.personGroupDelete(this.deleteform).then(res => {
+            if (res.data.status == 200) {
+              this.$message.success(this.$t("peopleManageList.delGroupSucess"));
+              this.groupForm.code = "";
+              this.getGroupList();
+            } else {
+              this.$message.warning(
+                `${this.$t("delete.deleteFail")}${res.data.message}`
+              );
             }
-          )
-        }).catch(() => {
+          });
+        })
+        .catch(() => {
           this.$message({
             type: "info",
-            message: this.$t('disable.cancelO')
+            message: this.$t("disable.cancelO")
           });
         });
     },
     // 取消新增或者修改
     cancelDialogGroup() {
-      this.dialogAddGroup = false
+      this.dialogAddGroup = false;
     },
     // 确定新增或修改
     confirmDialogGroup() {
-      if(!this.groupForm.groupName) {
-        this.$message.warning(this.$t('peopleManageList.pleaseEnterGroupName'))
-        return
+      if (!this.groupForm.groupName) {
+        this.$message.warning(this.$t("peopleManageList.pleaseEnterGroupName"));
+        return;
       }
-      this.dialogAddGroup = false
-      if(this.dialogGroupType === 0) {
+      this.dialogAddGroup = false;
+      if (this.dialogGroupType === 0) {
         // 新增
         let params = {
           typeNo: this.activeTabs,
           name: this.groupForm.groupName,
           parentNo: this.groupForm.code,
           description: this.groupForm.description
-        }
+        };
         this.$http.personGroupInsert(params).then(res => {
           // this.getGroupList()
-          if(res.data.status == 200) {
-            this.$message.success(this.$t('peopleManageList.addGroupSuccess'))
-            this.groupForm.code = ''
-            this.getGroupList()
-          }else{
-            this.$message.warning(`${this.$t('peopleManageList.addGroupSuccess')}${res.data.message}`)
+          if (res.data.status == 200) {
+            this.$message.success(this.$t("peopleManageList.addGroupSuccess"));
+            this.groupForm.code = "";
+            this.getGroupList();
+          } else {
+            this.$message.warning(
+              `${this.$t("peopleManageList.addGroupSuccess")}${
+                res.data.message
+              }`
+            );
           }
-        })
-      } else if(this.dialogGroupType === 1) {
+        });
+      } else if (this.dialogGroupType === 1) {
         let params = {
           name: this.groupForm.groupName,
           no: this.groupForm.code,
           description: this.groupForm.description
-        }
+        };
         // 修改
-        this.$http.personGroupModify( params
-        ).then(res => {
+        this.$http.personGroupModify(params).then(res => {
           // this.getGroupList()
-          if(res.data.status == 200) {
-            this.$message.success(this.$t('peopleManageList.editGroupSuccess'))
-            this.groupForm.code = ''
-            this.getGroupList()
-          }else{
-            this.$message.warning(this.$t('peopleManageList.editGroupFail') + res.data.message)
+          if (res.data.status == 200) {
+            this.$message.success(this.$t("peopleManageList.editGroupSuccess"));
+            this.groupForm.code = "";
+            this.getGroupList();
+          } else {
+            this.$message.warning(
+              this.$t("peopleManageList.editGroupFail") + res.data.message
+            );
           }
-        })
+        });
       }
     },
-      // 搜索树
+    // 搜索树
     filterTreeNode(value, data) {
       if (!value) return true;
       return data.label.indexOf(value) !== -1;
     },
-     // 点击树
+    // 点击树
     handleNodeClick(data) {
-
       // 获取点击的是哪个类型
-      let dex = this.currentPeopleType.index
+      let dex = this.currentPeopleType.index;
       this.selectInfo = {
         groupNo: data.no,
         groupName: data.label,
         typeNo: this.peopleTypes[dex].no,
         typeName: this.peopleTypes[dex].name,
         pictures: []
-      }
-      this.organizationId = data.no
-      this.editGroupName = data.label
-      this.addGroupId = this.editGroupId = data.no
-      this.groupForm.description = data.description
+      };
+      this.organizationId = data.no;
+      this.editGroupName = data.label;
+      this.addGroupId = this.editGroupId = data.no;
+      this.groupForm.description = data.description;
       // this.groupForm.code = data.no // 选中的id
-      this.$set(this.groupForm,'code',data.no)
-        console.log( this.groupForm.code)
+      this.$set(this.groupForm, "code", data.no);
+      console.log(this.groupForm.code);
       this.getPeopleList();
     },
-      openBatch(row) {
+    openBatch(row) {
       this.batchGroupialogVisible = true;
       this.batchgroupfrom = [];
       row.forEach(item => {
         this.batchgroupfrom.push({
           id: item.id
-        })
-      })
+        });
+      });
     },
     createPeople(str) {
-      this.isEditPeo = 0
+      this.isEditPeo = 0;
       // if (!this.currentPeopleType) {
       //   this.$message({
       //     message: "请选择一个人员类型",
@@ -621,14 +829,17 @@ export default {
       //   });
       //   return;
       // }
-       // 拥有的字段
+      // 拥有的字段
       this.tableDataLabel.forEach(item => {
-        this.selectInfo[item.property] = ''
-      })
+        this.selectInfo[item.property] = "";
+      });
       this.cpShow.show = !this.cpShow.show;
       if (str == "refresh") {
-        this.currentPage = 1
-        this.getPeopleList({ pageSize: this.pageSize, pageNo: this.currentPage });
+        this.currentPage = 1;
+        this.getPeopleList({
+          pageSize: this.pageSize,
+          pageNo: this.currentPage
+        });
       }
       if (this.cpShow.show) {
         // 加入当前类型的字段
@@ -636,7 +847,7 @@ export default {
         this.cpShow.tableDataLabel = this.tableDataLabel;
       }
     },
-     handleSelectionChange(val) {
+    handleSelectionChange(val) {
       if (val.length) {
         this.multipleSelection = val;
       } else {
@@ -723,7 +934,6 @@ export default {
       this.getGroupList(); //调用映射
     },
     getGroupList() {
-
       let isGroup = JSON.parse(
         this.peopleTypes[parseInt(this.tabIndex)].value
       ).hasOwnProperty("group");
@@ -747,86 +957,99 @@ export default {
         this.treeData = JSON.parse(
           JSON.stringify(groups).replace(/nameZh/g, "label")
         );
-          this.getTypeKeys();
+
+        this.getTypeKeys();
       });
     },
-    getTypeKeys(){
-       let typeCode = this.currentPeopleType.name;
-      this.$http.personAttrlist( { typeNo: typeCode })
-        .then(
-          res => {
-            if (res.data.status == 200) {
-              this.tableDataLabel = []
+    getTypeKeys() {
+      let typeCode = this.currentPeopleType.name;
+      this.$http.personAttrlist({ typeNo: typeCode }).then(res => {
+        if (res.data.status == 200) {
+          this.tableDataLabel = [];
 
-              // let zhLabel = ['姓名', '编号', '照片'];
+          // let zhLabel = ['姓名', '编号', '照片'];
 
-              res.data.data.forEach((item, index) => {
-                this.peopleTypefield = res.data.data;
-                // console.log(localStorage.language === 'en' && item.hasOwnProperty('descriptionEn'))
-                // console.log(item.hasOwnProperty('descriptionZh'))
-                // console.log(localStorage.language)
-    ////adwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                this.tableDataLabel.push({
-                  // name: localStorage.language === 'en' ? item.descriptionEn : item.descriptionZh,
-                  name: localStorage.language === 'en' && item.hasOwnProperty('descriptionEn') ? item.descriptionEn : item.hasOwnProperty('descriptionZh') ? item.descriptionZh : item.description,
-                  property: item.name,
-                  no: item.no,
-                  width: 150,
-                  type: "input",
-                  required: JSON.parse(item.value).required === '0'
-                });
-                let name = (localStorage.language === 'en' && item.hasOwnProperty('descriptionEn')) ? item.descriptionEn : item.hasOwnProperty('descriptionZh') ? item.descriptionZh : item.description
+          res.data.data.forEach((item, index) => {
+            this.peopleTypefield = res.data.data;
+            // console.log(localStorage.language === 'en' && item.hasOwnProperty('descriptionEn'))
+            // console.log(item.hasOwnProperty('descriptionZh'))
+            // console.log(localStorage.language)
+            ////adwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+            this.tableDataLabel.push({
+              // name: localStorage.language === 'en' ? item.descriptionEn : item.descriptionZh,
+              name:
+                localStorage.language === "en" &&
+                item.hasOwnProperty("descriptionEn")
+                  ? item.descriptionEn
+                  : item.hasOwnProperty("descriptionZh")
+                  ? item.descriptionZh
+                  : item.description,
+              property: item.name,
+              no: item.no,
+              width: 150,
+              type: "input",
+              required: JSON.parse(item.value).required === "0"
+            });
+            let name =
+              localStorage.language === "en" &&
+              item.hasOwnProperty("descriptionEn")
+                ? item.descriptionEn
+                : item.hasOwnProperty("descriptionZh")
+                ? item.descriptionZh
+                : item.description;
 
-                // console.log(name)
-                // console.log({
-                //   // name: localStorage.language === 'en' ? item.descriptionEn : item.descriptionZh,
-                //   name: (localStorage.language === 'en' && item.hasOwnProperty(item.descriptionEn)) ? item.descriptionEn : item.hasOwnProperty(item.descriptionZh) ? item.descriptionZh : item.description,
-                //   property: item.name,
-                //   no: item.no,
-                //   width: 150,
-                //   type: "input",
-                //   required: JSON.parse(item.value).required === '0'
-                // })
+            // console.log(name)
+            // console.log({
+            //   // name: localStorage.language === 'en' ? item.descriptionEn : item.descriptionZh,
+            //   name: (localStorage.language === 'en' && item.hasOwnProperty(item.descriptionEn)) ? item.descriptionEn : item.hasOwnProperty(item.descriptionZh) ? item.descriptionZh : item.description,
+            //   property: item.name,
+            //   no: item.no,
+            //   width: 150,
+            //   type: "input",
+            //   required: JSON.parse(item.value).required === '0'
+            // })
 
-                // if(this.$i18n.locale == 'en') {
+            // if(this.$i18n.locale == 'en') {
 
-                // }else{
-                //   this.tableDataLabel.push({
-                //     name: zhLabel[index],
-                //     property: item.name,
-                //     no: item.no,
-                //     width: 150,
-                //     type: "input",
-                //     required: JSON.parse(item.value).required === '0'
-                //   });
-                // }
-              })
-            } else {
-              this.$message.warning(JSON.stringify(res.data.message));
-            }
-          }
-        );
-        this.getPeopleList()
+            // }else{
+            //   this.tableDataLabel.push({
+            //     name: zhLabel[index],
+            //     property: item.name,
+            //     no: item.no,
+            //     width: 150,
+            //     type: "input",
+            //     required: JSON.parse(item.value).required === '0'
+            //   });
+            // }
+          });
+        } else {
+          this.$message.warning(JSON.stringify(res.data.message));
+        }
+      });
+      this.getPeopleList();
     },
-    getPeopleList(page = { pageSize: this.pageSize, pageNo: this.currentPage, typeNo: "" }){
+    getPeopleList(
+      page = { pageSize: this.pageSize, pageNo: this.currentPage, typeNo: "" }
+    ) {
+       page.name = this.searchobj.name;
       page.typeNo = this.currentPeopleType.name;
       page.groupNo = this.organizationId;
-      this.$http.getPersonList(page).then(res=>{
-         let self = this
-          if (res.data.status == 200) {
-            this.tableData = res.data.data;
-            this.total = res.data.total;
-            this.tableBoxLoading = false;
+      this.$http.getPersonList(page).then(res => {
+        let self = this;
+        if (res.data.status == 200) {
+          this.tableData = res.data.data;
+          this.total = res.data.total;
+          this.tableBoxLoading = false;
 
-            this.$nextTick(() => {
-              setTimeout(() => {
-                self.isShowTable = true
-              }, 180)
-            })
-          }else{
-             this.$message.warning(res.data.message);
-          }
-      },)
+          this.$nextTick(() => {
+            setTimeout(() => {
+              self.isShowTable = true;
+            }, 180);
+          });
+        } else {
+          this.$message.warning(res.data.message);
+        }
+      });
     },
     resetData() {
       // 姓名/编号

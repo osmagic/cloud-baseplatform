@@ -131,8 +131,8 @@
 
 <script>
 
-// import FileSaver from 'file-saver'
-// import XLSX from "xlsx"
+import FileSaver from 'file-saver'
+import XLSX from "xlsx"
 
 export default {
   name: "import_device",
@@ -148,7 +148,7 @@ export default {
       isDisableNext: true, // 是否下一步
       uploadForm: {},
       secondUploadDevice: false,
-      selectedDeviceType: this.$store.state.importDeviceType,
+      selectedDeviceType: this.$store.state.selectGroupStore.importDeviceType,
       correct: [],
       wrong: [],
       code: 102103,
@@ -175,7 +175,7 @@ export default {
   },
   updated() {
     // 更改导入设备类型
-    this.selectedDeviceType = this.$store.state.importDeviceType
+    this.selectedDeviceType = this.$store.state.selectGroupStore.importDeviceType
   },
   methods: {
     initData() {
@@ -203,16 +203,17 @@ export default {
     // 下载模板
     downTemplate() {
       let language = this.$i18n.locale == 'zh' ? null : 'en_US'
-      console.log(`${this.netAPI.export}?code=${102101}&attr=${this.selectedDeviceType}`)
-      window.location.href = `${this.netAPI.export}?code=${102101}&attr=${this.selectedDeviceType}&language=${language}`
-      this.$http({
-        url: this.netAPI.export,
+      // console.log(`${this.netAPI.export}?code=${102101}&attr=${this.selectedDeviceType}`)
+      // window.location.href = `${this.netAPI.export}?code=${102101}&attr=${this.selectedDeviceType}&language=${language}`
+      // window.location.href = `/api/v2/file/excel-export?code=${102101}&attr=${this.selectedDeviceType}`
+      this.$axios({
+        url: '/api/v2/file/excel-export',
         method: 'get',
         responseType: 'blob',
         params: {
           code: '102101',
           attr: this.selectedDeviceType,
-          language: language
+          // language: language
         }
       }).then(({data}) => {
         // console.log(data)
@@ -249,31 +250,31 @@ export default {
       if (v == 'add') {
         // this.uploadForm.append('groupNo')
         console.log(11111)
-        let no = this.$store.state.importDeviceNo.toString();
-        this.uploadForm.append('groupNo', no)
+        // let no = this.$store.state.selectGroupStore.importDeviceNo.toString();
+        // this.uploadForm.append('groupNo', no)
         console.log(JSON.stringify(this.uploadForm))
-        this.$http.post(this.netAPI.import, this.uploadForm).then(
+        this.$http.deviceUploudValidation( this.uploadForm).then(
               res => {
                 // console.log(11111)
-                if(res.body.status == 200) {
-                  this.sucPersonNum = res.body.data
+                if(res.data.status == 200) {
+                  this.sucPersonNum = res.data.data
                   this.secondUploadDevice = true
                   this.$message.success(this.$t('common.importSuccess'))
                 } else {
-                  this.$message.warning(this.$t('common.importFailed') + res.body.message)
+                  this.$message.warning(this.$t('common.importFailed') + res.data.message)
                 }
               }
           )
       }else {
     // 获取能添加的数据和不能添加的数据
         console.log(222222)
-        let no = this.$store.state.importDeviceNo.toString();
-        this.uploadForm.append('groupNo', no)
+        // let no = this.$store.state.selectGroupStore.importDeviceNo.toString();
+        // this.uploadForm.append('groupNo', no)
         console.log(JSON.stringify(this.uploadForm))
-        this.$http.post(this.netAPI.import, this.uploadForm).then(res => {
-          if(res.body.status == 200) {
-            // console.log(JSON.parse(res.body.data))
-            let jsonData = JSON.parse(res.body.data)
+        this.$http.deviceUploudValidation(this.uploadForm).then(res => {
+          if(res.data.status == 200) {
+            // console.log(JSON.parse(res.data.data))
+            let jsonData = JSON.parse(res.data.data)
             this.sucPersonNum = jsonData['correct'].length
             this.fieldPersonNum = jsonData['wrong'].length
             this.tableData = jsonData['wrong']
@@ -283,8 +284,8 @@ export default {
             let form = new FormData();
             form.append('code', 102103);
             form.append('attr', this.selectedDeviceType);
-            form.append('json', JSON.stringify(JSON.parse(res.body.data).correct));
-            this.correct = JSON.stringify(JSON.parse(res.body.data).correct);
+            form.append('json', JSON.stringify(JSON.parse(res.data.data).correct));
+            this.correct = JSON.stringify(JSON.parse(res.data.data).correct);
             this.uploadForm = form
           } else {
             this.$message.warning(this.$t('common.importFailedInfo'))

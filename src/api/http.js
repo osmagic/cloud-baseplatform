@@ -238,6 +238,14 @@ personModify(param){
 personDelete(param){
   return instance.post('/api/v2/personnel/info/remove', param)
 },
+//人员详情
+peopleDetail(param){
+  return instance.get('/api/v2/personnel/info/detail', {params: param})
+},
+//人员批量分组
+personBatchGroup(param){
+  return instance.post('/api/v2/personnel/info/batch', param)
+},
 //人员分组查询
 personGroupList(param){
   return instance.get('/api/v2/personnel/group/find', {params: param})
@@ -266,6 +274,108 @@ personAttrModify(param){
 },
 personAttrDelete(param){
   return instance.post('/api/v2/personnel/field/remove', param)
+},
+//特征值提取
+getSpecialValue(param){
+  return instance.post('/api/v2/feature/use-binary-do-feature', param)
+},
+//下载模版
+getExcelTemplate(param){
+  return instance.get('/api/v2/personnel/info/download', {params: param})
+},
+//管理员列表查询
+getManagerList(param){
+  return instance.get('/api/v2/device/admin/find', {params: param})
+},
+//管理员添加
+managerInsert(param){
+  return instance.post('/api/v2/device/admin/insert',  param)
+},
+//管理员修改
+managerModify(param){
+  return instance.post('/api/v2/device/admin/modify',  param)
+},
+//管理员删除
+managerDelete(param){
+  return instance.post('/api/v2/device/admin/remove',  param)
+},
+//管理员详情
+managerDetail(param){
+  return instance.post('/api/v2/device/admin/detail',  param)
+},
+//管理员登录
+managerLogin(param){
+  return instance.post('/api/v2/device/admin/login',  param)
+},
+//人员照片上传
+personPhotoUpload(param){
+  return instance.post('/api/v2/personnel/info/upload',  param)
+},
+//获取未关联设备
+getNotRelatedDevice(param){
+  return instance.get('/api/v2/device/admin/find-not-include-devices', {params: param})
+},
+//获取关联设备
+getRelatedDevice(param){
+  return instance.get('/api/v2/device/admin/find-included-devices', {params: param})
+},
+//获取设备列表
+getDeviceList(param){
+  return instance.get('/api/v2/device/info/find', {params: param})
+},
+//设备添加
+deviceInsert(param){
+  return instance.post('/api/v2/device/info/insert',  param)
+},
+//设备修改
+deviceModify(param){
+  return instance.post('/api/v2/device/info/modify',  param)
+},
+//设备删除
+deviceDelete(param){
+  return instance.post('/api/v2/device/info/remove',  param)
+},
+//设备详情
+deviceDetail(param){
+  return instance.get('/api/v2/device/info/detail', {params: param})
+},
+//设备信息分组
+deviceGroup(param){
+  return instance.post('/api/v2/device/info/batch',  param)
+},
+//设备分组查询
+getGroupList(param){
+  return instance.get('/api/v2/device/group/find', {params: param})
+},
+//获取门禁设备列表
+getAccessDeviceList(param){
+  return instance.get('/api/v2/door/device/find', {params: param})
+},
+//添加设备分组
+deviceGroupInsert(param){
+  return instance.post('/api/v2/device/group/insert',  param)
+},
+//修改设备分组
+deviceGroupModify(param){
+  return instance.post('/api/v2/device/group/modify',  param)
+},
+//删除设备分组
+deviceGroupDelete(param){
+  return instance.post('/api/v2/device/group/remove',  param)
+},
+//设备分组详情
+deviceGroupDetail(param){
+  return instance.get('/api/v2/device/group/detail',   {params: param})
+},
+//设备信息验证及上传
+deviceUploudValidation(param){
+  return instance.post('/api/v2/file/excel-import',  param)
+},
+//智能硬件类型查询
+smartHardwareType(param){
+  return instance.get('/api/v2/device/info/find-ih-type',   {params: param})
 }
+//设备激活
+//
  /*==============首页end===================*/
 }

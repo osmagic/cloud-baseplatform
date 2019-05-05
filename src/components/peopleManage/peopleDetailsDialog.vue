@@ -7,7 +7,7 @@
   <el-form ref="form" :model="Form"  label-width="110px" size="mini">
      <el-form-item label="图像采集">
       <img v-if="isShow.row" :src="isShow.row.urls[0]" alt="" style="width: 65%;">
-    </el-form-item>    
+    </el-form-item>
      <el-form-item v-for="(item,index) in isShow.tableDataLabel" :key="index" :label="item.name+'：'">
       <span>{{ isShow.row[item.property]}}</span>
     </el-form-item>
@@ -26,7 +26,9 @@ export default {
       Form:{}
     };
   },
-  
+  created(){
+    console.log(this.isShow)
+  },
   methods: {
     handleClose() {
       this.$emit("active");

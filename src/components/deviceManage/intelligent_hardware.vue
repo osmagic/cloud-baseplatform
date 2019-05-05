@@ -2,18 +2,18 @@
   <div class="hardwarePage">
     <!-- 顶部按钮 -->
     <div class="setting" ref="settingBox">
-      <el-button @click="trunToSetting(multipleSelection)" :disabled="multipleSelection.length<1">
+      <!-- <el-button @click="trunToSetting(multipleSelection)" :disabled="multipleSelection.length<1">
           {{$t('deviceList.batchSetting')}}
-      </el-button>
-      <el-button @click="reload">
+      </el-button> -->
+      <!-- <el-button @click="reload">
           {{$t('deviceList.refreshList')}}
-      </el-button>
-      <el-button :disabled="!$route.meta['modify']">
+      </el-button> -->
+      <!-- <el-button :disabled="!$route.meta['modify']">
           {{$t('deviceList.factoryReset')}}
       </el-button>
       <el-button :disabled="!$route.meta['modify']">
           {{$t('deviceList.batchUpdate')}}
-      </el-button>
+      </el-button> -->
     </div>
     <!-- 搜索栏 -->
     <div class="hardwareSearch">
@@ -57,7 +57,7 @@
                    @click="openBatch(multipleSelection)">
           {{$t('deviceList.batchGroup')}}
         </el-button>
-        <el-button :disabled="!$route.meta['add']" @click="openAdd">
+        <el-button  @click="openAdd">
           {{$t('deviceList.addDevice')}}
         </el-button>
         <el-button @click="doimport">
@@ -109,6 +109,7 @@
       <el-table-column prop="administrator" :label="$t('deviceList.administrator')" align="center" width="114">
         <template slot-scope="scope">
           <span v-if="scope.row.admins" :title="filterAdmins(scope.row)">{{scope.row.admins[0].adminName}}...</span>
+          <span v-else >{{scope.row.administrator}}...</span>
         </template>
       </el-table-column>
       <el-table-column prop="updateTime" :label="$t('deviceList.time')" align="center"  width="145">
@@ -478,9 +479,9 @@
     },
     created() {
 
-      // this.getdivergenceType();
-      // this.getAdministrator();
-      // this.searchtabledata();
+      this.getdivergenceType();
+      this.getAdministrator();
+      this.searchtabledata();
     },
     methods: {
       // 批量导入
@@ -488,11 +489,12 @@
         this.$emit('doimport', true, 3)
       },
       filterselectable(row, index) {
-        if(this.$route.meta['remove']) {
-          return 1;
-        }else{
-          return 0;
-        }
+        // if(this.$route.meta['remove']) {
+        //   return 1;
+        // }else{
+        //   return 0;
+        // }
+        return 1
       },
       mainBoxWidth() {
         let me = this;
@@ -515,6 +517,7 @@
       },
       // 遍历每个智能硬件所关联的设备管理员，显示title
       filterAdmins(row) {
+        console.log(row)
         let adminNames = [];
         row.admins.forEach(item => {
           adminNames.push(item.adminName)
@@ -541,14 +544,14 @@
         if(newSearch.deviceType == '') {
           delete newSearch.deviceType
         }
-        this.$http.get(this.netAPI.find, { params: newSearch }).then(
+        this.$http.getDeviceList(newSearch).then(
         res => {
-          if (res.body.status == 200) {
-            this.tableData = res.body.data
-            this.total = res.body.total
+          if (res.data.status == 200) {
+            this.tableData = res.data.data
+            this.total = res.data.total
             this.tableBoxLoading = false;
           } else {
-            this.$message.warning(res.body.message);
+            this.$message.warning(res.data.message);
           }
         },
         err => {
@@ -561,13 +564,13 @@
       },
       // 获取设备类型
       getdivergenceType() {
-        this.$http.get(this.netAPI.ihtype).then(
+        this.$http.smartHardwareType().then(
           res => {
-            if(res.body.status == 200) {
-              // console.log(JSON.stringify(res.body.data))
-              this.alldivergenceType = res.body.data
-              for (let item in res.body.data) {
-                this.alldeviceTypeName.push(res.body.data[item])
+            if(res.data.status == 200) {
+              // console.log(JSON.stringify(res.data.data))
+              this.alldivergenceType = res.data.data
+              for (let item in res.data.data) {
+                this.alldeviceTypeName.push(res.data.data[item])
               }
             }
           }
@@ -575,13 +578,13 @@
       },
       // 获取管理员
       getAdministrator () {
-        this.$http.get(this.adminAPI.find, {params: this.administrator}).then(
+        this.$http.getManagerList( this.administrator).then(
           res => {
-            if (res.body.status == 200) {
-              // console.log(JSON.stringify(res.body.data[0]))
-              this.allAdministrator = res.body.data
+            if (res.data.status == 200) {
+              // console.log(JSON.stringify(res.data.data[0]))
+              this.allAdministrator = res.data.data
             } else {
-              this.$message.warning(res.body.message);
+              this.$message.warning(res.data.message);
             }
           },
         err => {
@@ -621,10 +624,10 @@
         // console.log(JSON.stringify(newcreate))
         this.$refs[formName].validate((valid) => {
           if(valid) {
-            this.$http.post(this.netAPI.insert, newcreate).then(
+            this.$http.deviceInsert(newcreate).then(
               res => {
-                if (res.body.status == 200) {
-                  // console.log(JSON.stringify(res.body.data))
+                if (res.data.status == 200) {
+                  // console.log(JSON.stringify(res.data.data))
                   this.$refs.createfrom.resetFields();
                   this.$refs.hardwaretable.clearSelection();
                   this.$emit('initTree')
@@ -634,7 +637,7 @@
                   this.searchtabledata();
                 } else {
                   this.$message.warning(
-                    this.$t('common.insertFailed') + res.body.message
+                    this.$t('common.insertFailed') + res.data.message
                   );
                   this.createfrom.adminIds = [];
                 }
@@ -777,9 +780,9 @@
         // console.log(JSON.stringify(newUpdateform))
         this.$refs[formName].validate((valid) => {
           if(valid) {
-            this.$http.post(this.netAPI.update, newUpdateform).then(
+            this.$http.deviceModify( newUpdateform).then(
             res => {
-              if (res.body.status == 200) {
+              if (res.data.status == 200) {
                 // console.log(JSON.stringify(res.body.data))
                 this.$message.success(this.$t('deviceControl.modifiedSuccess'));
                 this.$refs.hardwaretable.clearSelection();
@@ -870,15 +873,15 @@
       // 点击确定，批量分组，并关闭模态框
       doBatch() {
         // console.log(JSON.stringify(this.batchgroupfrom))
-        this.$http.post(this.netAPI.batch, this.batchgroupfrom).then(
+        this.$http.deviceGroup(this.batchgroupfrom).then(
           res => {
-            if(res.body.status == 200) {
+            if(res.data.status == 200) {
               this.$message.success(this.$t('deviceList.batchGroupSuccess'))
               this.$refs.hardwaretable.clearSelection();
               this.$emit('initTree')
               this.searchtabledata();
             } else {
-              this.$message.warning(res.body.message)
+              this.$message.warning(res.data.message)
             }
           }
         )
@@ -972,9 +975,9 @@
           cancelButtonText: this.$t('common.cancel'),
           type: 'warning'
         }).then(() => {
-          this.$http.post(this.netAPI.delete, this.deleteData).then(
+          this.$http.deviceDelete(this.deleteData).then(
             res => {
-              if (res.body.status == 200) {
+              if (res.data.status == 200) {
                 if(this.deleteData.length == this.tableData.length) {
                   this.currentPage = this.currentPage - 1 > 0 ? this.currentPage - 1 : 1
                   this.searchtabledata();
@@ -986,7 +989,7 @@
                 this.$refs.hardwaretable.clearSelection();
               } else {
                 this.$message.warning(
-                  res.body.message
+                  res.data.message
                 );
               }
             },
