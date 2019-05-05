@@ -51,11 +51,11 @@ export default {
            endTime: '',
            isRequire: true
          },
-         {
-           startTime: '',
-           endTime: '',
-           isRequire: true
-         }        
+        //  {
+        //    startTime: '',
+        //    endTime: '',
+        //    isRequire: true
+        //  }        
         ]
       }
   },

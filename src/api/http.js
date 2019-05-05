@@ -113,7 +113,19 @@ alertType(param) {
   return instance.get('/api/v2/door/alarm/type', {params: param})
 },
 alertRemove(param) {
-  return instance.get('/api/v2/door/alarm/remove', {params: param})
+  return instance.post('/api/v2/door/alarm/remove', param)
+},
+//告警设置添加
+alertSetAdd(param){
+  return instance.post('/api/v2/door/alarm-set/insert', param)
+},
+//告警设置修改
+alertSetModify(param){
+  return instance.post('/api/v2/door/alarm-set/modify', param)
+},
+//告警设置查询
+getAlertSet(param){
+  return instance.get('/api/v2/door/alarm-set/find', {params: param})
 },
 alertDetail(param) {
   return instance.get('/api/v2/door/alarm/detail', {params: param})
@@ -128,7 +140,7 @@ accessDetail(param) {
   return instance.get('/api/v2/door/passage-record/detail', {params: param})
 },
 accessRemove(param) {
-  return instance.get('/api/v2/door/passage-record/remove', {params: param})
+  return instance.post('/api/v2/door/passage-record/remove',  param)
 },
 accessExport(param) {
   return instance.get('/api/v2/door/passage-record/export', {params: param})
