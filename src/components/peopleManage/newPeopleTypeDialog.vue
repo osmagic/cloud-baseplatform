@@ -127,7 +127,15 @@ export default {
       }
       let send = {
         name: this.Form.peopleType,
-        children: [],
+        children: [{
+          description:'Name',
+          name:'name',
+          details:{required:'1'}
+        },{
+           description:'Number',
+          name:'code',
+          details:{required:'1'}
+        }],
         needGroup: this.showGroup,
 
       };
