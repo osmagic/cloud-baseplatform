@@ -52,21 +52,15 @@
 </template>
 
 <script>
+import { debuglog } from 'util';
 
 export default {
   props: {
     setWeekTime: {
       type: Object,
       default: () => {
-          return {
-            fri: "00:10-24:00",
-            mon: "00:10-24:00",
-            sat: "00:10-24:00",
-            sun: "00:10-24:00",
-            thu: "00:10-24:00",
-            tue: "00:10-24:00",
-            wed: "00:10-24:00"
-          }
+        return {
+        }
       }
     }
   },
@@ -105,9 +99,15 @@ export default {
       }
   },
   watch:{
+    'setWeekTime': {
+       handler: function(newVal, oldVal) {
+          this.changeTimeStrToArr()
+       },
+       deep: true
+    },
     'selTimes': {
       handler:function(newVal, oldVal) {
-        console.log(JSON.stringify(newVal))
+        if(newVal.length > 0) {
          let date = {}
          this.weeks.forEach((item1, index1) => {
            let t =[]
@@ -116,8 +116,8 @@ export default {
            })
            date[item1.file] = t.toLocaleString()
          })
-         console.log(date)
          this.$emit('getTime', date)
+        }
       },
       deep: true
     }
@@ -131,35 +131,27 @@ export default {
     },
     delTime(dex1, dex2) {
       this.selTimes[dex1].times.splice(dex2, 1)
+    },
+    changeTimeStrToArr() {
+      let selTimes = []
+      this.weeks.forEach(item => {
+        let times = []
+        this.setWeekTime[item.file].split(';').forEach((item2) => {
+          times.push({
+            startTime: item2.split('-')[0],
+            endTime: item2.split('-')[1]
+          })
+        })
+        selTimes.push({
+          name: item.name,
+          times
+        })
+      })
+      this.selTimes = selTimes
     }
   },
   mounted() {
-    // this.weeks.forEach(w => {
-    //   this.selTimes.push({
-    //     name: w.name,
-    //     times: [
-    //          {
-    //            startTime: '00:10',
-    //            endTime: '24:00'
-    //          }
-    //        ]
-    //   })
-    // })
-
-    console.log(this.setWeekTime)
-    this.weeks.forEach(item => {
-      // let times = []
-      // this.setWeekTime[item.file].split(';').forEach((item2) => {
-      //   times.push({
-      //     startTime: '',
-      //     endTime: ''
-      //   })
-      // })
-      // this.selTimes.push({
-      //   name: item.file,
-       
-      // }
-    })
+    this.changeTimeStrToArr()
   }
 }
 </script>
