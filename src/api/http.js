@@ -72,19 +72,102 @@ export default {
   //   return instance.get('/api/v2/cmcc/report/basic-resource/overview', {params: param})
   // },
 // 门禁系统
-getAccessFindTimes(param){
+// 查询通行方式
+getWays(param){
+  return instance.get('/api/v2/parameter/setting/passage/way/nodes', {params: param})
+},
+findTimes(param){
   return instance.get('/api/v2/door/main/total-person', {params: param})
 },
+findFlowrate(param) {
+  return instance.get('/api/v2/door/main/total-record', {params: param})
+},
 
+findDeviceAll(param) {
+  return instance.get('/api/v2/door/device/find', {params: param})
+},
+addDevices(param) {
+  return instance.post('/api/v2/door/device/insert', param)
+},
+updateDevice(param) {
+  return instance.get('/api/v2/door/device/modify', {params: param})
+},
+removeDevice(param) {
+  return instance.post('/api/v2/door/device/remove', param)
+},
+findAllDevice(param) {
+  return instance.get('/api/v2/device/info/find', {params: param})
+},
+openDoor(param) {
+  return instance.post('/api/v2/door/device/control-door', param)
+},
 
-// 门禁权限
+findPeopleType(param) {
+  return instance.get('/api/v2/person/type/find', {params: param})
+},
+
+alertList(param) {
+  return instance.get('/api/v2/door/alarm/find', {params: param})
+},
+alertType(param) {
+  return instance.get('/api/v2/door/alarm/type', {params: param})
+},
+alertRemove(param) {
+  return instance.get('/api/v2/door/alarm/remove', {params: param})
+},
+alertDetail(param) {
+  return instance.get('/api/v2/door/alarm/detail', {params: param})
+},
+peopleDetail(param) {
+  return instance.get('/api/v2/peopleManager/detail', {params: param})
+},
+accessList(param) {
+  return instance.get('/api/v2/door/passage-record/find', {params: param})
+},
+accessDetail(param) {
+  return instance.get('/api/v2/door/passage-record/detail', {params: param})
+},
+accessRemove(param) {
+  return instance.get('/api/v2/door/passage-record/remove', {params: param})
+},
+accessExport(param) {
+  return instance.get('/api/v2/door/passage-record/export', {params: param})
+},
+rulesList(param) {
+  return instance.get('/api/v2/door/passage-rule/find', {params: param})
+},
+rulesInsert(param) {
+  return instance.get('/api/v2/door/passage-rule/insert', {params: param})
+},
+rulesModify(param) {
+  return instance.get('/api/v2/door/passage-rule/modify', {params: param})
+},
+rulesRemove(param) {
+  return instance.get('/api/v2/door/passage-rule/remove', {params: param})
+},
+rulesDetail(param) {
+  return instance.get('/api/v2/door/passage-rule/detail', {params: param})
+},
+passWayList(param) {
+  return instance.get('/api/v2/parameter/setting/passage/way/nodes', {params: param})
+},
+connectDevice(param) {
+  return instance.get('/api/v2/door/passage-rule/sync', {params: param})
+},
+disConnectDevice(param) {
+  return instance.get('/api/v2/door/passage-rule/remove', {params: param})
+},
+personTypeStatus(param) {
+  return instance.get('/api/v2/door/passage-rule/person-type', {params: param})
+},
+
 // 查询权限
 getAccessRuleList(param) {
   return instance.get('/api/v2/door/rule/find', {params: param})
 },
 // 添加权限
 accessRuleInsert(param) {
-  return instance.get('/api/v2/door/rule/insert', {params: param})
+  return instance.post('/api/v2/door/rule/insert', param)
 },
 // 修改权限
 accessRuleModify(param) {

@@ -1,11 +1,13 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import module1 from './mainStore.js'
-import module2 from './accessMonitorStore.js'
+import mainStore from './mainStore.js'
+import accessMonitorStore from './accessMonitorStore.js'
+import sccessDevice from './sccessDevice.js'
 Vue.use(Vuex)
 export default new Vuex.Store({
   modules:{
-    module1:module1,
-    module2:module2
+    mainStore:mainStore,
+    accessMonitorStore:accessMonitorStore,
+    sccessDevice:sccessDevice
   }
 });

@@ -15,7 +15,7 @@
         </div>
         <div class="show-table">
            <el-table
-
+               :row-key="getRowKeys"
               :data="typeData"
               :header-cell-style="{background:'rgba(245,248,252,1)'}"
               height="631">
@@ -129,6 +129,9 @@ export default {
 
   },
   methods:{
+     getRowKeys(row) {
+        return row.id;
+     },
      dialogClosePeopleType() {
       // 关闭窗口
       this.dialogAddPeopleType = false

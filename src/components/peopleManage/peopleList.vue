@@ -747,9 +747,7 @@ export default {
         this.treeData = JSON.parse(
           JSON.stringify(groups).replace(/nameZh/g, "label")
         );
-
           this.getTypeKeys();
-
       });
     },
     getTypeKeys(){

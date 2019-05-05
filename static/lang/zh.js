@@ -635,10 +635,8 @@ module.exports = {
     tongxingjilu: '通行记录',
     renyuanxingming: '人员姓名',
     renyuanbianhao: '人员编号',
-
     tongxingshijian: '通行时间',
     tongxingshebei: '通行设备',
-
     yanzhengjieguo: '验证结果',
     jilushijianduan: '记录时间段',
     tongxingjieguo: '通行结果',
@@ -648,7 +646,6 @@ module.exports = {
     bianhao: '编号',
     daochu: '导出',
     shebei: '设备',
-
     duibidafen: '对比打分',
     weizhiz: '未知',
     daochuwenjian: '导出文件.xlsx',

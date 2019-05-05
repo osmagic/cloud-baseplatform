@@ -76,7 +76,7 @@ export default {
         background: #4C83FF;
     }
     .el-dialog__footer {
-        padding: 45px 20px 20px !important;
+        padding: 10px 10px 20px !important;
         text-align: center;
     }
     .el-dialog{
@@ -84,7 +84,7 @@ export default {
         position: absolute;
         display: flex;
         flex-direction: column;
-        max-height: 80%;
+        // max-height: 80%;
         margin: 0;
         left: 50%;
         top: 50%;
