@@ -32,17 +32,19 @@
             label="关联人员"
             width="180">
               <template slot-scope="scope">
-                {{filterPerson(scope.row)}}
+                <div @click="showAssPerson(scope.row)" class="pointer">
+                   {{filterPerson(scope.row)}}
+                </div>
               </template>
           </el-table-column>
           <el-table-column
             prop="deviceIds"
             label="可通行设备">
             <template slot-scope="scope">
-                <div @click="showDivice(scope.row)" class="pointer">
-                  {{filterDevice(scope.row)}}
-                </div>
-              </template>
+              <div @click="showAssDivice(scope.row)" class="pointer">
+                {{filterDevice(scope.row)}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
             prop="address"
@@ -68,6 +70,7 @@
 
       <dialog-container :di="isDShow" top="0" @saveDialog="saveJurDialog" @closeDialog="closeJurDialog">
            <div slot="container">
+             <!-- {{jurRuleForm}} -->
              <el-form :model="jurRuleForm" :rules="jurRules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
                 <el-form-item label="权限组名称" prop="name">
                   <el-input v-model="jurRuleForm.name" placeholder="请输入权限组名称"></el-input>
@@ -80,7 +83,7 @@
                 <el-form-item label="关联人员" prop="persionIds">
                   <el-button type="primary" @click="showSelPerson">请选择</el-button>
                   <span>
-                      {{selPersons.length> 0 ? selPersons[0].name : ''}}
+                      {{selPersons.length> 0 ? selPersons[0].name : ''}}...
                   </span>
                 </el-form-item>
 
@@ -95,6 +98,7 @@
   
                 <el-form-item label="可通行设备" prop="deviceIds">
                   <el-button type="primary" @click="showDialogDivice">请选择</el-button>
+                  <span>{{selDevices.length > 0 ? selDevices[0].deviceName : ''}}...</span>
                 </el-form-item>
 
                 <el-form-item label="通行方式" prop="passageMode" v-if="jurRuleForm.allow === '1'">
@@ -114,19 +118,92 @@
            </div>
       </dialog-container>
 
+      <!-- 关联人员 -->
       <dialog-container :di="isShowPerson" top="0" @saveDialog="savePersonDialog" @closeDialog="closeSeDialog">
           <div slot="container">
             <select-person @seletPerson="seletPerson"></select-person>
           </div>
       </dialog-container>
-
+       
+       <!-- 关联设备 -->
        <dialog-container :di="isShowDivice" top="0" @saveDialog="saveDiviceDialog" @closeDialog="closeSeDialog">
           <div slot="container">
             <select-divice @getSeletedDivice="getSeletedDivice"></select-divice>
           </div>
       </dialog-container>
+      
+      <!-- 显示设备已经关联得人员 -->
+      <dialog-container :di="isshowGlPerson" top="0" @saveDialog="saveDiviceDialog" @closeDialog="closeSeDialog">
+         <div slot="container">
+           <el-table
+                :data="glPersonsTable"
+                @selection-change="handleSelectionChange"
+                style="width: 100%">
+                <el-table-column
+                type="selection"
+                width="40">
+              </el-table-column>
+              <el-table-column label="人员编号" prop="code">
+
+              </el-table-column>
+               <el-table-column label="名称" prop="name">
+
+              </el-table-column>
+               <el-table-column label="照片">
+                 <template slot-scope="scope">
+                   <!-- {{scope.row.personBasicInfoVo.urls[0]}} -->
+                  <img :src="scope.row.personBasicInfoVo.urls[0]" class="table-img"/>
+                 </template>
+              </el-table-column>
+           </el-table>
+
+           <div class="footer-table">
+              <div class="del-gl-divice">
+                 <el-button type="primary" @click="removeRule">从规则移除</el-button>
+                 <el-button @click="removeRule">一键清空</el-button>
+              </div>
+
+              <div class="footer-page">
+
+              </div>
+
+           </div>
+         </div>
+      </dialog-container>
+
+      <!-- 显示设备已经关联得设备 -->
+      <dialog-container :di="isshowGlDivice" top="0" @saveDialog="saveDiviceDialog" @closeDialog="closeSeDialog">
+         <div slot="container">
+            <el-table
+                :data="glDivicesTable"
+                @selection-change="handleSelectionChange"
+                style="width: 100%">
+                <el-table-column
+                type="selection"
+                width="40">
+              </el-table-column>
+              <el-table-column label="设备名称">
+                 <template slot-scope="scope">
+                   {{scope.row.deviceInfoVo.name}}
+                 </template>
+              </el-table-column>
+              <el-table-column label="设备ip">
+                 <template slot-scope="scope">
+                   {{scope.row.deviceInfoVo.ip}}
+                 </template>
+              </el-table-column>
+              <el-table-column label="设备组编号">
+                 <template slot-scope="scope">
+                   {{scope.row.deviceInfoVo.groupNo}}
+                 </template>
+              </el-table-column>
+           </el-table>
+         </div>
+      </dialog-container>
 
   </div>
+
+      
 </template>
 <script>
 import DialogContainer from './common/DialogWrapper.vue'
@@ -146,6 +223,7 @@ export default {
       treeData: [],
       tableData:[],
       seatchWord: '',
+    
       isDShow: {
           Visible: false,
           Title: '新增权限组',
@@ -163,6 +241,20 @@ export default {
           Title: '关联人员',
           Width: '1030px',
           isshowfooter: true
+      },
+      // 权限已经关联得人员
+      isshowGlPerson: {
+        Visible: false,
+        Title: '已关联的人员列表',
+        Width: '1030px',
+        isshowfooter: false
+      },
+      // 权限已经关联得设备
+      isshowGlDivice: {
+        Visible: false,
+        Title: '已关联的设备列表',
+        Width: '1030px',
+        isshowfooter: false
       },
       weeks: [{
           name:'周一',
@@ -222,12 +314,13 @@ export default {
       waysArr: [],
       passcheckList:[],
       seletJurs: [], // 选中得门禁
-      setWeekTime: {} // 编辑得时候设时间
+      setWeekTime: {}, // 编辑得时候设时间
+      glPersonsTable: [], // 关联的人员列表
+      glDivicesTable: [], // 关联的设备列表
     }
   },
   watch: {
     passcheckList(newVal) {
-      console.log(newVal)
       let w = []
       newVal.forEach(item1 => {
         this.waysArr.forEach(item2 => {
@@ -242,6 +335,26 @@ export default {
     },
   },
   methods: {
+    removeRule() {
+
+    },
+    showAssPerson(row) {
+      this.isshowGlPerson.Visible = true
+      this.$http.personByRule({
+        ruleIds: row.id
+      }).then((res) => {
+        this.glPersonsTable = res.data.data
+      })
+    },
+    showAssDivice(row) {
+      this.isshowGlDivice.Visible = true
+       this.$http.deviceByRuleFind({
+        ruleIds: row.id
+      }).then((res) => {
+        this.glDivicesTable = res.data.data
+        console.log(this.glDivicesTable)
+      })
+    },
     handleSelectionChange(val) {
       console.log(val)
       this.seletJurs = val
@@ -271,21 +384,17 @@ export default {
          })
       })
       this.passcheckList = wayNames
-      
       // 获取时间
       let t= {}
       this.weeks.forEach(item => {
         t[item.file] = row[item.file]
       })
-      debugger
       this.setWeekTime = t
-
       this.isDShow.Visible = true
     },
     // 获取时间
     getTime(weekObj) {
-     console.log(weekObj)
-     this.setWeekTime = weekObj
+    //  this.setWeekTime = weekObj
      this.jurRuleForm = Object.assign(this.jurRuleForm, weekObj);
     },
     savePersonDialog() {
@@ -299,7 +408,7 @@ export default {
     saveDiviceDialog() {
         this.jurRuleForm.deviceIds = []
         this.selDevices.forEach(item => {
-          this.jurRuleForm.deviceIds.push(item.id)
+          this.jurRuleForm.deviceIds.push(item.deviceId)
         })
         this.isShowDivice.Visible = false
     },
@@ -330,13 +439,9 @@ export default {
           }
       })
       
-      
     },
     seletPerson(persons) {
-     
       this.selPersons = persons
-      // console.log(personNo)
-      // this.jurRuleForm.persionIds = personNo
     },
     getSeletedDivice(devices) {
       this.selDevices = devices
@@ -347,6 +452,8 @@ export default {
     closeSeDialog() {
       this.isShowDivice.Visible = false
       this.isShowPerson.Visible = false
+      this.isshowGlPerson.Visible = false
+       this.isshowGlDivice.Visible = false
     },
     getDiviceGroup() {
       this.$http.personGroupList({ no: '100010021001' }).then(res => {
@@ -382,11 +489,7 @@ export default {
         this.waysArr = res.data.data
       })
     },
-    // 显示设备组
-    showDivice(row) {
-      console.log(22332323)
-       
-    },
+   
     // 在新增和编辑权限组中操作
     showDialogDivice() {
       this.isShowDivice.Visible = true
@@ -411,7 +514,16 @@ export default {
       
     },
     addJur() {
-      this.jurRuleForm = this.initRuleForm
+      this.jurRuleForm = JSON.parse(JSON.stringify(this.initRuleForm))
+      this.setWeekTime = {
+          fri: "00:10-24:00",
+          mon: "00:10-24:00",
+          sat: "00:10-24:00",
+          sun: "00:10-24:00",
+          thu: "00:10-24:00",
+          tue: "00:10-24:00",
+          wed: "00:10-24:00"
+      }
       this.isDShow.Visible = true
     },
     delJurs() {
@@ -442,8 +554,18 @@ export default {
     overflow: auto;
   }
 }
-// .el-dialog{ -webkit-backface-visibility: hidden; }
+.footer-table {
+  .del-gl-divice {
 
+  }
+  .footer-page {
+
+  }
+}
+// .el-dialog{ -webkit-backface-visibility: hidden; }
+.table-img {
+  width: 100px;
+}
 .searchI{
   width: 200px;
 }

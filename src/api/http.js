@@ -197,6 +197,14 @@ accessVerifier(param) {
 personByDevice(param) {
   return instance.get('/api/v2/door/rule/person-by-device', {params: param})
 },
+// 人员和规则关联列表
+personByRule(param) {
+  return instance.get('/api/v2/persion/rule/find', {params: param})
+},
+// 删除人员关联规则
+personByRuleRemove() {
+  return instance.get('/api/v2/persion/rule/remove', {params: param})
+},
 // 设备和规则权限关联查询
 deviceByRuleFind(param) {
   return instance.get('/api/v2/device/rule/find', {params: param})
