@@ -26,4 +26,6 @@ export default {
 .el-pagination.is-background .el-pager li:not(.disabled).active{
   background-color: #4383DC;
 }
+
+.el-dialog{ backface-visibility: hidden; }
 </style>

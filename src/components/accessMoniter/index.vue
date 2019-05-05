@@ -1,92 +1,47 @@
 <template>
-  <div id="bench">
-    <div class="dateSelect">
-      <span>{{$t('accessSystem.menjintongji')}}</span>
-      <!-- <el-date-picker
-        class="datepick"
-        v-model="date"
-        type="date"
-        placeholder="选择日期"
-      >
-      </el-date-picker> -->
-      <el-date-picker
-        class="picker"
-        v-model="date"
-        unlink-panels
-        type="daterange"
-        :clearable='false'
-        :range-separator="$t('accessSystem.zhi')"
-        value-format="yyyy-MM-dd"
-        :start-placeholder="$t('accessSystem.kaishiriqi')"
-        :end-placeholder="$t('accessSystem.jieshuriqi')"
-        :default-time="['00:00:00', '23:59:59']"
-        >
-      </el-date-picker>
-      <el-button
-        round
-        type="primary"
-        class="btn"
-        @click ="findData"
-      >{{$t('accessSystem.chaxun')}}</el-button>
-      <div class="line"></div>
-
-    </div>
-    <div class="acount">
-      <div class=" box1 ac_contain">
-        <p>{{$t('accessSystem.yuangongtongxingtongji')}}</p>
-        <div style="display:flex;">
-          <div
-            class="box"
-            style="border-right: 2px solid rgba(228,228,228,1)"
-          >
-            <span class="number">{{persionNumber1}}</span>{{$t('accessSystem.ren')}}
-            <div class="round">{{$t('accessSystem.tongxingrenshu')}}</div>
-          </div>
-          <div class="box">
-            <span class="number">{{persionTime1}}</span>{{$t('accessSystem.ci')}}
-            <div class="round">{{$t('accessSystem.tongxingrenci')}}</div>
-          </div>
-        </div>
-      </div>
-      <div class="ac_contain">
-        <p>{{$t('accessSystem.fangketongxingtongji')}}</p>
-        <div style="display:flex;">
-          <div
-            class="box"
-            style="border-right: 2px solid rgba(228,228,228,1)"
-          >
-            <span class="number">{{persionNumber2}}</span>{{$t('accessSystem.ren')}}
-            <div class="round">{{$t('accessSystem.tongxingrenshu')}}</div>
-          </div>
-          <div class="box">
-            <span class="number">{{persionTime2}}</span>{{$t('accessSystem.ci')}}
-            <div class="round">{{$t('accessSystem.tongxingrenci')}}</div>
-          </div>
-        </div>
-      </div>
-      <div class="ac_contain">
-        <p>{{$t('accessSystem.heimingdanjujuetongji')}}</p>
-        <div style="display:flex;">
-          <div
-            class="box"
-            style="border-right: 2px solid rgba(228,228,228,1)"
-          >
-            <span class="number">{{persionNumber3}}</span>{{$t('accessSystem.ren')}}
-            <div class="round">{{$t('accessSystem.tongxingrenshu')}}</div>
-          </div>
-          <div class="box">
-            <span class="number">{{persionTime3}}</span>{{$t('accessSystem.ci')}}
-            <div class="round">{{$t('accessSystem.tongxingrenci')}}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="charts">
-      <p style="margin-left:0.46rem;padding-top:29px">{{$t('accessSystem.renliuqushitongji')}}</p>
-      <div id="echarts">
-
-      </div>
-    </div>
+  <div id="accessIndex">
+    <el-container>
+      <el-header>
+        <img src="../../assets/img/7620.png" alt="" />
+        <span class="name">考拉智能门禁系统</span>
+        <span class="exit">
+          退出登录
+        </span>
+      </el-header>
+      <el-container>
+        <el-aside width="244px">
+          <Menu active-name="1" width="244px">
+            <MenuItem name="1" style="margin:20px 0 10px 0" to="/accessMonitor/index">
+              <Icon type="md-document" />
+              主页
+            </MenuItem>
+            <div class="line"></div>
+            <MenuGroup title="门禁系统管理">
+              <MenuItem name="2" to="/accessMonitor/accessDevice">
+                <Icon type="md-document" />
+                门禁设备
+              </MenuItem>
+              <MenuItem name="3" to="/accessMonitor/accessAuth">
+                <Icon type="md-chatbubbles" />
+                门禁权限
+              </MenuItem>
+              <MenuItem name="4" to="/accessMonitor/accessRecord">
+                <Icon type="md-chatbubbles" />
+                通行记录
+              </MenuItem>
+              <MenuItem name="5" to="/accessMonitor/alarmRecord">
+                <Icon type="md-chatbubbles" />
+                告警记录
+              </MenuItem>
+            </MenuGroup>
+          </Menu>
+          <div class="line"></div>
+        </el-aside>
+        <el-main>
+           <router-view></router-view>
+        </el-main>
+      </el-container>
+    </el-container>
   </div>
 </template>
 <script>
@@ -95,202 +50,8 @@
 export default {
   data() {
     return {
-      date: "",
-      netAPI: '',
-      personType1: 100010001001,
-      personType2: 100010001002,
-      personType3: 100010001003,
-      personTypeArr: [
-        {
-          name: '员工',
-          No: 100010001001
-        },
-        {
-          name: '访客',
-          No: 100010001002
-        },
-        {
-          name: '黑名单',
-          No: 100010001003
-        },
-      ],
-      persionNumber1: 0,
-      persionTime1: 0,
-      persionNumber2: 0,
-      persionTime2: 0,
-      persionNumber3: 0,
-      persionTime3: 0,
-      recordTime: [],
-      personTimes: [],
     };
   },
-  created() {
-    this.netAPI = APICONFIG().get("accessSystem");
-      //格式化当前时间
-    Date.prototype.Format = function(fmt) {
-      //author: meizz
-      var o = {
-        "M+": this.getMonth() + 1, //月份
-        "d+": this.getDate(), //日
-        "h+": this.getHours(), //小时
-        "m+": this.getMinutes(), //分
-        "s+": this.getSeconds(), //秒
-        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
-        S: this.getMilliseconds() //毫秒
-      };
-      if (/(y+)/.test(fmt)) {
-        fmt = fmt.replace(
-          RegExp.$1,
-          (this.getFullYear() + "").substr(4 - RegExp.$1.length)
-        );
-      }
-      for (var k in o) {
-        if (new RegExp("(" + k + ")").test(fmt)) {
-          fmt = fmt.replace(
-            RegExp.$1,
-            RegExp.$1.length == 1
-              ? o[k]
-              : ("00" + o[k]).substr(("" + o[k]).length)
-          );
-        }
-      }
-      return fmt;
-    };
-    this.date = [
-      new Date().Format("yyyy-MM-dd 00:00:00"),
-      new Date().Format("yyyy-MM-dd 23:59:59")
-    ];
-    this.findData()
-  },
-  mounted() {
-    this.drawline()
-  },
-  methods: {
-    // 查询
-    findData() {
-      this.$http.get(this.netAPI.index.findTimes, {params: {startDate: this.date[0], endDate: this.date[1], personType: this.personTypeArr[0].No}})
-        .then(
-          res => {
-            if(res.body.status == 200) {
-              // console.log(JSON.stringify(res.body.data))
-              this.persionNumber1 = res.body.data.personNumber
-              this.persionTime1 = res.body.data.personTime
-            } else{
-              this.$message.warning(this.$t('accessSystem.chaxunshibai') + res.body.message)
-            }
-          }
-        )
-      this.$http.get(this.netAPI.index.findTimes, {params: {startDate: this.date[0], endDate: this.date[1], personType: this.personTypeArr[1].No}})
-        .then(
-          res => {
-            if(res.body.status == 200) {
-              // console.log(JSON.stringify(res.body.data))
-              this.persionNumber2 = res.body.data.personNumber
-              this.persionTime2 = res.body.data.personTime
-            } else{
-              this.$message.warning(this.$t('accessSystem.chaxunshibai') + res.body.message)
-            }
-          }
-        )
-      this.$http.get(this.netAPI.index.findTimes, {params: {startDate: this.date[0], endDate: this.date[1], personType: this.personTypeArr[2].No}})
-        .then(
-          res => {
-            if(res.body.status == 200) {
-              // console.log(JSON.stringify(res.body.data))
-              this.persionNumber3 = res.body.data.personNumber
-              this.persionTime3 = res.body.data.personTime
-            } else{
-              this.$message.warning(this.$t('accessSystem.chaxunshibai') + res.body.message)
-            }
-          }
-        )
-
-      this.$http.get(this.netAPI.index.findFlowrate, {params: {startDate: this.date[0], endDate: this.date[1]}})
-        .then(
-          res => {
-            if(res.body.status == 200) {
-              // console.log(JSON.stringify(res.body.data))
-              this.recordTime = []
-              this.personTimes = []
-              // res.body.data.forEach(item => {
-              //   this.recordTime.push(item.recordDate)
-              //   this.personTimes.push(item.persionTime)
-              // })
-              for (const key in res.body.data) {
-                if (res.body.data.hasOwnProperty(key)) {
-                  const element = res.body.data[key];
-                  this.recordTime.push(key)
-                  this.personTimes.push(element)
-                }
-              }
-              this.drawline()
-            } else{
-              this.$message.warning(this.$t('accessSystem.chaxunshibai') + res.body.message)
-            }
-          }
-        )
-    },
-    //横纵坐标轴留空数据处理
-    formatterData() {
-      this.recordTime = [];
-      this.personTimes = [];
-      //计算相距多少天
-    },
-    dateMinus() {
-      var sdate = new Date(this.date[0]);
-        　　var now = new Date(this.date[1]);
-        　　var days = now.getTime() - sdate.getTime();
-        　　var day = parseInt(days / (1000 * 60 * 60 * 24));
-
-        　　return day;
-    },
-
-    drawline() {
-      let myChart = this.$echarts.init(document.getElementById("echarts"));
-      // 绘制图表
-      myChart.setOption({
-        xAxis: {
-          type: "category",
-          // data: ["00", "02", "04", "06", "08", "10", "12", "14", "16", "18", "20", "22", "24"]
-          data: this.recordTime
-        },
-        yAxis: {
-          type: "value",
-          minInterval: 1,
-          splitLine: {
-            show: false
-          },
-          max: function(value) {
-            return value.max * 2
-          }
-        },
-        tooltip: {
-          triggerOn: 'mousemove',
-          formatter: function (params) {
-            console.log(params)
-            return params.name + '<br />' + params.value + this.$t('accessSystem.ci')
-          }
-        },
-        series: [
-          {
-            // data: [820, 932, 901, 934, 1290, 1330, 1320, 820, 932, 901, 934, 1290, 1330],
-            data: this.personTimes,
-            type: "line",
-            smooth: true,
-            lineStyle: {
-              normal: {
-                width: 5,
-                color: '#E7A640',
-                shadowColor: '#CBCBCB',
-                shadowBlur: 10,
-                shadowOffsetY: 10
-              }
-            },
-          }
-        ]
-      });
-    }
-  }
 };
 </script>
 <style scoped>
@@ -377,5 +138,3 @@ p {
   color: rgba(39, 39, 39, 1);
 }
 </style>
-
-

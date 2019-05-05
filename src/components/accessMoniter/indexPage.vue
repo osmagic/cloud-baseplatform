@@ -96,7 +96,172 @@ color:rgba(77,79,92,1);">{{$t('accessSystem.menjintongji')}}</div>
 export default {
   data(){
     return{
-      date:''
+      date: "",
+      netAPI: '',
+      personType1: 100010001001,
+      personType2: 100010001002,
+      personType3: 100010001003,
+      personTypeArr: [
+        {
+          name: '员工',
+          No: 100010001001
+        },
+        {
+          name: '访客',
+          No: 100010001002
+        },
+        {
+          name: '黑名单',
+          No: 100010001003
+        },
+      ],
+      persionNumber1: 0,
+      persionTime1: 0,
+      persionNumber2: 0,
+      persionTime2: 0,
+      persionNumber3: 0,
+      persionTime3: 0,
+      recordTime: [],
+      personTimes: [],
+    }
+  },
+  created() {
+    // this.netAPI = APICONFIG().get("accessSystem");
+      //格式化当前时间
+    Date.prototype.Format = function(fmt) {
+      //author: meizz
+      var o = {
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "h+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+        S: this.getMilliseconds() //毫秒
+      };
+      if (/(y+)/.test(fmt)) {
+        fmt = fmt.replace(
+          RegExp.$1,
+          (this.getFullYear() + "").substr(4 - RegExp.$1.length)
+        );
+      }
+      for (var k in o) {
+        if (new RegExp("(" + k + ")").test(fmt)) {
+          fmt = fmt.replace(
+            RegExp.$1,
+            RegExp.$1.length == 1
+              ? o[k]
+              : ("00" + o[k]).substr(("" + o[k]).length)
+          );
+        }
+      }
+      return fmt;
+    };
+    this.date = [
+      new Date().Format("yyyy-MM-dd 00:00:00"),
+      new Date().Format("yyyy-MM-dd 23:59:59")
+    ];
+   
+  },
+  mounted() {
+    this.drawline()
+    this.findData()
+  },
+  methods: {
+    // 查询
+    findData() {
+      this.$http.findTimes({startDate: this.date[0], endDate: this.date[1], personType: this.personTypeArr[2].No})
+      .then(
+        res => {
+          if(res.data.status == 200) {
+            // console.log(JSON.stringify(res.data.data))
+            this.persionNumber3 = res.data.data.personNumber
+            this.persionTime3 = res.data.data.personTime
+          } else{
+            this.$message.warning(this.$t('accessSystem.chaxunshibai') + res.data.message)
+          }
+        }
+      )
+
+      this.$http.findFlowrate({startDate: this.date[0], endDate: this.date[1]})
+        .then(
+          res => {
+            if(res.data.status == 200) {
+              this.recordTime = []
+              this.personTimes = []
+              for (const key in res.data.data) {
+                if (res.data.data.hasOwnProperty(key)) {
+                  const element = res.data.data[key];
+                  this.recordTime.push(key)
+                  this.personTimes.push(element)
+                }
+              }
+              this.drawline()
+            } else{
+              this.$message.warning(this.$t('accessSystem.chaxunshibai') + res.data.message)
+            }
+          }
+        )
+    },
+    //横纵坐标轴留空数据处理
+    formatterData() {
+      this.recordTime = [];
+      this.personTimes = [];
+      //计算相距多少天
+    },
+    dateMinus() {
+      var sdate = new Date(this.date[0]);
+        　　var now = new Date(this.date[1]);
+        　　var days = now.getTime() - sdate.getTime();
+        　　var day = parseInt(days / (1000 * 60 * 60 * 24));
+
+        　　return day;
+    },
+
+    drawline() {
+      let myChart = this.$echarts.init(document.getElementById("echarts"));
+      // 绘制图表
+      myChart.setOption({
+        xAxis: {
+          type: "category",
+          // data: ["00", "02", "04", "06", "08", "10", "12", "14", "16", "18", "20", "22", "24"]
+          data: this.recordTime
+        },
+        yAxis: {
+          type: "value",
+          minInterval: 1,
+          splitLine: {
+            show: false
+          },
+          max: function(value) {
+            return value.max * 2
+          }
+        },
+        tooltip: {
+          triggerOn: 'mousemove',
+          formatter: function (params) {
+            console.log(params)
+            return params.name + '<br />' + params.value + this.$t('accessSystem.ci')
+          }
+        },
+        series: [
+          {
+            // data: [820, 932, 901, 934, 1290, 1330, 1320, 820, 932, 901, 934, 1290, 1330],
+            data: this.personTimes,
+            type: "line",
+            smooth: true,
+            lineStyle: {
+              normal: {
+                width: 5,
+                color: '#E7A640',
+                shadowColor: '#CBCBCB',
+                shadowBlur: 10,
+                shadowOffsetY: 10
+              }
+            },
+          }
+        ]
+      });
     }
   }
 }
