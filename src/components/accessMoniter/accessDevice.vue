@@ -722,15 +722,26 @@ export default {
 
       if (row.id) {
         this.settingIds.push(row.id);
-      }
-      console.log(row)
-
-      // this.timeDataTransfer(row);
-       let xqs = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+         let xqs = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
        for (let index = 0; index < xqs.length; index++) {
          const element = xqs[index];
          this.setWeekTime[element] = row[element]
        }
+      }else{
+       this. setWeekTime= {
+        fri: "00:00-24:00",
+        mon: "00:00-24:00",
+        sat: "00:00-24:00",
+        sun: "00:00-24:00",
+        thu: "00:00-24:00",
+        tue: "00:00-24:00",
+        wed: "00:00-24:00"
+      }
+      }
+      console.log(row)
+
+      // this.timeDataTransfer(row);
+      
       this.settingForm.inOut = row.inOut;
     },
     handleClose() {
