@@ -211,7 +211,7 @@ deviceByRuleFind(param) {
 },
 // 设备和规则关联删除
 deviceByRuleDel(param) {
-  return instance.get('/api/v2/device/rule/remove', {params: param})
+  return instance.post('/api/v2/device/rule/remove', param)
 },
 
 //人员类型查询

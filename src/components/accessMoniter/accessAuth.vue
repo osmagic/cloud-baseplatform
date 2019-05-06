@@ -1,7 +1,7 @@
 <template>
   <div class="accessAuth">
     <div class="selectGroup">
-       <el-input v-model="seatchWord" placeholder="请输入内容" class="searchI"></el-input>
+       <el-input v-model.trim="seatchWord" placeholder="请输入内容" class="searchI"></el-input>
         <el-button class="searchB" @click="queryGroup(seatchWord)">查询</el-button>
         <div class="editGroup">
           <el-button @click="addJur">新增权限组</el-button>
@@ -10,62 +10,79 @@
       </div>
       <div class="table">
         <el-table
-          :data="tableData"
-           @selection-change="handleSelectionChange"
-          style="width: 100%">
-          <el-table-column
-          type="selection"
-          width="40">
-        </el-table-column>
-        <el-table-column
-          type="index"
-          width="50"
-          label='序号'>
-        </el-table-column>
-          <el-table-column
-            prop="name"
-            label="权限组名称"
-            width="180">
+            :data="tableData"
+            @selection-change="handleSelectionRuleChange"
+            style="width: 100%">
+            <el-table-column
+            type="selection"
+            width="40">
           </el-table-column>
           <el-table-column
-            prop="persionRules"
-            label="关联人员"
-            width="180">
+            type="index"
+            width="50"
+            label='序号'>
+          </el-table-column>
+            <el-table-column
+              prop="name"
+              label="权限组名称"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="persionRules"
+              label="关联人员"
+              width="180">
+                <template slot-scope="scope">
+                  <div @click="showAssPerson(scope.row)" class="pointer">
+                    {{filterPerson(scope.row)}}
+                  </div>
+                </template>
+            </el-table-column>
+            <el-table-column
+              prop="deviceIds"
+              label="可通行设备">
               <template slot-scope="scope">
-                <div @click="showAssPerson(scope.row)" class="pointer">
-                   {{filterPerson(scope.row)}}
+                <div @click="showAssDivice(scope.row)" class="pointer">
+                  {{filterDevice(scope.row)}}
                 </div>
               </template>
-          </el-table-column>
-          <el-table-column
-            prop="deviceIds"
-            label="可通行设备">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              label="允许通行时间">
+              <template slot-scope="scope">
+                <div class="pointer" @click="showTime(scope.row)">
+                  {{filterTime(scope.row)}}
+                </div>
+              </template>
+            </el-table-column>
+              
+            <el-table-column
+            fixed="right"
+            label="操作"
+            width="200">
             <template slot-scope="scope">
-              <div @click="showAssDivice(scope.row)" class="pointer">
-                {{filterDevice(scope.row)}}
-              </div>
+              <el-button @click="editJur(scope.row)" type="text" size="small">编辑权限组</el-button>
+              <el-button type="text" size="small" @click="delSJur([{id:scope.row.id}])">删除</el-button>
             </template>
           </el-table-column>
-          <el-table-column
-            prop="address"
-            label="允许通行时间">
-             <template slot-scope="scope">
-               <div class="pointer" @click="showTime(scope.row)">
-                 {{filterTime(scope.row)}}
-               </div>
-             </template>
-          </el-table-column>
-            
-          <el-table-column
-          fixed="right"
-          label="操作"
-          width="200">
-          <template slot-scope="scope">
-            <el-button @click="editJur(scope.row)" type="text" size="small">编辑权限组</el-button>
-            <el-button type="text" size="small" @click="delJur([{id:scope.row.id}])">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+        </el-table>
+
+        <!-- 分页 -->
+        <div>{{mainCurrentPage}}</div>
+        <div class="footer-bottom">
+          <el-pagination
+            class="pagination"
+            @size-change="mainTableSizeChange"
+            @current-change="mainCurrentChange"
+            :current-page="mainCurrentPage"
+            :page-sizes="[5, 10, 20, 40]"
+            :page-size.sync="mainPageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="mainTotal"
+          >
+          </el-pagination>
+        </div>
+     
       </div>
 
       <dialog-container :di="isDShow" top="0" @saveDialog="saveJurDialog" @closeDialog="closeJurDialog">
@@ -136,36 +153,49 @@
       <dialog-container :di="isshowGlPerson" top="0" @saveDialog="saveDiviceDialog" @closeDialog="closeSeDialog">
          <div slot="container">
            <el-table
-                :data="glPersonsTable"
-                @selection-change="handleSelectionPerson"
-                style="width: 100%">
-                <el-table-column
+              :data="glPersonsTable"
+              @selection-change="handleSelectionPerson"
+              style="width: 100%">
+              <el-table-column
                 type="selection"
                 width="40">
               </el-table-column>
+
               <el-table-column label="人员编号" prop="code">
-
               </el-table-column>
-               <el-table-column label="名称" prop="name">
 
+              <el-table-column label="名称" prop="name">
               </el-table-column>
+
                <el-table-column label="照片">
                  <template slot-scope="scope">
                    <!-- {{scope.row.personBasicInfoVo.urls[0]}} -->
-                  <img :src="scope.row.personBasicInfoVo.urls[0]" class="table-img"/>
+                  <img :src="scope.row.personBasicInfoVo.urls !== null ? scope.row.personBasicInfoVo.urls[0] : ''" class="table-img"/>
                  </template>
               </el-table-column>
            </el-table>
 
            <div class="footer-table">
               <div class="del-gl-divice">
-                 <el-button type="primary" @click="removeRuleByPerson">从规则移除</el-button>
-                 <el-button @click="removeRuleByPerson">一键清空</el-button>
+                <el-button type="primary" @click="removeRuleByPerson">从规则移除</el-button>
+                <el-button @click="removeRuleByPerson('empty')">一键清空</el-button>
+                
+                <div class="footer-page">
+                  <el-pagination
+                    class="pagination"
+                    @size-change="mainTableSizeChange"
+                    @current-change="mainCurrentChange"
+                    :current-page="mainCurrentPage"
+                    :page-sizes="[5, 10, 20, 40]"
+                    :page-size.sync="mainPageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="mainTotal"
+                  >
+                  </el-pagination>
+                </div>
               </div>
 
-              <div class="footer-page">
-
-              </div>
+             
 
            </div>
          </div>
@@ -173,10 +203,10 @@
 
       <!-- 显示设备已经关联得设备 -->
       <dialog-container :di="isshowGlDivice" top="0" @saveDialog="saveDiviceDialog" @closeDialog="closeSeDialog">
-         <div slot="container">
+          <div slot="container">
             <el-table
                 :data="glDivicesTable"
-                @selection-change="handleSelectionChange"
+                @selection-change="handleSelectionDivice"
                 style="width: 100%">
                 <el-table-column
                 type="selection"
@@ -202,19 +232,27 @@
                    {{scope.row.deviceInfoVo.updateTime}}
                  </template>
               </el-table-column>
-           </el-table>
-
-            <div class="footer-table">
-              <div class="del-gl-divice">
-                 <el-button type="primary" @click="removeRuleByDivice">从规则移除</el-button>
-                 <el-button @click="removeRuleByDivice">一键清空</el-button>
-              </div>
-
-              <div class="footer-page">
-
-              </div>
-
+          </el-table>
+          <div class="footer-table">
+            <div class="del-gl-divice">
+                <el-button type="primary" @click="removeRuleByDivice">从规则移除</el-button>
+                <el-button @click="removeRuleByDivice('empty')">一键清空</el-button>
+                <div class="footer-page">
+                  <el-pagination
+                    class="pagination"
+                    @size-change="mainTableSizeChange"
+                    @current-change="mainCurrentChange"
+                    :current-page="mainCurrentPage"
+                    :page-sizes="[5, 10, 20, 40]"
+                    :page-size.sync="mainPageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="mainTotal"
+                  >
+                  </el-pagination>
+                </div>
             </div>
+            
+          </div>
          </div>
       </dialog-container>
 
@@ -240,7 +278,6 @@ export default {
       treeData: [],
       tableData:[],
       seatchWord: '',
-    
       isDShow: {
           Visible: false,
           Title: '新增权限组',
@@ -300,7 +337,7 @@ export default {
         {
           name:'周日',
           file: 'sun'
-        }],
+      }],
       jurRuleForm: {
       },
       initRuleForm: {
@@ -324,7 +361,6 @@ export default {
             { required: true, message: '请输入权限组名称', trigger: 'blur' },
             { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
           ]
-
       },
       selPersons: [],
       selDevices: [],
@@ -334,9 +370,12 @@ export default {
       setWeekTime: {}, // 编辑得时候设时间
       glPersonsTable: [], // 关联的人员列表
       glDivicesTable: [], // 关联的设备列表
-      selectTableGlPersons: [], // 选择已关联的人员
-      selectTableDivices: [], // 选择已关联的设备
+      delTableGlPersons: [], // 删除关联的人员
+      delTableGlDivices: [], // 删除关联的人员
       selectTableRuleObj: '', // 打开展开关联的规则obj
+      mainPageSize: 10,
+      mainTotal: 0,
+      mainCurrentPage: 1
     }
   },
   watch: {
@@ -354,24 +393,76 @@ export default {
     },
   },
   methods: {
-    // 删除关联的设备
-    removeRuleByDivice() {
-
+    mainTableSizeChange(val) {
+       this.mainPageSize = val
+       this.queryGroup()
     },
-    removeRuleByPerson() {
-      let delPersonIds = []
-      this.selectTableGlPersons.forEach(item => {
-        delPersonIds.push({
+    mainCurrentChange(val) {
+       this.mainCurrentPage = val
+       this.queryGroup()
+    },
+    carryOutRemoveRuleByDivice() {
+      let delDiviceIds = []
+      this.delTableGlDivices.forEach(item => {
+        delDiviceIds.push({
           id:item.id
         })
       })
-      this.$http.personByRuleRemove(delPersonIds).then(res => {
-         if(res.status === 200) {
-           this.$message.warning('删除成功')
-           this.showAssPerson(this.selectTableRuleObj)
-         }
+      this.$http.deviceByRuleDel(delDiviceIds).then(res => {
+        if(res.status === 200) {
+          this.$message.success('删除成功')
+          // 刷新权限列表
+          this.queryGroup()
+          // 刷新关联列表
+          this.showAssDivice(this.selectTableRuleObj)
+        }
       })
     },
+    // 删除关联的设备
+    removeRuleByDivice(type) {
+       if(type === 'empty') {
+          this.$confirm('此操作将清空所有关联人员, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+             this.carryOutRemoveRuleByDivice()
+          })
+       } else {
+          this.carryOutRemoveRuleByDivice()
+       }
+    },
+    carryOutRemoveRuleByPerson() {
+        let delPersonIds = []
+          this.delTableGlPersons.forEach(item => {
+            delPersonIds.push({
+              id:item.id
+            })
+          })
+          this.$http.personByRuleRemove(delPersonIds).then(res => {
+            if(res.status === 200) {
+              this.$message.success('删除成功')
+              // 刷新权限列表
+              this.queryGroup()
+              // 刷新关联列表
+              this.showAssPerson(this.selectTableRuleObj)
+            }
+          })
+    },
+    removeRuleByPerson(type) {
+       if(type === 'empty') {
+          this.$confirm('此操作将清空所有关联人员, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+             this.carryOutRemoveRuleByPerson()
+          })
+       } else {
+          this.carryOutRemoveRuleByPerson()
+       }
+    },
+    // 展示关联的人员
     showAssPerson(row) {
       this.selectTableRuleObj = row
       this.isshowGlPerson.Visible = true
@@ -381,6 +472,7 @@ export default {
         this.glPersonsTable = res.data.data
       })
     },
+    // 展示关联的设备
     showAssDivice(row) {
       this.isshowGlDivice.Visible = true
        this.$http.deviceByRuleFind({
@@ -390,20 +482,28 @@ export default {
         console.log(this.glDivicesTable)
       })
     },
-    handleSelectionChange(val) {
+    // 选择门禁的列表
+    handleSelectionRuleChange(val) {
       console.log(val)
       this.seletJurs = val
     },
+    // 触发选择人员
     handleSelectionPerson(val) {
-      console.log(val)
-      this.selectTableGlPersons = val
+      this.delTableGlPersons = val
+    },
+    // 触发选择的设备
+    handleSelectionDivice(val) {
+      this.delTableGlDivices = val
     },
     // 删除权限
-    delJur(idsArr) {
+    delSJur(idsArr) {
+      this.mainCurrentPage = 1
       this.$http.accessRuleDel(idsArr).then(res => {
-        this.queryGroup()
+        if(res.data.status === 200) {
+          this.queryGroup()
+          this.$message.success('删除成功')
+        }
       })
-     
     },
     // 编辑权限组
     editJur(row) {
@@ -457,8 +557,9 @@ export default {
              if(this.jurRuleForm.id) {
                  this.$http.accessRuleModify(this.jurRuleForm).then(res => {
                     if(res.status === 200) {
-                      this.$message.success('编辑成功')
                       this.isDShow.Visible = false
+                      this.queryGroup()
+                       this.$message.success('编辑成功')
                     } else {
                       this.$message.error('编辑失败')
                     }
@@ -466,9 +567,9 @@ export default {
              } else {
                 this.$http.accessRuleInsert(this.jurRuleForm).then(res => {
                   if(res.status === 200) {
-                    this.$message.success('新增成功')
-                    this.queryGroup()
                     this.isDShow.Visible = false
+                    this.queryGroup()
+                    this.$message.success('新增成功')
                   } else {
                     this.$message.error('新增失败')
                   }
@@ -518,9 +619,18 @@ export default {
     // 查询权限组
     queryGroup(name) {
       // let params = {name}
-       this.$http.getAccessRuleList({name}).then((res) => {
-          this.tableData = res.data.data
-        })
+      if(name !== '' && name !== undefined) {
+        this.mainCurrentPage = 1
+      }
+      this.$http.getAccessRuleList({
+        name,
+        pageSize: this.mainPageSize,
+        pageNo: this.mainCurrentPage
+      }).then((res) => {
+        this.tableData = res.data.data
+        console.log(res)
+        this.mainTotal = res.data.total
+      })
     },
     // 查询通行方式
     queryWay() {
@@ -573,7 +683,7 @@ export default {
            })
       })
       console.log(jurIds)
-      this.delJur(jurIds)
+      this.delSJur(jurIds)
 
     }
   },
@@ -599,7 +709,8 @@ export default {
 
   }
   .footer-page {
-
+    float: right;
+    display: inline-block;
   }
 }
 // .el-dialog{ -webkit-backface-visibility: hidden; }
@@ -624,5 +735,9 @@ export default {
 }
 .pointer {
   cursor: pointer;
+}
+.footer-bottom {
+  text-align: right;
+  margin-top: 10px;
 }
 </style>
