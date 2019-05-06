@@ -137,7 +137,7 @@
          <div slot="container">
            <el-table
                 :data="glPersonsTable"
-                @selection-change="handleSelectionChange"
+                @selection-change="handleSelectionPerson"
                 style="width: 100%">
                 <el-table-column
                 type="selection"
@@ -159,8 +159,8 @@
 
            <div class="footer-table">
               <div class="del-gl-divice">
-                 <el-button type="primary" @click="removeRule">从规则移除</el-button>
-                 <el-button @click="removeRule">一键清空</el-button>
+                 <el-button type="primary" @click="removeRuleByPerson">从规则移除</el-button>
+                 <el-button @click="removeRuleByPerson">一键清空</el-button>
               </div>
 
               <div class="footer-page">
@@ -192,12 +192,29 @@
                    {{scope.row.deviceInfoVo.ip}}
                  </template>
               </el-table-column>
-              <el-table-column label="设备组编号">
+              <el-table-column label="设备编号">
                  <template slot-scope="scope">
                    {{scope.row.deviceInfoVo.groupNo}}
                  </template>
               </el-table-column>
+              <el-table-column label="关联时间">
+                 <template slot-scope="scope">
+                   {{scope.row.deviceInfoVo.updateTime}}
+                 </template>
+              </el-table-column>
            </el-table>
+
+            <div class="footer-table">
+              <div class="del-gl-divice">
+                 <el-button type="primary" @click="removeRuleByDivice">从规则移除</el-button>
+                 <el-button @click="removeRuleByDivice">一键清空</el-button>
+              </div>
+
+              <div class="footer-page">
+
+              </div>
+
+            </div>
          </div>
       </dialog-container>
 
@@ -317,6 +334,9 @@ export default {
       setWeekTime: {}, // 编辑得时候设时间
       glPersonsTable: [], // 关联的人员列表
       glDivicesTable: [], // 关联的设备列表
+      selectTableGlPersons: [], // 选择已关联的人员
+      selectTableDivices: [], // 选择已关联的设备
+      selectTableRuleObj: '', // 打开展开关联的规则obj
     }
   },
   watch: {
@@ -329,16 +349,31 @@ export default {
           }
         })
       })
-     
       this.jurRuleForm.passageMode = w.toLocaleString()
       return newVal
     },
   },
   methods: {
-    removeRule() {
+    // 删除关联的设备
+    removeRuleByDivice() {
 
     },
+    removeRuleByPerson() {
+      let delPersonIds = []
+      this.selectTableGlPersons.forEach(item => {
+        delPersonIds.push({
+          id:item.id
+        })
+      })
+      this.$http.personByRuleRemove(delPersonIds).then(res => {
+         if(res.status === 200) {
+           this.$message.warning('删除成功')
+           this.showAssPerson(this.selectTableRuleObj)
+         }
+      })
+    },
     showAssPerson(row) {
+      this.selectTableRuleObj = row
       this.isshowGlPerson.Visible = true
       this.$http.personByRule({
         ruleIds: row.id
@@ -358,6 +393,10 @@ export default {
     handleSelectionChange(val) {
       console.log(val)
       this.seletJurs = val
+    },
+    handleSelectionPerson(val) {
+      console.log(val)
+      this.selectTableGlPersons = val
     },
     // 删除权限
     delJur(idsArr) {
@@ -555,6 +594,7 @@ export default {
   }
 }
 .footer-table {
+  margin-top: 20px;
   .del-gl-divice {
 
   }

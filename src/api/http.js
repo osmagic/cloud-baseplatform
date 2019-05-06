@@ -190,8 +190,8 @@ personByRule(param) {
   return instance.get('/api/v2/persion/rule/find', {params: param})
 },
 // 删除人员关联规则
-personByRuleRemove() {
-  return instance.get('/api/v2/persion/rule/remove', {params: param})
+personByRuleRemove(param) {
+  return instance.post('/api/v2/persion/rule/remove', param)
 },
 // 设备和规则权限关联查询
 deviceByRuleFind(param) {
