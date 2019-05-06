@@ -110,8 +110,8 @@
         <el-option
           v-for="item in typeList"
           :key='item.categoryNo'
-          :label="item.categoryName"
-          :value="item.categoryNo"
+          :label="item.name"
+          :value="item.no"
         >
 
         </el-option>
@@ -245,7 +245,7 @@
         <el-table-column :label="$t('accessSystem.zhuapaizhaopian')">
           <template slot-scope='imgScope'>
             <img
-              :src="imgScope.row.snapPhoto"
+              :src="imgScope.row.pictureUrl"
               alt=""
               class='snapPhoto'
             >
@@ -309,8 +309,240 @@ export default {
         return row.id;
       },
       detailInfo: {},
-      detailsDialog: false
+      detailsDialog: false,
+      imgApi:'/api/v2/file/image-download?code=101106&objectId='
     };
+  },
+    created() {
+    //格式化当前时间
+    Date.prototype.Format = function(fmt) {
+      //author: meizz
+      var o = {
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "h+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+        S: this.getMilliseconds() //毫秒
+      };
+      if (/(y+)/.test(fmt))
+        fmt = fmt.replace(
+          RegExp.$1,
+          (this.getFullYear() + "").substr(4 - RegExp.$1.length)
+        );
+      for (var k in o)
+        if (new RegExp("(" + k + ")").test(fmt))
+          fmt = fmt.replace(
+            RegExp.$1,
+            RegExp.$1.length == 1
+              ? o[k]
+              : ("00" + o[k]).substr(("" + o[k]).length)
+          );
+      return fmt;
+    };
+    this.dateTime = [
+      new Date().Format("yyyy-MM-dd 00:00:00"),
+      new Date().Format("yyyy-MM-dd 23:59:59")
+    ];
+    // this.netAPI = APICONFIG().get("accessSystem");
+    //   this.getTypeList()
+    // this.getRecordList();
+    const getAll = new Promise((resolve, reject) => {
+      this.$http.getPersonType().then(res => {
+        if (res.data.status == 200) {
+          resolve(res.data.data);
+          this.typeList = res.data.data;
+          for (const key in this.typeList) {
+            if (this.typeList.hasOwnProperty(key)) {
+              const element = this.typeList[key].no;
+              this.typeAll += element + ",";
+            }
+          }
+          console.log(this.typeAll);
+          this.personType = this.typeAll;
+        } else {
+          this.$message.error(res.body.message);
+        }
+      });
+    });
+    getAll.then(res => {
+      this.getRecordList();
+    });
+  },
+  methods: {
+    showDetail(row) {
+      this.$http
+        .accessPeopleDetail({ id: row.id } )
+        .then(res => {
+          if (res.data.status == 200) {
+            this.$set(this.detailInfo, "urls", res.data.data.urls[0]);
+
+            console.log(this.detailInfo);
+          } else {
+            this.$message.error(res.data.message);
+          }
+        });
+      this.detailInfo = row;
+      this.detailsDialog = true;
+    },
+    detailsDialogClose() {
+      this.detailInfo = {};
+      this.detailsDialog = false;
+    },
+    //表格数据格式化
+    formatValidite(row, column) {
+      return row.validateResult == 1
+        ? this.$t('accessSystem.tongguo')
+        : row.sex == 0
+        ?  this.$t('accessSystem.weitongguo')
+        : this.$t('accessSystem.weizhiz');
+    },
+    formatDivergence(row, column) {
+      return row.divergenceType == 1
+        ? this.$t('accessSystem.jin')
+        : row.divergenceType == 0
+        ? this.$t('accessSystem.chu')
+        : this.$t('accessSystem.weizhiz')
+    },
+    exportExcel() {
+      for (const key in this.multipleSelection) {
+        if (this.multipleSelection.hasOwnProperty(key)) {
+          const element = this.multipleSelection[key];
+          this.ids += element.id + ",";
+        }
+      }
+      console.log(this.ids);
+      var params = { ids: this.ids };
+      console.log(params);
+      // this.$http.get(this.netAPI.accessRecords.accessExport,{params:params}).then(res=>{
+
+      // })
+      //
+      this.$http({
+        url: '/api/v2/door/passage-record/export',
+        method: "get",
+        params: params,
+        responseType: "blob"
+      }).then(res => {
+        
+        var fileName = this.$t('accessSystem.daochuwenjian');
+        console.log(res);
+        var blob = new Blob([res.body], { type: "application/octet-stream" });
+        if (window.navigator.msSaveOrOpenBlob) {
+          //msSaveOrOpenBlob方法返回bool值
+          navigator.msSaveBlob(blob, fileName); //本地保存
+        } else {
+          var link = document.createElement("a"); //a标签下载
+          link.href = window.URL.createObjectURL(blob);
+          link.download = fileName;
+          //兼容火狐
+          document.body.appendChild(link);
+
+          var evt = document.createEvent("MouseEvents");
+          evt.initEvent("click", false, false);
+          link.dispatchEvent(evt);
+          document.body.removeChild(link);
+          ///
+        }
+      });
+      //
+    },
+    handleSelectionChange(val) {
+      if (val.length) {
+        this.multipleSelection = val;
+      } else {
+        this.multipleSelection = [];
+      }
+    },
+    removeRecord(row) {
+      console.log(row);
+      console.log(this.multipleSelection);
+      if (row.id) {
+        console.log(1);
+        this.ids = [{ id: row.id }];
+      } else {
+      
+            for (const key in this.multipleSelection) {
+          if (this.multipleSelection.hasOwnProperty(key)) {
+            const element = this.multipleSelection[key];
+            this.ids.push({ id: element.id });
+          }
+        }
+        
+        
+      }
+   
+      if(this.ids.length==0){
+          this.$message.error(this.$t('accessSystem.qingxuanzeshanchuxiang'))
+        }else{
+          this.$http
+        .accessRemove(this.ids)
+        .then(res => {
+          if (res.data.status == 200) {
+            this.$message.success(this.$t('accessSystem.shanchuchenggong'));
+            if (this.recordData.length == 1) {
+              this.pageNumber =
+                this.pageNumber - 1 > 0 ? this.pageNumber - 1 : 1;
+            }
+            this.getRecordList()
+          }
+        });
+        }
+      
+    },
+    handleSizeChange(pageSize) {
+      this.pageSize = pageSize;
+      this.getRecordList();
+    },
+    handleCurrentChange(pageNumber) {
+      this.pageNumber = pageNumber;
+      this.getRecordList();
+    },
+    getRecordList() {
+      console.log(this.dateTime);
+      var params = {
+        startDate: this.dateTime[0],
+        endDate: this.dateTime[1],
+        passageResult: this.passageResult,
+        personType: this.personType,
+        divergenceType: this.divergenceType,
+        name: this.name,
+        code: this.code,
+        pageNo: this.pageNumber,
+        pageSize: this.pageSize,
+        // sort:"id",
+        // order:"asc"
+      };
+      this.$http
+        .accessList( params )
+        .then(res => {
+          if (res.data.status == 200) {
+            
+            this.recordData = res.data.data;
+            this.total = res.data.total;
+          } else {
+            this.$message.error(res.data.message);
+          }
+        });
+    },
+    getTypeList() {
+      this.$http.findPeopleType().then(res => {
+        if (res.data.status == 200) {
+          this.typeList = res.data.data;
+          for (const key in this.typeList) {
+            if (this.typeList.hasOwnProperty(key)) {
+              const element = this.typeList[key].name;
+              this.typeAll += element + ",";
+            }
+          }
+          console.log(this.typeAll);
+          this.personType = this.typeAll;
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    }
   }
 };
 </script>
@@ -336,12 +568,14 @@ export default {
   width: 6.4rem;
 }
 .el-date-editor--datetimerange.el-input, .el-date-editor--datetimerange.el-input__inner{
-  width: 268px;
+ 
+   padding: 3px 0 3px 10px
 }
 .select {
   width: 4rem;
   .el-input{
     width: 200px;
+   
   }
 }
 #accessRecords {
