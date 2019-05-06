@@ -90,7 +90,7 @@ addDevices(param) {
   return instance.post('/api/v2/door/device/insert', param)
 },
 updateDevice(param) {
-  return instance.get('/api/v2/door/device/modify', {params: param})
+  return instance.post('/api/v2/door/device/modify', param)
 },
 removeDevice(param) {
   return instance.post('/api/v2/door/device/remove', param)
