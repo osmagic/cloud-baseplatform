@@ -11,6 +11,7 @@
             <el-date-picker
               v-model="dataPick"
               type="daterange"
+              value-format='yyyy-MM-dd'
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期">
@@ -31,7 +32,7 @@
         </el-col>
         <el-col :span="2">
           <div class="">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="getOperationLogs">查询</el-button>
           </div>
         </el-col>
       </el-row>
@@ -40,28 +41,38 @@
         border
         style="width: 100%">
         <el-table-column
-          prop="num"
+          type="index"
           label="序号"
           width="310">
         </el-table-column>
         <el-table-column
-          prop="eventTime"
+          prop="timestamp"
           label="事件时间"
           width="310">
         </el-table-column>
         <el-table-column
-          prop="adminAccount"
+          prop="adminUsername"
           label="管理员账户"
           width="310">
         </el-table-column>
         <el-table-column
-          prop="mainFunc"
+          prop="op"
           label="主功能"
           width="310">
         </el-table-column>
         <el-table-column
-          prop="operates"
+          prop="remark"
           label="具体操作">
+        </el-table-column>
+        <el-table-column :label="$t('accessSystem.caozuo')">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="text"
+              @click="showDetail(scope.row)"
+            >{{$t('accessSystem.xiangqing')}}</el-button>
+         
+          </template>
         </el-table-column>
       </el-table>
     </div>
@@ -81,31 +92,28 @@
         dataPick: '',
         adminAccount: '',
         mainFunc: '',
-        tableData: [{
-          num: '1',
-          eventTime: '2019-04-28',
-          adminAccount: 'admin',
-          mainFunc: '登录',
-          operates: ' 登录平台',
-        }, {
-          num: '2',
-          eventTime: '2019-04-28',
-          adminAccount: 'admin',
-          mainFunc: '登录',
-          operates: ' 登录平台',
-        }, {
-          num: '3',
-          eventTime: '2019-04-28',
-          adminAccount: 'admin',
-          mainFunc: '登录',
-          operates: ' 登录平台',
-        }, {
-          num: '4',
-          eventTime: '2019-04-28',
-          adminAccount: 'admin',
-          mainFunc: '登录',
-          operates: ' 登录平台',
-        }]
+        tableData: [],
+        
+      }
+    },
+    created(){
+      this.getOperationLogs()
+    },
+    methods:{
+      getOperationLogs(){
+        var form = {
+          startDate:this.dataPick[0],
+          endDate:this.dataPick[1],
+          op:this.mainFunc,
+          adminUsername:this.adminAccount
+        }
+        this.$http.getOperationLogs(form).then(res=>{
+          if(res.data.status == 200){
+            this.tableData = res.data.data
+          }else{
+            this.$message.error(res.data.message)
+          }
+        })
       }
     }
   }

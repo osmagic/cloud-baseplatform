@@ -402,7 +402,48 @@ deviceUploudValidation(param){
 //智能硬件类型查询
 smartHardwareType(param){
   return instance.get('/api/v2/device/info/find-ih-type',   {params: param})
+},
+//单位信息查询
+getCompanyDetail(param){
+  return instance.get('/api/v2/company/find',   {params: param})
+},
+//单位信息添加
+companyInsert(param){
+  return instance.post('/api/v2/company/insert',  param)
+},
+//单位信息修改
+companyModify(param){
+  return instance.post('/api/v2/company/modify',  param)
+},
+//单位信息删除
+companyDelete(param){
+  return instance.post('/api/v2/company/remove',  param)
+},
+//单位场景添加
+companySceneInsert(param){
+  return instance.post('/api/v2/company/insert-scene',  param)
+},
+//单位场景修改
+companySceneModify(param){
+  return instance.post('/api/v2/company/modify-scene',  param)
+},
+//单位场景删除
+companySceneDelete(param){
+  return instance.post('/api/v2/company/remove-scene',  param)
+},
+//主页统计查询
+getIndexData(param){
+  return instance.get('/api/v2/home/total-bri',  {params:param})
+},
+//主页echarts查询
+getEchartsData(param){
+  return instance.get('/api/v2/home/total-alarm-detail',  {params:param})
+},
+//操作日志查询
+getOperationLogs(param){
+  return instance.get('/api/v2/operation-log/find',  {params:param})
 }
+//startTime finishTime 2019-00-00 00:00:00
 //设备激活
 //
  /*==============首页end===================*/
