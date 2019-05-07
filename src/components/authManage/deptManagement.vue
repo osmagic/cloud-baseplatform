@@ -87,7 +87,7 @@
     </div>
 
     <div class="btmBtn">
-      <el-button type="primary">确定</el-button>
+      <el-button type="primary" @click="submitAll">确定</el-button>
       <el-button>取消</el-button>
     </div>
     <!--修改-->
@@ -245,6 +245,13 @@ export default {
     this.getPictureList();
   },
   methods:{
+    submitAll(){
+      if(isEdit){
+        
+      }else{
+
+      }
+    },
     handleAvatarUpSuccess(res, file){
       this.imageUpUrl = URL.createObjectURL(file.raw);
     },
