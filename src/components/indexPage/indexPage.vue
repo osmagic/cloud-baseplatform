@@ -15,7 +15,9 @@
                   <div class="totalIC">{{item.total}}</div>
                 </div>
               </div>
-              <div><span class='tianjiagengduo' v-if="showPersonMore">查看更多</span></div>
+              <div>
+                <span class="tianjiagengduo" v-if="showPersonMore">查看更多</span>
+              </div>
             </div>
           </el-col>
           <el-col :span="8">
@@ -30,7 +32,9 @@
                   <div class="totalIC">{{item.total}}</div>
                 </div>
               </div>
-              <div><span class='tianjiagengduo' v-if="showManagerMore">查看更多</span></div> 
+              <div>
+                <span class="tianjiagengduo" v-if="showManagerMore">查看更多</span>
+              </div>
             </div>
           </el-col>
           <el-col :span="8">
@@ -45,7 +49,9 @@
                   <div class="totalIC">{{item.total}}</div>
                 </div>
               </div>
-              <div><span class='tianjiagengduo' v-if="showDeviceMore">查看更多</span></div>
+              <div>
+                <span class="tianjiagengduo" v-if="showDeviceMore">查看更多</span>
+              </div>
             </div>
           </el-col>
         </el-row>
@@ -196,9 +202,9 @@ export default {
       tableData: [],
       totalForm: {},
       echartsData: [],
-      showPersonMore:false,
-      showManagerMore:false,
-      showDeviceMore:false
+      showPersonMore: false,
+      showManagerMore: false,
+      showDeviceMore: false
     };
   },
   created() {
@@ -234,30 +240,28 @@ export default {
   },
   mounted() {
     this.getTotalData();
-this.getOperationLogs()
+    this.getOperationLogs();
     this.getEchartsData();
   },
   methods: {
-    getOperationLogs(){
-        
-        this.$http.getOperationLogs().then(res=>{
-          if(res.data.status == 200){
-            for (let index = 0; index < 3; index++) {
-              const element = res.data.data[index];
-              this.tableData.push(element)
-            }
-            
-          }else{
-            this.$message.error(res.data.message)
+    getOperationLogs() {
+      this.$http.getOperationLogs().then(res => {
+        if (res.data.status == 200) {
+          for (let index = 0; index < 3; index++) {
+            const element = res.data.data[index];
+            this.tableData.push(element);
           }
-        })
-      },
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
     setToday() {
       this.dateRange = [
         new Date().Format("yyyy-MM-dd 00:00:00"),
         new Date().Format("yyyy-MM-dd 23:59:59")
       ];
-       this.getEchartsData();
+      this.getEchartsData();
     },
     setToWeek() {
       const end = new Date();
@@ -267,7 +271,7 @@ this.getOperationLogs()
         start.Format("yyyy-MM-dd 00:00:00"),
         end.Format("yyyy-MM-dd 23:59:59")
       ];
-       this.getEchartsData();
+      this.getEchartsData();
     },
     setToMonth() {
       const end = new Date();
@@ -277,7 +281,7 @@ this.getOperationLogs()
         start.Format("yyyy-MM-dd 00:00:00"),
         end.Format("yyyy-MM-dd 23:59:59")
       ];
-       this.getEchartsData();
+      this.getEchartsData();
     },
     test() {
       this.getEchartsData();
@@ -286,14 +290,14 @@ this.getOperationLogs()
       this.$http.getIndexData().then(res => {
         if (res.data.status == 200) {
           this.totalForm = res.data.data;
-          if(res.data.data.deviceTotal.length>5){
-            this.showDeviceMore = true
+          if (res.data.data.deviceTotal.length > 5) {
+            this.showDeviceMore = true;
           }
-          if(res.data.data.personTotal.length>5){
-            this.showPersonMore = true
+          if (res.data.data.personTotal.length > 5) {
+            this.showPersonMore = true;
           }
-          if(res.data.data.saTotal.length>5){
-            this.showManagerMore = true
+          if (res.data.data.saTotal.length > 5) {
+            this.showManagerMore = true;
           }
         } else {
           this.$message.error(res.data.message);
@@ -362,6 +366,8 @@ this.getOperationLogs()
           yData.push(element);
         }
       }
+      // var xData = [0, 1, 2, 3, 4, 5, 6, 7],
+      //   yData = [10, 20, 30, 40, 50, 60, 70, 80];
       console.log(xData, yData);
       myChart.setOption({
         xAxis: {
@@ -376,7 +382,30 @@ this.getOperationLogs()
           {
             data: yData,
             type: "line",
-            areaStyle: {}
+            lineStyle:{
+              color:'#A3A0FB'
+            },
+            color:'#A3A0FB',
+            areaStyle: {
+              color: {
+                type: "linear",
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  {
+                    offset: 0,
+                    color: "rgba(147,147,254,0.7)" // 0% 处的颜色
+                  },
+                  {
+                    offset: 1,
+                    color: "#FFFFFF" // 100% 处的颜色
+                  }
+                ],
+                global: false // 缺省为 false
+              }
+            }
           }
         ],
         grid: {

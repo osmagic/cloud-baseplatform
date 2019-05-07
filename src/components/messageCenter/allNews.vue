@@ -134,6 +134,7 @@
       handleClick(){
 
       },
+       handleSelectionChange(){}
     }
   }
 </script>

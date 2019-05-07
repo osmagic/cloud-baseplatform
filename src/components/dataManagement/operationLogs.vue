@@ -64,6 +64,16 @@
           prop="remark"
           label="具体操作">
         </el-table-column>
+        <el-table-column :label="$t('accessSystem.caozuo')">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="text"
+              @click="showDetail(scope.row)"
+            >{{$t('accessSystem.xiangqing')}}</el-button>
+         
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <el-pagination

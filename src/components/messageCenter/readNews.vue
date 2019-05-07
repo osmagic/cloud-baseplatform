@@ -94,6 +94,11 @@
         }]
       }
     },
+    methods:{
+      handleSelectionChange(){
+        
+      }
+    }
   }
 </script>
 

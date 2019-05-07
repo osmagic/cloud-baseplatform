@@ -56,9 +56,9 @@
                     </el-carousel-item>
                   </el-carousel>
                   <div class="card-content">
-                    <p class="omit">{{o.pictureDescription}}</p>
+                    <p class="omit">{{o.description}}</p>
                     <div class="bottom clearfix">
-                      <time class="time">{{o.pictureClassification}}</time>
+                      <time class="time">{{o.name}}</time>
                       <el-button
                         type="text"
                         class="button del-btn"
@@ -97,13 +97,13 @@
       width="30%"
       :before-close="editDialogClose"
     >
-      <el-form ref="editExhibition" :model="editFrom" label-width="120px" :rules="rules">
+      <el-form ref="editExhibition" :model="editForm" label-width="120px" :rules="rules">
         <el-form-item :label="$t('unitManage.className')" prop="pictureClassification">
-          <el-input v-model="editFrom.name"></el-input>
+          <el-input v-model="editForm.name"></el-input>
         </el-form-item>
         <el-form-item :label="$t('unitManage.description')">
-          <el-input v-model="editFrom.description"></el-input>
-          <!--<span>{{editFrom.fileList.length}}</span>-->
+          <el-input v-model="editForm.description"></el-input>
+          <!--<span>{{editForm.fileList.length}}</span>-->
         </el-form-item>
         <el-form-item :label="$t('unitManage.pictures')" prop="file">
           <el-upload
@@ -111,7 +111,7 @@
             action
             ref="editFile"
             list-type="picture-card"
-            :file-list="editFrom.fileList"
+            :file-list="editForm.fileList"
             :on-preview="handlePictureCardPreview"
             :auto-upload="false"
             :http-request="editExhibition"
@@ -141,10 +141,10 @@
     >
       <el-form ref="createExhibition" :model="createFrom" :rules="rules" label-width="150px">
         <el-form-item :label="$t('unitManage.className')" prop="pictureClassification">
-          <el-input v-model="createFrom.pictureClassification"></el-input>
+          <el-input v-model="createFrom.name"></el-input>
         </el-form-item>
         <el-form-item :label="$t('unitManage.description')">
-          <el-input v-model="createFrom.pictureDescription"></el-input>
+          <el-input v-model="createFrom.description"></el-input>
         </el-form-item>
         <el-form-item :label="$t('unitManage.pictures')" prop="file">
           <el-upload
@@ -204,15 +204,15 @@ export default {
         name:''
       },
       createFrom: {
-        pictureClassification: "",
-        pictureDescription: "",
+        name: "",
+        description: "",
         vrPics: false,
         files: []
       },
       phtotArr: [],
       createFileNum: 0, //创建图片个数
       editFileNum: 0, //修改图片个数
-      editFrom: {
+      editForm: {
         id: "",
         pictureClassification: "", //分类
         pictureDescription: "", //描述
@@ -225,13 +225,16 @@ export default {
       createDialog: false, //创建弹框状态
       rules: {
         pictureClassification: [
-          { required: true, message: "不能为空" },
+          { required: false, message: "不能为空" },
           { min: 2, max: 12, message: "长度在 2 到 12 个字符" }
         ]
         // file: [{ validator: validatorCreateFile, message: "请上传图片" }]
       },
       imgdialogVisible: false,
-      dialogImageUrl: ""
+      dialogImageUrl: "",
+      companyId:'',
+      fileListId:'',
+      editFileBinary:[]
     };
   },
   created(){
@@ -257,7 +260,8 @@ export default {
             this.unitform.name =  res.data.data[0].name;
             this.unitform.imageUpUrl = res.data.data[0].brandUrl
             this.imageIndexUrl = res.data.data[0].logoUrl;
-            this.pictureList = res.data.data[0].scenes
+            this.pictureList = res.data.data[0].scenes;
+            this.companyId = res.data.data[0].companyId
           }
         },
         err => {
@@ -324,14 +328,14 @@ export default {
           switch (formName) {
             case "createExhibition":
               this.$refs.createFile.submit();
+
               break;
             case "editExhibition":
-              if (this.editFileNum > 0) {
-              //   // debugger;
-                this.$refs.editFile.submit();
-              } else {
-                this.editExhibition();
-              }
+            console.log(this.editFileNum)
+          
+             this.editExhibition()
+           
+                
               break;
             default:
               break;
@@ -349,17 +353,41 @@ export default {
     createHandleRemove() {
       this.createFileNum--;
     },
-    editFilesChange() {
+    editFilesChange(file,fileList) {
+      console.log(file)
+      console.log(fileList)
+      this.editFileBinary.push(file.raw)
       this.editFileNum++;
-    },
-    filesRemove(file) {
-      //file name 就是ID
-      if (file.status == "success") {
-        this.editFrom.readyDel.push(file.name);
-      } else {
-        this.editFileNum--;
+       this.fileListId=''
+      for (let index = 0; index < fileList.length; index++) {
+        const element = fileList[index];
+        if(!element.raw){
+          if(this.fileListId==''){
+           this.fileListId = element.url.split('attr=')[1]
+         }else{
+           this.fileListId = ','+this.fileListId
+         }
+        }   
       }
-      console.log(this.editFrom.readyDel)
+    },
+    filesRemove(file,fileList) {
+      //file name 就是ID
+      console.log(file)
+      if(file.raw){
+        this.editFileBinary.pop()
+      }
+      this.fileListId=''
+      for (let index = 0; index < fileList.length; index++) {
+        const element = fileList[index];
+        if(!element.raw){
+          if(this.fileListId==''){
+           this.fileListId = element.url.split('attr=')[1]
+         }else{
+           this.fileListId = ','+this.fileListId
+         }
+        }   
+      }
+      this.editFileNum++;
     },
     //第一次上传
     createExhibition(content) {
@@ -374,21 +402,23 @@ export default {
 
       this.createFrom.files.push(content.file);
       let from = new FormData();
-      from.append("pictureDescription", this.createFrom.pictureDescription);
+      from.append("description", this.createFrom.description);
+       from.append("companyId", this.companyId);
       from.append(
-        "pictureClassification",
-        this.createFrom.pictureClassification
+        "name",
+        this.createFrom.name
       );
       from.append("vrPics", this.createFrom.vrPics);
       for (let file of this.createFrom.files) {
-        from.append("file", file);
+        from.append("files", file);
       }
       console.log(from.get("file"))
 
-      this.$http.post(this.netAPI.customerClassificationInsert, from).then(
+      this.$http.companySceneInsert(from).then(
         res => {
-          if (res.body.status == 200) {
-            this.getPictureList();
+          if (res.data.status == 200) {
+            // this.getPictureList();
+            this.unitformSubmit()
             this.createExhibitionClose();
           }
         },
@@ -401,89 +431,36 @@ export default {
       );
     },
     //修改编辑
-    editExhibition(content) {
+    editExhibition() {
       // 数据修改  发布数据不知道
-      var kg = true;
-      debugger;
-      if (this.editFileNum > 0 && kg == true) {
-        this.editFrom.files.push(content.file);
-        this.editFileNum--;
-        kg = false
-        // return;
-      }
-      let textBody = {
-        id: this.editFrom.id,
-        pictureClassification: this.editFrom.pictureClassification,
-        pictureDescription: this.editFrom.pictureDescription,
-        vrPics: this.editFrom.vrPics
-      };
+        
+      let editForm = new FormData()
+      editForm.append('companyId',this.companyId)
+      editForm.append('description',this.editForm.description)
+      editForm.append('name',this.editForm.name)
+      editForm.append('csId',this.editForm.csId)
+      editForm.append('picture',this.fileListId)
 
-      let readyDel = [];
-      this.editFrom.readyDel.forEach((item, index) => {
-        readyDel.push({ id: item });
-      });
-      console.log(readyDel)
-        //修改文字OK
-      let uptext = new Promise((resolve, reject) => {
-        this.$http
-            .post(this.netAPI.updateCustomerClassification, textBody)
-            .then(
-              res => {
-                if (res.body.status == 200) {
-                  resolve();
-                } else {
-                  reject();
-                }
-              }
-            );
-      });
-
-        //删除数据OK
-      let del = new Promise((resolve, reject) => {
-        this.$http
-            .post(this.netAPI.deleteClassificationPictureInBatch, readyDel)
-            .then(
-              res => {
-                if (res.body.status == 200) {
-                  resolve();
-                } else {
-                  reject();
-                }
-              }
-            );
-      });
-
-      if(this.editFrom.files.length == 0) {
-        Promise.all([uptext, del]).then(result => {
-          this.editDialogClose();
-          this.getPictureList();
+    for (let index = 0; index < this.editFileBinary.length; index++) {
+      const element = this.editFileBinary[index];
+       editForm.append('files',element)
+    }
+    this.$http.companySceneModify(editForm).then(res=>{
+      if(res.data.status==200){
+        this.editDialogClose();
+          this.unitformSubmit();
           this.$message.success(this.$t("common.updateSuccess"));
-        });
-      }else {
-        let form = new FormData();
-        for (let file of this.editFrom.files) {
-          form.append("file", file);
-        }
-        form.append("classificationId", this.editFrom.id);
-        console.log(form.get("file"))
-        let file = new Promise((resolve, reject) => {
-          this.$http.post(this.netAPI.updateClassificationPicture, form).then(
-            res => {
-              if (res.body.status == 200) {
-                resolve();
-              } else {
-                reject();
-              }
-            }
-          );
-        });
-
-        Promise.all([uptext, del, file]).then(result => {
-          this.editDialogClose();
-          this.getPictureList();
-          this.$message.success(this.$t("common.updateSuccess"));
-        });
+      }else{
+        this.editDialogClose();
+        this.$message.error(res.data.message)
       }
+    })
+        // Promise.all([uptext, del, file]).then(result => {
+        //   this.editDialogClose();
+        //   this.getPictureList();
+        //   this.$message.success(this.$t("common.updateSuccess"));
+        // });
+      
      
     },
     handlePictureCardPreview(file) {
@@ -501,8 +478,8 @@ export default {
       //关闭并且清空
       // this.nulltoForm(this.createFrom, "createExhibition");
       this.createFrom = {
-        pictureClassification: "",
-        pictureDescription: "",
+        name: "",
+        description: "",
         vrPics: false,
         files: []
       };
@@ -514,15 +491,15 @@ export default {
     showEditDialog(obj) {
       console.log(obj)
       this.editDialog = true;
-      this.editFrom.id = obj.id;
-      this.editFrom.name = obj.name;
-      this.editFrom.description = obj.description;
-     
-      this.editFrom.fileList = [];
-      this.editFrom.files = [];
-      this.editFrom.readyDel = [];
+      this.editForm.id = obj.id;
+      this.editForm.name = obj.name;
+      this.editForm.description = obj.description;
+      this.editForm.csId = obj.csId
+      this.editForm.fileList = [];
+      this.editForm.files = [];
+      this.editForm.readyDel = [];
       obj.urls.map(item => {
-        this.editFrom.fileList.push({
+        this.editForm.fileList.push({
           
           url: item
         });
@@ -531,7 +508,8 @@ export default {
     editDialogClose() {
       //关闭并且清空
       this.editDialog = false;
-      // this.nulltoForm(this.editFrom, "editExhibition");
+      this.fileListId = ''
+      // this.nulltoForm(this.editForm, "editExhibition");
       this.$refs.editFile.clearFiles();
     },
     nulltoForm(obj, formName) {
@@ -580,7 +558,7 @@ export default {
       );
     },
     pictureHandleRemove() {}
-  }
+}
 };
 </script>
 <style scoped lang="scss">
