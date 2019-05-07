@@ -234,7 +234,8 @@ export default {
       dialogImageUrl: "",
       companyId:'',
       fileListId:'',
-      editFileBinary:[]
+      editFileBinary:[],
+      isEdit:false
     };
   },
   created(){
@@ -261,7 +262,10 @@ export default {
             this.unitform.imageUpUrl = res.data.data[0].brandUrl
             this.imageIndexUrl = res.data.data[0].logoUrl;
             this.pictureList = res.data.data[0].scenes;
-            this.companyId = res.data.data[0].companyId
+            this.companyId = res.data.data[0].companyId;
+            if(res,data.data.length>0){
+              this.isEdit = true
+            }
           }
         },
         err => {

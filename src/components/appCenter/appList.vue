@@ -5,7 +5,7 @@
     </div>
     <div class="appList-inner">
       <div class="container">
-        <div class="leftBox">
+        <div class="leftBox" @click="toAccess">
           <div class="textBox">
             <img src="./../../assets/img/door.png" alt="门禁系统">
             <div>
@@ -33,11 +33,19 @@
     name: 'appList',
     data() {
       return {}
+    },
+    methods:{
+      toAccess(){
+        this.$router.push('/accessMonitor/index')
+      }
     }
   }
 </script>
 
 <style scoped lang="scss">
+.leftBox{
+  cursor: pointer;
+}
   .appList {
     height: 86vh;
     width: 100%;

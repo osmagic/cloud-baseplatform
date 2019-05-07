@@ -4,7 +4,7 @@
       <el-header>
         <img src="../../assets/img/7620.png" alt="" />
         <span class="name">考拉智能门禁系统</span>
-        <span class="exit">
+        <span class="exit" @click="toIndex">
           退出登录
         </span>
       </el-header>
@@ -52,6 +52,11 @@ export default {
     return {
     };
   },
+  methods:{
+    toIndex(){
+      this.$router.push('/appList')
+    }
+  }
 };
 </script>
 <style lang="scss" >
@@ -105,6 +110,7 @@ export default {
     font-family: PingFang SC;
     color: rgba(77, 79, 92, 1);
     float: right;
+    cursor: pointer;
   }
 }
 </style>
