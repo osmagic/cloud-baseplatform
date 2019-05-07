@@ -42,7 +42,6 @@ export default {
               type: state.accessManage.deviceType
             }
           })
-
           .then(res => {
             if (res.data.status == 200) {
               state.accessManage.deviceList = res.data.data;

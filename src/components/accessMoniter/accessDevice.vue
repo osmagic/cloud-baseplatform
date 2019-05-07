@@ -1,73 +1,18 @@
 <template>
-  <div id="device_manage">
+  <div id="device_manage" class="device_manage">
     <!-- 设置框 -->
+   
     <el-dialog
       :title="$t('accessSystem.shezhi')"
       :visible.sync="settingDialogVisible"
       width="28%"
       :before-close="handleClose"
     >
-      <el-form label-position="left" label-width="70px" :model="settingForm" class="form">
-        <div class="content-set">
-          <!-- <div
-            v-for="(week, index) in allWeeks"
-            :key="index"
-          >
-            <div class="week-word">{{ week.name }}</div>
-            <div
-              class="week-line"
-              v-for="(item, dex) in week.timeList"
-              :key="dex"
-            >
-              <el-row :gutter="20">
-                <el-col :span="18">
-                  <el-row :gutter="20">
-                    <el-col :span="16">
-                      <el-slider
-                        v-model="item.timeQj"
-                        range
-                        label
-                        :format-tooltip="formatTimetip"
-                        :max="144"
-                      >
-                      </el-slider>
-                    </el-col>
-                    <el-col
-                      :span="8"
-                      style="margin-top:3px"
-                    >
-                      <div class="show-time">{{filterTimeInterVal(item.timeQj)}}</div>
-                    </el-col>
-                  </el-row>
-                </el-col>
-                <el-col
-                  :span="6"
-                  style="margin-top:3px"
-                >
-                  <el-button
-                    type="text"
-                    size="mini"
-                    @click="delTimeTip(index, dex)"
-                    v-if="dex!=0"
-                  >{{$t('accessSystem.shanchu')}}</el-button>
-                  <el-button
-                    type="text"
-                    size="mini"
-                    @click="addTimeTip(index, dex)"
-                    v-if="dex === 0"
-                  >{{$t('accessSystem.xinzeng')}}</el-button>
-                  <el-button
-                    type="text"
-                    size="mini"
-                    @click="tupTime(index, dex)"
-                    v-if="index !== 0 && dex===0"
-                  >{{$t('accessSystem.tongshang')}}</el-button>
-                </el-col>
-              </el-row>
-            </div>
-          </div>-->
+    
+      <el-form label-position="right" label-width="70px" :model="settingForm" class="form">
+        <!-- <div class="content-set">
           <week-time-sel @getTime="getTime" :setWeekTime="setWeekTime"></week-time-sel>
-        </div>
+        </div> -->
         <el-form-item
           :label="$t('accessSystem.jinchuleixing')"
           label-width="100"
@@ -82,31 +27,177 @@
             <el-option :label="$t('accessSystem.chu')" :value="0"></el-option>
           </el-select>
         </el-form-item>
+
+        <el-form-item
+          label="门禁功能"
+          label-width="100"
+          style="margin-top:10px"
+        >
+          <el-switch
+              v-model="settingForm.accessControl"
+              :active-value="1"
+              :inactive-value="0"
+              active-text="开"
+              inactive-text="关">
+            </el-switch>
+        </el-form-item>
+
+        <el-form-item
+          label="门禁控制器"
+          label-width="100"
+          style="margin-top:10px"
+          >
+          <div>{{settingForm}}</div>
+          <el-input style="width: 200px" v-model="settingForm.controlInput" placeholder="请输入门禁id"></el-input>
+        </el-form-item>
+
       </el-form>
-      <el-button type="primary" @click="settingSubmit">{{$t('accessSystem.queding')}}</el-button>
+      <div style="padding-left: 26px">
+         <el-button type="primary" @click="settingSubmit">{{$t('accessSystem.queding')}}</el-button>
+      </div>
+      
     </el-dialog>
     <!--  -->
-    <div class="contantHeader">
+    
+    <div class="contant-header">
       <!-- 添加设备框 -->
-      <el-dialog
+      <!-- <el-dialog
         :title="$t('accessSystem.tianjiashebei')"
         :visible.sync="dialogTableVisible"
         width="47%"
         class="diglog"
         :before-close="addClose"
       >
+       
+      </el-dialog> -->
+      <span class="title">{{$t('accessSystem.menjinshebei')}}</span>
+      <div class="seatch-fix-content">
+         <div class="search-content">
+          <div class="in-out-tro">进出类型</div>
+          <el-select v-model="searchParams.inOut" placeholder="请选择">
+            <el-option
+              v-for="item in inOutOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+          <div class="access-open">
+            门禁开启
+          </div>
+          <el-select v-model="searchParams.accessControl" placeholder="请选择">
+            <el-option
+              v-for="item in stausOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+          <el-input placeholder="请输入名称" v-model.trim="searchParams.deviceName" class="seatch-input"></el-input>
+          <el-button  type="primary" @click="getDeviceList" size="small">查询</el-button>
+        </div>
+        <div class="fix-content">
+          <el-button @click="openAdd"  size="small">{{$t('accessSystem.xinzeng')}}</el-button>
+          <el-button @click="moreDelete"  size="small">{{$t('accessSystem.shanchu')}}</el-button>
+          <el-button @click="openSetting"  size="small">{{$t('accessSystem.shezhi')}}</el-button>
+          <el-button @click="openAll" size="small">{{$t('accessSystem.xiaofangkaimen')}}</el-button>
+        </div>
+      </div>
+     
+    </div>
+    <div class="contantTable">
+      <!-- {{tableData}} -->
+      <el-table
+        :data="tableData"
+        stripe
+        style="width: 100%"
+        :row-key="getRowKeys"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" width="55" :reserve-selection="true"></el-table-column>
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column prop="deviceName" :label="$t('accessSystem.shebeimingcheng')"></el-table-column>
+        <el-table-column prop="deviceType" label="设备类型" :formatter="formatType"></el-table-column>
+
+        <el-table-column prop="inOut" label="进出类型" :formatter="formatInOut"></el-table-column>
+        <el-table-column prop="accessControl" label="门禁功能">
+           <template slot-scope="scope">
+              <el-switch
+                @change="changeControl(scope.row)"
+                v-model="scope.row.accessControl"
+                :active-value="1"
+                :inactive-value="0"
+                active-text="开"
+                inactive-text="关">
+              </el-switch>
+           </template> 
+        </el-table-column>
+
+        <!-- <el-table-column :label="$t('accessSystem.gongzuoshijian')">
+          <template slot-scope="timeScope">
+            <el-popover placement="left-start" trigger="hover">
+              <span
+                slot="reference"
+              >{{$t('accessSystem.zhouyi')}} {{timeScope.row.mon}}{{$t('accessSystem.dian')}}......</span>
+              <p>{{$t('accessSystem.zhouyi')}} {{timeScope.row.mon}}</p>
+              <p>{{$t('accessSystem.zhouer')}} {{timeScope.row.tue}}</p>
+              <p>{{$t('accessSystem.zhousan')}} {{timeScope.row.wed}}</p>
+              <p>{{$t('accessSystem.zhousi')}} {{timeScope.row.thu}}</p>
+              <p>{{$t('accessSystem.zhouwu')}} {{timeScope.row.fri}}</p>
+              <p>{{$t('accessSystem.zhouliu')}} {{timeScope.row.sat}}</p>
+              <p>{{$t('accessSystem.zhouri')}} {{timeScope.row.sun}}</p>
+            </el-popover>
+          </template>
+        </el-table-column> -->
+
+        <el-table-column :label="$t('accessSystem.caozuo')">
+          <template slot-scope="deviceScope">
+            <el-button
+              size="small"
+              type="text"
+              @click="openSetting(deviceScope.row)"
+            >{{$t('accessSystem.shezhi')}}</el-button>
+            <!-- @click="handleEdit(scope.$index, scope.row)" -->
+            <el-button
+              size="small"
+              type="text"
+              @click="farOpen(deviceScope.row)"
+            >{{$t('accessSystem.yuanchengkaimen')}}</el-button>
+            <el-button
+             size="small"
+              type="text"
+              @click="deleteDevice(deviceScope.row)"
+            >{{$t('accessSystem.shanchu')}}</el-button>
+
+            <el-button
+             size="small"
+              type="text"
+              @click="addContro(deviceScope.row)"
+            >新增门禁</el-button>
+            <!-- @click="handleDelete(scope.$index, scope.row)" -->
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页 -->
+       <div class="footer-bottom">
+          <el-pagination
+            class="pagination"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="pageNumber"
+            :page-sizes="[5, 10, 20, 40]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+      
+    </div>
+     
+     <!-- 设置框 -->
+    <dialog-container :di="isDShow" top="0" @saveDialog="saveFixDialog" @closeDialog="closeFixDialog">
+      <div slot="container" class="add-divice-dialog">
         <select-group class="tree" ref="treemenu"></select-group>
-        <!-- <tree-transfer
-          :from_data='fromData'
-          :to_data='toData'
-          :defaultProps="{label:'label'}"
-          :mode='mode'
-          height='540px'
-          filter
-          openAll
-          :leafOnly="true"
-        >
-        </tree-transfer>-->
         <div class="deviceList">
           <el-tabs
             v-model="$store.state.sccessDevice.accessManage.deviceType"
@@ -115,10 +206,6 @@
           >
             <el-tab-pane :label="$t('accessSystem.shexiangji')" name="1"></el-tab-pane>
             <el-tab-pane :label="$t('accessSystem.zhinengyingjian')" name="3"></el-tab-pane>
-            <!-- <el-tab-pane
-              label="智能硬件"
-              name="3"
-            ></el-tab-pane>-->
           </el-tabs>
           <el-table
             :data="$store.state.sccessDevice.accessManage.deviceList"
@@ -150,110 +237,74 @@
               @close="deleteTag(tag)"
             >{{tag.name}}</el-tag>
           </div>
-          <div>
+          <!-- <div>
             <el-button type="primary" @click="insertDevice">{{$t('accessSystem.queding')}}</el-button>
-          </div>
+          </div> -->
         </div>
-      </el-dialog>
-      <span class="title">{{$t('accessSystem.menjinshebei')}}</span>
-      <div style="display:inline-block;float:right;margin-right:0.64rem">
-        <el-button round @click="openAdd">{{$t('accessSystem.xinzeng')}}</el-button>
-        <el-button round @click="moreDelete">{{$t('accessSystem.shanchu')}}</el-button>
-        <el-button round @click="openSetting">{{$t('accessSystem.shezhi')}}</el-button>
-
-        <el-button
-          round
-          type="primary"
-          class="btn"
-          @click="openAll"
-        >{{$t('accessSystem.xiaofangkaimen')}}</el-button>
       </div>
-    </div>
-    <div class="contantTable">
-      <el-table
-        :data="tableData"
-        style="width: 100%"
-        :row-key="getRowKeys"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="55" :reserve-selection="true"></el-table-column>
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="deviceName" :label="$t('accessSystem.shebeimingcheng')"></el-table-column>
-        <el-table-column prop="deviceType" label="设备类型" :formatter="formatType"></el-table-column>
+         
+    </dialog-container>
 
-        <el-table-column prop="inOut" label="进出类型" :formatter="formatInOut"></el-table-column>
-
-        <el-table-column :label="$t('accessSystem.gongzuoshijian')">
-          <template slot-scope="timeScope">
-            <el-popover placement="left-start" trigger="hover">
-              <span
-                slot="reference"
-              >{{$t('accessSystem.zhouyi')}} {{timeScope.row.mon}}{{$t('accessSystem.dian')}}......</span>
-              <p>{{$t('accessSystem.zhouyi')}} {{timeScope.row.mon}}</p>
-              <p>{{$t('accessSystem.zhouer')}} {{timeScope.row.tue}}</p>
-              <p>{{$t('accessSystem.zhousan')}} {{timeScope.row.wed}}</p>
-              <p>{{$t('accessSystem.zhousi')}} {{timeScope.row.thu}}</p>
-              <p>{{$t('accessSystem.zhouwu')}} {{timeScope.row.fri}}</p>
-              <p>{{$t('accessSystem.zhouliu')}} {{timeScope.row.sat}}</p>
-              <p>{{$t('accessSystem.zhouri')}} {{timeScope.row.sun}}</p>
-            </el-popover>
-          </template>
-        </el-table-column>
-
-        <el-table-column :label="$t('accessSystem.caozuo')">
-          <template slot-scope="deviceScope">
-            <el-button
-              size="mini"
-              type="text"
-              @click="openSetting(deviceScope.row)"
-            >{{$t('accessSystem.shezhi')}}</el-button>
-            <!-- @click="handleEdit(scope.$index, scope.row)" -->
-            <el-button
-              size="mini"
-              type="text"
-              @click="farOpen(deviceScope.row)"
-            >{{$t('accessSystem.yuanchengkaimen')}}</el-button>
-            <el-button
-              size="mini"
-              type="text"
-              @click="deleteDevice(deviceScope.row)"
-            >{{$t('accessSystem.shanchu')}}</el-button>
-            <!-- @click="handleDelete(scope.$index, scope.row)" -->
-          </template>
-        </el-table-column>
-      </el-table>
-      <!-- 分页 -->
-      <el-pagination
-        class="pagination"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page.sync="pageNumber"
-        :page-sizes="[5, 10, 20, 40]"
-        :page-size="pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-      ></el-pagination>
-    </div>
   </div>
 </template>
 <script>
-// import treeTransfer from "../access_system/transfer-extend";
+import DialogContainer from './common/DialogWrapper.vue'
+
 import selectGroup from "./select_group.vue";
 import weekTimeSel from "./common/weekTimeSel.vue";
 // import APICONFIG from "../../../../../../config/api.js";
 export default {
-  components: { selectGroup, weekTimeSel },
+  components: {
+    selectGroup,
+    weekTimeSel,
+    DialogContainer
+  },
   data() {
     return {
+      isDShow: {
+          Visible: false,
+          Title: '新增权限组',
+          Width: '900px',
+          isshowfooter: true
+      },
+      searchParams: {
+        inOut: '',
+        accessControl: '',
+        deviceName: ''
+      },
+      inOutOptions: [{
+        label: '进门',
+        value: 1
+      }, 
+      {
+        label: '出门',
+        value: 0
+      },
+      {
+        label: '全部',
+        value: ''
+      }],
+      stausOptions: [{
+        label: '开',
+        value: 1
+      }, 
+      {
+        label: '关',
+        value: 0
+      },
+      {
+        label: '全部',
+        value: ''
+      }],
       tableData: [],
       settingIds: [], //参与设置id列表
       addList: [],
       deviceIds: [],
-
       dialogTableVisible: false, //新增设备弹窗
       settingDialogVisible: false,
       settingForm: {
-        inOut: 0
+        inOut: 0,
+        accessControl: 0
       },
       getRowKeys(row) {
         return row.id;
@@ -337,6 +388,22 @@ export default {
     console.log(this.$store.state.sccessDevice.accessManage.deviceType);
   },
   methods: {
+    addContro() {
+
+    },
+    saveFixDialog() {
+      this.isDShow.Visible = false
+      this.insertDevice()
+    },
+    closeFixDialog() {
+      this.isDShow.Visible = false
+    },
+    // 开关门禁功能
+    changeControl(v) {
+      this.settingForm = v
+      this.settingForm.ids = [v.id]
+      this.curryOutSubmit()
+    },
     getTime(v) {
       console.log(v);
       this.weekTime = v
@@ -406,8 +473,8 @@ export default {
       });
     },
     // 切换设备种类
-    tabclick() {
-      console.log(this.$store.state.sccessDevice.accessManage.groupData);
+    tabclick(val) {
+      console.log(this.$store.state.sccessDevice.accessManage.deviceType);
       const promise = new Promise((resolve, reject) => {
         this.$http
           .findAllDevice({
@@ -547,35 +614,6 @@ export default {
       });
     },
     settingSubmit() {
-      // let weeks = JSON.parse(JSON.stringify(this.allWeeks));
-      // weeks.forEach((item, dex1) => {
-      //   item.timeList.forEach((res, dex2) => {
-      //     let start = res.timeQj[0];
-      //     let end = res.timeQj[1];
-      //     let minStart = `${
-      //       (start % 6) * 10 < 10 ? "0" + (start % 6) * 10 : (start % 6) * 10
-      //     }`;
-      //     let minEnd = `${
-      //       (end % 6) * 10 < 10 ? "0" + (end % 6) * 10 : (end % 6) * 10
-      //     }`;
-      //     weeks[dex1].timeList[dex2].timeQj = `${Math.floor(
-      //       start / 6
-      //     )}:${minStart}-${Math.floor(end / 6)}:${minEnd}`;
-      //   });
-      // });
-      // let xqs = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-      // xqs.forEach((xq, index) => {
-      //   let str = "";
-      //   weeks[index].timeList.forEach(res => {
-      //     if (str) {
-      //       str = str + "," + res.timeQj;
-      //     } else {
-      //       str = res.timeQj;
-      //     }
-      //   });
-      //   this.settingForm[xq] = str;
-      // });
-
       for (const key in this.weekTime) {
         // if (this.weekTime.hasOwnProperty(key)&&(!this.settingForm.hasOwnProperty(key))) {
           this.settingForm[key]=this.weekTime[key]   
@@ -596,7 +634,10 @@ export default {
         this.settingForm.ids = ids;
       }
       console.log(this.settingIds);
-      this.$http.updateDevice(this.settingForm).then(res => {
+      this.curryOutSubmit()
+    },
+    curryOutSubmit() {
+        this.$http.updateDevice(this.settingForm).then(res => {
         if (res.data.status == 200) {
           this.$message.success(this.$t("accessSystem.shezhichenggong"));
           this.getDeviceList();
@@ -686,7 +727,7 @@ export default {
       this.$http.findAllDevice().then(res => {});
     },
     openAdd() {
-      this.dialogTableVisible = true;
+      this.isDShow.Visible = true;
       console.log(this.$store);
       this.$store.commit("freshData");
     },
@@ -706,10 +747,10 @@ export default {
     formatInOut(row, column) {
       switch (row.inOut) {
         case 1:
-          return "开门";
+          return "进门";
           break;
         case 0:
-          return "关门";
+          return "出门";
           break;
       }
     },
@@ -743,6 +784,7 @@ export default {
       // this.timeDataTransfer(row);
       
       this.settingForm.inOut = row.inOut;
+      this.settingForm.accessControl = row.accessControl;
     },
     handleClose() {
       this.settingDialogVisible = false;
@@ -759,15 +801,15 @@ export default {
     },
     //门禁设备列表查询
     getDeviceList() {
+      let pageParams = {
+        pageSize: this.pageSize,
+        pageNo: this.pageNumber
+      }
+      let params = Object.assign(pageParams, this.searchParams);
       this.$http
-        .findDeviceAll({
-          params: {
-            pageSize: this.pageSize,
-            pageNo: this.pageNumber,
-            sort: "id",
-            order: "asc"
-          }
-        })
+        .findDeviceAll(
+          params
+        )
         .then(res => {
           console.log(res);
           this.tableData = res.data.data;
@@ -831,10 +873,10 @@ export default {
   }
 };
 </script>
-<style lang='scss'>
+<style lang='scss' scoped>
 #device_manage {
   .el-dialog {
-    height: 550px;
+    height: 570px;
     overflow: auto;
   }
 }
@@ -844,71 +886,117 @@ export default {
 </style>
 
 
-<style scoped>
-.select {
-  width: 2rem;
-}
-.btn {
-  box-shadow: 0px 5px 6px 0px rgba(179, 209, 241, 1);
-}
-#device_manage {
-  height: 800px;
+<style  lang="scss">
+.device_manage {
+   height: 800px;
   background-color: white;
   padding-left: 20px;
   padding-right: 20px;
   width: 100%;
-}
-.contantHeader {
-  font-size: 20px;
-  font-family: PingFang-SC-Medium;
-  font-weight: 500;
-  color: rgba(39, 39, 39, 1);
-  padding-top: 23px;
-}
-.title {
-  margin-left: 32px;
-}
-.pagination {
-  float: right;
-  margin-top: 25px;
-  margin-right: 0.62rem;
-}
-.contantTable {
-  padding-top: 20px;
-}
-.form {
-  margin: 0 auto;
-  width: 90%;
-}
-.week-word {
-  float: left;
-  margin-top: 7px;
-}
-.week-line {
-  padding-left: 70px;
-}
-.show-time {
-  margin-top: 7px;
-}
-.word-content {
-  padding-top: 10px;
-}
-.tree {
-  width: 4rem;
+  .add-divice-dialog {
+     .pagination {
+        float: right;
+        margin-top: 25px;
+        margin-right: 0.62rem;
+      }
+      .contantTable {
+        padding-top: 20px;
+      }
+      .form {
+        margin: 0 auto;
+        width: 90%;
+      }
+      .week-word {
+        float: left;
+        margin-top: 7px;
+      }
+      .week-line {
+        padding-left: 70px;
+      }
+      .show-time {
+        margin-top: 7px;
+      }
+      .word-content {
+        padding-top: 10px;
+      }
+      .tree {
+        width: 4rem;
 
-  height: 300px;
-  float: left;
-}
-.deviceList {
-  float: left;
-  margin-top: -30px;
-  margin-left: 0.4rem;
-}
-.tags {
-  float: left;
+        height: 300px;
+        float: left;
+      }
+      .deviceList {
+        float: left;
+        margin-top: -30px;
+        margin-left: 0.4rem;
+      }
+      .tags {
+        float: left;
+        width: 4rem;
+        margin-top: 30px;
+        margin-left: 0.5rem;
+      }
+  }
+  .contant-header {
+        font-size: 20px;
+        font-family: PingFang-SC-Medium;
+        font-weight: 500;
+        color: rgba(39, 39, 39, 1);
+        padding-top: 23px;
+    }
+  .select {
+    width: 2rem;
+  }
+  .btn {
+    box-shadow: 0px 5px 6px 0px rgba(179, 209, 241, 1);
+  }
+  .title {
+    font-size: 18px;
+    color: #2B333E;
+  }
+  .footer-bottom {
+    text-align: right;
+    margin-top: 20px;
+  }
+  .seatch-fix-content {
+    margin-top: 20px;
+    height: 36px;
+    margin-bottom: 20px;
+    .search-content {
+       float: left;
+       display: flex;
+       align-items: center;
+       font-size: 14px;
+       color: #4D4F5C;
+       .el-input__inner {
+         height: 34px !important;
+       }
+       .in-out-tro {
+          margin-right: 10px;
+       }
+       .access-open {
+         margin-right: 10px;
+         margin-left: 20px;
+       }
+       .seatch-input {
+         width: 200px;
+         margin-left: 20px;
+         margin-right: 20px;
+       }
+       .query-divice {
+         height: 34px;
+         line-height: 34px;
+       }
+    }
+    .fix-content {
+      float: right;
+    }
 
-  width: 4rem;
-  margin-top: 30px;
-  margin-left: 0.5rem;
+    
+
+      
+
+  }
 }
+
 </style>

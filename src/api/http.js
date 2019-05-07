@@ -73,6 +73,14 @@ export default {
   // },
 // 门禁系统
 // 查询通行方式
+
+deviceManageFind(param) {
+  return instance.get('/api/v2/monitor/device-info/find', {params: param})
+},
+findSpecialGroup(param){
+  return instance.get('/api/v2/monitor/device-info/find-device-group', {params: param})
+},
+
 getWays(param){
   return instance.get('/api/v2/parameter/setting/passage/way/nodes', {params: param})
 },

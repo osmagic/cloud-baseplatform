@@ -32,58 +32,58 @@
     </div>
       
     <div class="wait-sel-table">
-          <el-table
-                ref="peopleListTable"
-                id="out-table-list"
-                :data="waittableData"
-                height="250"
-                @selection-change="handleSelectionChange"
-                :header-cell-style="{ background: 'rgba(245,248,252,1)' }"
-                :default-sort="{ prop: 'id', order: 'ascending' }"
-                :row-key="getRowKeys"
-              >
-                <el-table-column  type="selection" reserve-selection>
-                </el-table-column>
-                <el-table-column
-                  v-for="(tab, index) in tableDataLabel"
-                  :key="tab.name"
-                  :prop="tab.property"
-                  :label="tab.name"
-                  align="center"
+      <el-table
+            ref="waitpeopleListTable"
+            id="out-table-list"
+            :data="waittableData"
+            height="250"
+            @selection-change="handleSelectionChange"
+            :header-cell-style="{ background: 'rgba(245,248,252,1)' }"
+            :default-sort="{ prop: 'id', order: 'ascending' }"
+            :row-key="getRowKeys"
+          >
+            <el-table-column  type="selection" reserve-selection>
+            </el-table-column>
+            <el-table-column
+              v-for="(tab, index) in tableDataLabel"
+              :key="index"
+              :prop="tab.property"
+              :label="tab.name"
+              align="center"
+            >
+              <template slot-scope="scope">
+                <div
+                  v-if="
+                    scope.row.hasOwnProperty('urls') &&
+                      tab.name === $t('peopleManageList.photo')
+                  "
                 >
-                  <template slot-scope="scope">
-                    <div
-                      v-if="
-                        scope.row.hasOwnProperty('urls') &&
-                          tab.name === $t('peopleManageList.photo')
-                      "
-                    >
-                      <img
-                        :src="scope.row.urls[0]"
-                        style="width:50px;height:50px;"
-                        v-if="scope.row.urls !== null"
-                      />
-                      <div v-else></div>
-                    </div>
-                    <div v-else>
-                      {{ scope.row[tab.property] }}
-                    </div>
-                  </template>
-                </el-table-column>
-              </el-table>
+                  <img
+                    :src="scope.row.urls[0]"
+                    style="width:50px;height:50px;"
+                    v-if="scope.row.urls !== null"
+                  />
+                  <div v-else></div>
+                </div>
+                <div v-else>
+                  {{ scope.row[tab.property] }}
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
 
-              <div class="pagination-box">
-                <el-pagination
-                  @size-change="handleSizeChange"
-                  @current-change="handleCurrentChange"
-                  :current-page="currentTablePage"
-                  :page-sizes="[5, 10, 20]"
-                  :page-size="tablePageSize"
-                  layout="total, sizes, prev, pager, next, jumper"
-                  :total="tabletotal"
-                >
-                </el-pagination>
-            </div>
+          <div class="pagination-box">
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="currentTablePage"
+              :page-sizes="[5, 10, 20]"
+              :page-size="tablePageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="tabletotal"
+            >
+            </el-pagination>
+        </div>
     </div>
 
    </div>
@@ -93,7 +93,7 @@
           已选择人员
        </div>
        <el-table
-                ref="peopleListTable"
+                ref="selpeopleListTable"
                 id="out-table-list"
                 :data="selPersonTable"
                 height="250"
@@ -138,7 +138,16 @@
 </template>
 
 <script>
+import { setTimeout } from 'timers';
 export default {
+  props: {
+    setSelPersons: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    }
+   },
   data(){
     return{
       currentTablePage: 1,
@@ -254,9 +263,13 @@ export default {
         typeNo: this.typeValue.split('-')[0],
         groupNo: this.currentGroupNo
       }).then(res => {
-       this.waittableData = res.data.data;
-       // 获取表单总条数
-       this.tabletotal = res.data.total
+        this.waittableData = res.data.data;
+        // 获取表单总条数
+        this.tabletotal = res.data.total
+
+        this.setSelPersons.forEach(row => {
+          this.$refs.waitpeopleListTable.toggleRowSelection(row);
+        })
       })
     },
     getCheckedNodes() {
@@ -271,6 +284,9 @@ export default {
     }
   },
   watch: {
+    setSelPersons(newVal, oldVal) {
+      console.log(newVal)
+    },
     typeValue(newVal, oldVal) {
       if(newVal) {
         this.initParam()
@@ -293,6 +309,7 @@ export default {
       this.typeValue = this.typeOptions[0].value
       this.getTypeKeys()
     })
+     
   }
 }
 </script>

@@ -84,15 +84,13 @@ export default {
         var api = this.netAPI.find
       }
       this.$http
-        .get(api, {
-          params: {
+        .findSpecialGroup({
             groupNo
-          }
-        })
+          })
         .then(res => {
-          if (res.body.status == 200) {
+          if (res.data.status == 200) {
             let newgroupType = [];
-            res.body.data.forEach(item => {
+            res.data.data.forEach(item => {
               // 云平台中，设备组下没设备依然显示设备组
               if(this.platform == 'coala') {
                 // 如果是选择分组的话就不显示组下设备数量
@@ -123,15 +121,14 @@ export default {
                   //   description: item.description,
                   //   parentNo: item.parentNo
                   // });
-                  this.$http.get(this.monitorAPI.find, {
-                    params: {
+                  this.$http.deviceManageFind(
+                   {
                       groupNo: item.groupNo
-                    }
                   }).then(res => {
-                    if(res.body.status == 200) {
-                      if(res.body.total > 0) {
+                    if(res.data.status == 200) {
+                      if(res.data.total > 0) {
                         newgroupType.push({
-                          label: item.groupName + ` <${res.body.total}>`,
+                          label: item.groupName + ` <${res.data.total}>`,
                           groupNo: item.groupNo,
                           id: item.id,
                           description: item.description,
@@ -150,30 +147,21 @@ export default {
     },
     // 点击节点时触发的事件
     handleNodeClick(data, node) {
-      // console.log(JSON.stringify(data));
-      // console.log(node);
-      
-      if(this.platform=='monitor'){
-        console.log(this.monitorAPI.findSpecialGroup)
-        var api = this.monitorAPI.findSpecialGroup
-      }else{
-        var api = this.netAPI2.accessDevice.findAllDevice
-      }
-      this.$store.state.accessManage.groupData = data
+      console.log(data)
+      this.$store.state.sccessDevice.accessManage.groupData = data
       const promise = new Promise((resolve, reject) => {
         this.$http
-          .get(api, {
-            params: {
-              groupNo: data.groupNo,
-              type: this.$store.state.accessManage.deviceType
-            }
+          .findSpecialGroup({
+            groupNo: data.groupNo,
+            type: this.$store.state.sccessDevice.accessManage.deviceType
           })
           .then(res => {
-            if (res.body.status == 200) {
-              this.$store.state.accessManage.deviceList = res.body.data;
-              resolve(res.body.data)
+             console.log(1111)
+            if (res.data.status == 200) {
+              this.$store.state.sccessDevice.accessManage.deviceList = res.data.data;
+              resolve(res.data.data)
             } else {
-              this.$message.error(res.body.message);
+              this.$message.error(res.data.message);
             }
           });
       });
@@ -198,24 +186,20 @@ export default {
     },
     //获取已添加所有设备
     getAddDeviceList() {
+      console.log(22222)
       this.$http
-        .get(this.netAPI2.accessDevice.findDeviceAll, {
-          params: {
+        .findDeviceAll(
+          {
             pageSize: 1000,
             pageNo: 1
-          }
-        })
+          })
         .then(res => {
-          for (const key in res.body.data) {
-            if (res.body.data.hasOwnProperty(key)) {
-              const element = res.body.data[key];
-              // this.addList.push({
-              //   name: element.deviceName,
-              //   id: element.deviceId
-              // });
-              for (const key2 in this.$store.state.accessManage.deviceList) {
-                if (this.$store.state.accessManage.deviceList.hasOwnProperty(key2)) {
-                  const device = this.$store.state.accessManage.deviceList[key2];
+          for (const key in res.data.data) {
+            if (res.data.data.hasOwnProperty(key)) {
+              const element = res.data.data[key];
+              for (const key2 in this.$store.state.sccessDevice.accessManage.deviceList) {
+                if (this.$store.state.sccessDevice.accessManage.deviceList.hasOwnProperty(key2)) {
+                  const device = this.$store.state.sccessDevice.accessManage.deviceList[key2];
                   if (element.deviceId == device.id) {
                     // device.isAdd = false;
 
@@ -226,7 +210,7 @@ export default {
             }
           }
 
-          // this.pageNumber = res.body.pageNumber;
+          // this.pageNumber = res.data.pageNumber;
         });
     },
     selectHandleClose() {
