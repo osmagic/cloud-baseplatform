@@ -109,6 +109,11 @@
       this.getMessageList()
     },
     methods:{
+      deleteMessage(row){
+        this.$http.deleteMessage().then(res=>{
+          
+        })
+      },
       confirm(row){
         row.status = 1
         row.readStatus = 1
