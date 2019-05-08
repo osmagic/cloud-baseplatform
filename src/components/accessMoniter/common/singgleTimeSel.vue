@@ -52,7 +52,6 @@
 </template>
 
 <script>
-import { debuglog } from 'util';
 
 export default {
   props: {
@@ -112,7 +111,6 @@ export default {
       let selTimes = []
       this.weeks.forEach(item => {
         let times = []
-        console.log( this.setWeekTime[item.file])
         this.setWeekTime[item.file].split(',').forEach((item2) => {
           times.push({
             startTime: item2.split('-')[0],

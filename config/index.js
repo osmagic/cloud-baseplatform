@@ -17,8 +17,8 @@ module.exports = {
         changeOrigin: true,  //是否跨域
         pathRewrite: {
           //   '^/api':'api/v1/'   //需要rewrite的,
+        }
       }
-  }
     },
 
     // Various Dev Server settings

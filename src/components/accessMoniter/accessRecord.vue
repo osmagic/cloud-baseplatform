@@ -1,60 +1,11 @@
 <template>
   <div id="accessRecords">
-    <!-- 详情 -->
-    <el-dialog
-      :title="$t('accessSystem.xiangqing')"
-      :visible.sync="detailsDialog"
-      width="35%"
-      :before-close="detailsDialogClose"
-    >
-
-      <el-row>
-        <el-col
-          :span="8"
-          v-if="detailInfo.type!='陌生人闯入告警'"
-        >
-          <div class="grid-contentFir"> <img
-              :src="detailInfo.urls"
-              class="snapduibi"
-              alt='暂无'
-            ></div>
-        </el-col>
-        <el-col
-          :span="8"
-          style="margin-top:100px"
-          v-if="detailInfo.type!='陌生人闯入告警'"
-        >
-          <div class="grid-contentFir"><span class="score">{{detailInfo.score*100+'%'}}</span></div>
-        </el-col>
-        <el-col :span="8">
-          <div class="grid-contentFir"> <img
-              :src="detailInfo.snapPhoto"
-              class="snapduibi"
-            ></div>
-        </el-col>
-
-      </el-row>
-      <el-row>
-        <div class="grid-content ">{{$t('accessSystem.renyuanxingming')}}:<label class="value">{{detailInfo.name}}</label></div>
-        <div class="grid-content ">{{$t('accessSystem.renyuanbianhao')}}:<label class="value">{{detailInfo.id}}</label></div>
-        <div class="grid-content ">{{$t('accessSystem.shenfenzhenghao')}}:<label class="value">{{detailInfo.code}}</label></div>
-        <div class="grid-content ">{{$t('accessSystem.renyuanleixing')}}:<label class="value">{{detailInfo.personType}}</label></div>
-        <div class="grid-content ">{{$t('accessSystem.tongxingshijian')}}:<label class="value">{{detailInfo.recordDate}}</label></div>
-        <div class="grid-content ">{{$t('accessSystem.tongxingshebei')}}:<label class="value">{{detailInfo.deviceName}}</label></div>
-        <div class="grid-content ">{{$t('accessSystem.jinchuleixing')}}:<label class="value">{{detailInfo.divergenceType}}</label></div>
-        <div class="grid-content ">{{$t('accessSystem.tongxingfangshi')}}:<label class="value">{{detailInfo.passageWay}}</label></div>
-        <div class="grid-content ">{{$t('accessSystem.yanzhengjieguo')}}:<label class="value">{{detailInfo.validateResult}}</label></div>
-
-        <!-- <el-col :span="12" v-for="(item,index) in tableDataLabel" :key="index"><div  class="grid-content ">{{item.name}}:<label class="value">{{detailsShow[item.property]}}</label></div></el-col> -->
-
-      </el-row>
-      <span
-        slot="footer"
-        class="dialog-footer"
-      >
-        <el-button @click="detailsDialog = false">{{$t('accessSystem.guanbi')}}</el-button>
-      </span>
-    </el-dialog>
+     <dialog-container :di="isDShow" top="0" @saveDialog="detailsDialogClose" @closeDialog="detailsDialogClose">
+        <div slot="container">
+           <show-person-info :detailPersonInfo="detailInfo"></show-person-info>
+        </div>
+     </dialog-container>
+   
     <div class="contantHeader">
 
 <div>
@@ -117,8 +68,8 @@
         </el-option>
       </el-select>
       <div style="display:inline-block;float:right">
-        <el-button>批量删除</el-button>
-        <el-button>导出记录</el-button>
+        <el-button @click="removeRecord">批量删除</el-button>
+        <el-button @click="exportExcel">导出记录</el-button>
       </div>
       </div>
       <div style="margin-top:20px">
@@ -148,7 +99,7 @@
         >
         </el-option>
       </el-select>
-      <el-button class="search">查询</el-button>
+      <el-button class="search" @click="getRecordList">查询</el-button>
       </div>
 
 
@@ -286,10 +237,23 @@
   </div>
 </template>
 <script>
+import DialogContainer from './common/DialogWrapper.vue'
+import showPersonInfo from './common/showPersonInfo.vue'
+import { setTimeout } from 'timers';
 
 export default {
+  components: {
+    DialogContainer,
+    showPersonInfo
+  },
   data() {
     return {
+      isDShow: {
+          Visible: false,
+          Title: '人员详情',
+          Width: '900px',
+          isshowfooter: false
+      },
       recordData: [],
       currentPage: 1,
       total: 1,
@@ -362,7 +326,7 @@ export default {
           console.log(this.typeAll);
           this.personType = this.typeAll;
         } else {
-          this.$message.error(res.body.message);
+          this.$message.error(res.data.message);
         }
       });
     });
@@ -373,22 +337,30 @@ export default {
   methods: {
     showDetail(row) {
       this.$http
-        .accessPeopleDetail({ id: row.id } )
+        .accessPeopleDetail({ personId: row.id } )
         .then(res => {
           if (res.data.status == 200) {
-            this.$set(this.detailInfo, "urls", res.data.data.urls[0]);
-
-            console.log(this.detailInfo);
+            console.log(res.data.data)
+            this.isDShow.Visible = true;
+            if(res.data.data.urls !== null) {
+              this.$set(this.detailInfo, "urls", res.data.data.urls[0]);
+            }
+            this.detailInfo = row;
           } else {
             this.$message.error(res.data.message);
           }
         });
-      this.detailInfo = row;
-      this.detailsDialog = true;
+      
+      console.log(this.detailInfo)
+      // this.detailInfo = row;
+     
     },
     detailsDialogClose() {
-      this.detailInfo = {};
-      this.detailsDialog = false;
+      let self = this
+      this.isDShow.Visible = false;
+      setTimeout(() => {
+        self.detailInfo = {};
+      }, 500)
     },
     //表格数据格式化
     formatValidite(row, column) {
@@ -406,47 +378,31 @@ export default {
         : this.$t('accessSystem.weizhiz')
     },
     exportExcel() {
-      for (const key in this.multipleSelection) {
-        if (this.multipleSelection.hasOwnProperty(key)) {
-          const element = this.multipleSelection[key];
-          this.ids += element.id + ",";
-        }
-      }
-      console.log(this.ids);
-      var params = { ids: this.ids };
-      console.log(params);
-      // this.$http.get(this.netAPI.accessRecords.accessExport,{params:params}).then(res=>{
-
-      // })
-      //
-      this.$http({
-        url: '/api/v2/door/passage-record/export',
-        method: "get",
-        params: params,
-        responseType: "blob"
-      }).then(res => {
-        
-        var fileName = this.$t('accessSystem.daochuwenjian');
-        console.log(res);
-        var blob = new Blob([res.body], { type: "application/octet-stream" });
-        if (window.navigator.msSaveOrOpenBlob) {
-          //msSaveOrOpenBlob方法返回bool值
-          navigator.msSaveBlob(blob, fileName); //本地保存
-        } else {
-          var link = document.createElement("a"); //a标签下载
-          link.href = window.URL.createObjectURL(blob);
-          link.download = fileName;
-          //兼容火狐
-          document.body.appendChild(link);
-
-          var evt = document.createEvent("MouseEvents");
-          evt.initEvent("click", false, false);
-          link.dispatchEvent(evt);
-          document.body.removeChild(link);
-          ///
-        }
+      console.log(this.multipleSelection)
+      let headers = ['姓名', '人员编号', '人员类型', '时间', '设备', '通行方式', '验证结果', '通行结果', '对比打分', '进出类型']
+      let arrData = []
+      this.multipleSelection.forEach(recordData => {
+          arrData.push(
+            [recordData.name, 
+            recordData.id,
+            recordData.personType,
+            recordData.recordDate,
+            recordData.deviceName, 
+            recordData.passageWay,
+            recordData.validateResult === '1' ? '通过' : '未通过', 
+            recordData.passageResult  === '1' ? '通过' : '未通过', 
+            recordData.score, 
+            recordData.divergenceType === '1' ? '进' : '出']
+          )
       });
-      //
+     
+      var fileName = this.$t('accessSystem.daochuwenjian');
+         // 导出
+      require.ensure([], () => {
+        let recordData = self.recordData
+        const { export_json_to_excel } = require('../../vendor/Export2Excel');
+        export_json_to_excel(headers, arrData, fileName);
+      })
     },
     handleSelectionChange(val) {
       if (val.length) {
@@ -551,80 +507,60 @@ export default {
   padding: 20px;
   height: 800px;
   .grid-contentFir{
-  text-align: center;
-  margin-top: 10px
-}
-.contantHeader{
-  .el-input {
-  width: 2.5rem;
-}
-}
-.search{
-  margin-left: 20px;
-  background:rgba(76,131,255,1);
-  color: white
-}
-.date {
-  width: 6.4rem;
-}
-.el-date-editor--datetimerange.el-input, .el-date-editor--datetimerange.el-input__inner{
- 
-   padding: 3px 0 3px 10px
-}
-.select {
-  width: 4rem;
-  .el-input{
-    width: 200px;
-   
+    text-align: center;
+    margin-top: 10px
   }
-}
-#accessRecords {
-  height: 800px;
-  background-color: white;
+  .contantHeader{
+    .el-input {
+    width: 2.5rem;
+  }
+  }
+  .search{
+    margin-left: 20px;
+    background:rgba(76,131,255,1);
+    color: white
+  }
+  .date {
+    width: 6.4rem;
+  }
+  .el-date-editor--datetimerange.el-input, .el-date-editor--datetimerange.el-input__inner{
+  
+    padding: 3px 0 3px 10px
+  }
+  .select {
+    width: 4rem;
+    .el-input{
+      width: 200px;
+    
+    }
+  }
+  #accessRecords {
+    height: 800px;
+    background-color: white;
 
-}
-.title {
-  margin-left: 32px;
-}
-.contantHeader {
-  font-size: 20px;
-  font-family: PingFang-SC-Medium;
-  font-weight: 500;
-  color: rgba(39, 39, 39, 1);
+  }
+  .title {
+    margin-left: 32px;
+  }
+  .contantHeader {
+    font-size: 20px;
+    font-family: PingFang-SC-Medium;
+    font-weight: 500;
+    color: rgba(39, 39, 39, 1);
 
-}
-.contantTable {
-  padding-top: 20px;
-}
-.pagination {
-  float: right;
-  margin-top: 25px;
-  margin-right: 0.62rem;
-}
-.snapPhoto {
-  width: 70px;
-}
-.score {
-  color: red;
-  font-size: 20px;
-  margin-top: 100px;
-}
-.snapduibi {
-  width: 160px;
-  height: 240px;
-  display: inline-block;
-  margin: 0 auto;
-}
-.grid-content {
-  text-align: left;
-  margin-top: 10px;
-}
-.imgpreviewL {
-  width: 300px;
-}
-.value {
-  margin-left: 10px;
-}
+  }
+  .contantTable {
+    padding-top: 20px;
+  }
+  .pagination {
+    float: right;
+    margin-top: 25px;
+    margin-right: 0.62rem;
+  }
+  
+  .snapPhoto {
+    width: 70px;
+  }
 }
 
 </style>

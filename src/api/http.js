@@ -73,6 +73,9 @@ export default {
   // },
 // 门禁系统
 // 查询通行方式
+addAccessContro(param) {
+  return instance.post('/api/v2/door/control/insert', param)
+},
 
 deviceManageFind(param) {
   return instance.get('/api/v2/monitor/device-info/find', {params: param})
@@ -90,7 +93,9 @@ findTimes(param){
 findFlowrate(param) {
   return instance.get('/api/v2/door/main/total-record', {params: param})
 },
-
+fireDoor(param) {
+  return instance.post('/api/v2/door/device/fire-door', param)
+},
 findDeviceAll(param) {
   return instance.get('/api/v2/door/device/find', {params: param})
 },
@@ -139,7 +144,7 @@ alertDetail(param) {
   return instance.get('/api/v2/door/alarm/detail', {params: param})
 },
 accessPeopleDetail(param) {
-  return instance.get('/api/v2/peopleManager/detail', {params: param})
+  return instance.get('/api/v2/personnel/info/detail', {params: param})
 },
 accessList(param) {
   return instance.get('/api/v2/door/passage-record/find', {params: param})

@@ -33,48 +33,76 @@
       <div class=" box1 ac_contain">
         <p>{{$t('accessSystem.yuangongtongxingtongji')}}</p>
         <div class="line2"></div>
-        <div>
-          <div class="accessNumber">
-            通行人数
+        <div class="show-person-content">
+          <div class="person-num">
+            <img src="./img/staff-2.png" class="person-num-img">
+            <div class="person-num-tro">
+              通行人数
+            </div>
+            <div class="person-snum">
+               {{persionNumber1}}
+            </div>
           </div>
-          <div class="number">
-            24000
-          </div>
-          <div class="accessTime">
-            通行人次
+          <div class="person-time">
+             <img src="./img/staff-1.png" class="person-num-img">
+              <div class="person-num-tro">
+                通行人次
+              </div>
+              <div class="person-snum">
+                {{persionTime1}}
+              </div>
           </div>
         </div>
       </div>
       <div class="ac_contain">
         <p>{{$t('accessSystem.fangketongxingtongji')}}</p>
         <div class="line2"></div>
-         <div>
-          <div class="accessNumber">
-            通行人数
+        <div class="show-person-content">
+          <div class="person-num">
+            <img src="./img/visitor-1.png" class="person-num-img">
+            <div class="person-num-tro">
+              通行人数
+            </div>
+            <div class="person-snum">
+               {{persionNumber2}}
+            </div>
           </div>
-          <div class="number">
-            24000
-          </div>
-          <div class="accessTime">
-            通行人次
+          <div class="person-time">
+             <img src="./img/visitor-2.png" class="person-num-img">
+              <div class="person-num-tro">
+                通行人次
+              </div>
+              <div class="person-snum">
+                {{persionTime2}}
+              </div>
           </div>
         </div>
       </div>
       <div class="ac_contain">
-        <p>{{$t('accessSystem.heimingdanjujuetongji')}}</p>
+        <p>黑名单通行统计</p>
         <div class="line2"></div>
-         <div>
-          <div class="accessNumber">
-            通行人数
+        <div class="show-person-content">
+          <div class="person-num">
+            <img src="./img/black-1.png" class="person-num-img">
+            <div class="person-num-tro">
+              通行人数
+            </div>
+            <div class="person-snum">
+               {{persionNumber3}}
+            </div>
           </div>
-          <div class="number">
-            24000
-          </div>
-          <div class="accessTime">
-            通行人次
+          <div class="person-time">
+             <img src="./img/black-2.png" class="person-num-img">
+              <div class="person-num-tro">
+                通行人次
+              </div>
+              <div class="person-snum">
+                {{persionTime3}}
+              </div>
           </div>
         </div>
       </div>
+   
     </div>
     <div class="charts">
       <p style="margin-left:0.46rem;padding-top:29px">{{$t('accessSystem.renliuqushitongji')}}</p>
@@ -265,18 +293,17 @@ export default {
       myChart.setOption({
           color: ['#3398DB'],
           tooltip : {
-              trigger: 'axis',
-              axisPointer : {            // 坐标轴指示器，坐标轴触发有效
-                  type : 'line',
-                  shadowStyle: {
-                    color: 'rgba(76,131,255,0.05)'
-                  },
-                  lineStyle: {
-                    color: 'rgba(76,131,255,0.5)'
-                  },
-                   
-              },
-             
+            formatter: '{c1}',
+            trigger: 'axis',
+            axisPointer : {
+                type : 'line',
+                shadowStyle: {
+                  color: 'rgba(76,131,255,0.05)'
+                },
+                lineStyle: {
+                  color: 'rgba(76,131,255,0.5)'
+                },  
+            },
           },
           grid: {
               left: '3%',
@@ -339,7 +366,7 @@ export default {
                   animation: false
               },
               {
-                  name:'直接访问',
+                  name:'',
                   type:'bar',
                   barWidth: '20px',
                   itemStyle: {
@@ -498,8 +525,33 @@ export default {
     flex: 1;
     background-color: white;
     margin-left: 17px;
-    box-shadow: 0px 2px 10px 0px rgba(211, 211, 211, 1);
+    box-shadow: 0px 1px 1px 1px rgba(211, 211, 211, 1);
     border-radius: 5px;
+    .show-person-content {
+          display: flex;
+    height: 210px;
+      .person-num, .person-time {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        .person-num-img {
+          width: 24px;
+          height: 16px;
+        }
+        .person-num-tro {
+          margin-top: 6px;
+          font-size: 14px;
+        }
+        .person-snum {
+          font-weight:bold;
+          color: #4D4F5C;
+          font-size: 24px;
+        }
+      }
+     
+    }
   }
   p {
     font-size: 0.4rem;
