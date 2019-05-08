@@ -266,9 +266,18 @@ export default {
         this.waittableData = res.data.data;
         // 获取表单总条数
         this.tabletotal = res.data.total
-
-        this.setSelPersons.forEach(row => {
-          this.$refs.waitpeopleListTable.toggleRowSelection(row);
+        
+        console.log(1111111)
+        // console.log(this.waittableData)
+        console.log(this.selPersonTable)
+        this.setSelPersons.forEach(selper => {
+          this.waittableData.forEach(tablePer => {
+            if(selper.code === tablePer.code) {
+                console.log(selper.code)
+                this.$refs.waitpeopleListTable.toggleRowSelection(tablePer);
+            }
+          })
+          
         })
       })
     },

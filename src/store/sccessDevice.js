@@ -6,7 +6,7 @@ export default {
   state:{
     accessManage:{
     //门禁系统设备类型
-    deviceType:"3",
+    deviceType:"1",
     //门禁系统设备列表
     deviceList:[],
     // 分组数据

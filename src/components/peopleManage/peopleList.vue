@@ -526,6 +526,10 @@ export default {
       require.ensure([], () => {
         const { export_json_to_excel } = require('../../vendor/Export2Excel');
         const formatData = this.formatJson(row);
+        console.log(11111)
+        console.log(formatData.tHeader)
+        console.log(formatData.data)
+        console.log(excelTitle)
         export_json_to_excel(formatData.tHeader, formatData.data, excelTitle);
       })
       this.$refs.peopleListTable.clearSelection();

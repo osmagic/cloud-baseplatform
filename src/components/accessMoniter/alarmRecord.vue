@@ -7,7 +7,7 @@
         type="datetimerange"
         align="right"
         unlink-panels
-         :clearable='false'
+        :clearable='false'
         :start-placeholder="$t('accessSystem.kaishiriqi')"
         :end-placeholder="$t('accessSystem.jieshuriqi')"
         :default-time="['12:00:00', '08:00:00']"
@@ -37,12 +37,12 @@
          </div>
       </div>
       <div class="table">
-           <el-table
-        :data="alertData"
-        style="width: 100%"
-        :row-key="getRowKeys"
-        @selection-change="handleSelectionChange"
-      >
+       <el-table
+          :data="alertData"
+          style="width: 100%"
+          :row-key="getRowKeys"
+          @selection-change="handleSelectionChange"
+        >
         <el-table-column
           type="selection"
           width="55"
@@ -72,16 +72,19 @@
         <el-table-column :label="$t('accessSystem.zhuapaizhaopian')">
           <template slot-scope="imgScope">
             <img
-              :src="imgScope.row.url"
+            style="width: 100px"
+              :src="imgScope.row.pictureUrl"
               alt=""
             >
 
           </template>
         </el-table-column>
         <el-table-column
-          prop="person.name"
           :label="$t('accessSystem.xingming')"
         >
+        <template slot-scope="scope">
+            {{scope.row.personBasicInfoVo.name}}
+        </template>
         </el-table-column>
         <el-table-column :label="$t('accessSystem.caozuo')">
           <template slot-scope="scope">
@@ -90,14 +93,12 @@
               type="text"
               @click="getAlertDetail(scope.row)"
             >{{$t('accessSystem.xiangqing')}}</el-button>
-            <!-- @click="handleEdit(scope.$index, scope.row)" -->
 
             <el-button
               size="mini"
               type="text"
               @click="deleteAlert(scope.row)"
             >{{$t('accessSystem.shanchu')}}</el-button>
-            <!-- @click="handleDelete(scope.$index, scope.row)" -->
           </template>
         </el-table-column>
       </el-table>
@@ -145,21 +146,36 @@
           </div>
       </dialog-container>
 
+      <dialog-container :di="isPersonShow" top="0" @closeDialog="detailsDialogClose">
+        <div slot="container">
+           <show-person-info :detailPersonInfo="detailInfo"></show-person-info>
+        </div>
+     </dialog-container>
+
   </div>
 </template>
 <script>
 import DialogContainer from './common//DialogWrapper.vue'
+import showPersonInfo from './common/showPersonInfo.vue'
 import singgleTimeSel from './common/singgleTimeSel'
+import { setTimeout } from 'timers';
 
 export default {
   components: {
     DialogContainer,
-    singgleTimeSel
+    singgleTimeSel,
+    showPersonInfo
   },
   data() {
     return {
       diaForm: {
         swiPush: true  
+      },
+      isPersonShow: {
+          Visible: false,
+          Title: '人员详情',
+          Width: '900px',
+          isshowfooter: false
       },
       isDShow: {
           Visible: false,
@@ -229,7 +245,7 @@ export default {
     // this.netAPI = APICONFIG().get("accessSystem");
     this.getAlertList();
     this.getAlertType();
-    this.getAlertRule()
+    this.getAlertRule();
   },
   methods: {
     ruleSet(){
@@ -240,7 +256,7 @@ export default {
         if(res.data.status==200){
          this.diaForm.swiPush = res.data.data[0].stranger;
          this.setWeekTime = {mon:res.data.data[0].timeInterval};
-        this.id = res.data.data[0].id;
+         this.id = res.data.data[0].id;
          if(res.data.data.length>0){
            this.isEdit = true
          }
@@ -289,35 +305,39 @@ export default {
       getAlertDetail(row) {
       this.detailsDialog = true;
       this.detailInfo = row;
-      if (row.type == "黑名单闯入告警") {
-        console.log("查询人员");
-        this.$http
-          .accessPeopleDetail( { id: row.person.id }
-          )
-          .then(res => {
-            if (res.data.status == 200) {
-              console.log(res.data.data.code, res.data.data.name);
-              this.$set(this.detailInfo, "code", res.data.data.code);
-              this.$set(this.detailInfo, "personName", res.data.data.name);
+      this.$http
+        .accessPeopleDetail({personId: row.personBasicInfoVo.personId}).then(res => {
+          if (res.data.status == 200) {
+            this.isPersonShow.Visible = true;
+            if(res.data.data.urls !== null) {
               this.$set(this.detailInfo, "urls", res.data.data.urls[0]);
-              this.$set(this.detailInfo, "code", res.data.data.code);
-
-              console.log(this.detailInfo);
-            } else {
-              this.$message.error(res.data.message);
             }
-          });
-      }
-
-      console.log(this.detailInfo);
+            this.detailInfo = row;
+            // console.log(res.data.data.code, res.data.data.name);
+            // this.$set(this.detailInfo, "code", res.data.data.code);
+            // this.$set(this.detailInfo, "personName", res.data.data.name);
+            // if(res.data.data.urls !== null) {
+            //   this.$set(this.detailInfo, "urls", res.data.data.urls[0]);
+            // }
+            // this.$set(this.detailInfo, "code", res.data.data.code);
+            
+            // this.isPersonShow.Visible = true
+          } else {
+            this.$message.error(res.data.message);
+          }
+        });
     },
     detailsDialogClose() {
-      this.detailInfo = {};
-      this.detailsDialog = false;
+      let self = this
+      setTimeout(() => {
+         self.detailInfo = {};
+      }, 500)
+      this.isPersonShow.Visible = false;
     },
     handleSizeChange(pagesize) {
-      this.pagesize = pagesize;
+      this.pageSize = pagesize;
       this.getAlertList();
+      console.log(this.pageSize)
     },
     handleCurrentChange(pageNumber) {
       this.pageNumber = pageNumber;
@@ -355,8 +375,7 @@ export default {
             if (res.data.status == 200) {
               this.$message.success(this.$t('accessSystem.shanchuchenggong'));
               if (this.alertData.length == 1) {
-                this.pageNumber =
-                  this.pageNumber - 1 > 0 ? this.pageNumber - 1 : 1;
+                this.pageNumber = this.pageNumber - 1 > 0 ? this.pageNumber - 1 : 1;
               }
               this.getAlertList();
             } else {
@@ -381,7 +400,6 @@ export default {
     getAlertList() {
       if(this.dateTime ==null){
          var params = {
-       
         types: this.searchType,
         address: this.deviceAddress,
         pageNo: this.pageNumber,
@@ -401,11 +419,12 @@ export default {
         order: "asc"
       };
       }
-      
+      console.log(this.pageSize)
       this.$http
         .alertList( params )
         .then(res => {
           if (res.data.status == 200) {
+            debugger
             this.alertData = res.data.data;
             this.total = res.data.total;
           } else {
@@ -443,7 +462,6 @@ margin-right: 20px;
   float: right;
 }
 .table{
-  height: 850px;
   margin-top: 20px;
 }
 .dia-content {

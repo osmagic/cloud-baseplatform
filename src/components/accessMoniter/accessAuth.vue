@@ -49,10 +49,24 @@
             <el-table-column
               prop="address"
               label="允许通行时间">
-              <template slot-scope="scope">
+              <!-- <template slot-scope="scope">
                 <div class="pointer" @click="showTime(scope.row)">
                   {{filterTime(scope.row)}}
                 </div>
+              </template> -->
+              <template slot-scope="timeScope">
+                <el-popover placement="left-start" trigger="hover">
+                  <span
+                    slot="reference"
+                  >{{$t('accessSystem.zhouyi')}} {{timeScope.row.mon}}{{$t('accessSystem.dian')}}...</span>
+                  <p>{{$t('accessSystem.zhouyi')}} {{timeScope.row.mon}}</p>
+                  <p>{{$t('accessSystem.zhouer')}} {{timeScope.row.tue}}</p>
+                  <p>{{$t('accessSystem.zhousan')}} {{timeScope.row.wed}}</p>
+                  <p>{{$t('accessSystem.zhousi')}} {{timeScope.row.thu}}</p>
+                  <p>{{$t('accessSystem.zhouwu')}} {{timeScope.row.fri}}</p>
+                  <p>{{$t('accessSystem.zhouliu')}} {{timeScope.row.sat}}</p>
+                  <p>{{$t('accessSystem.zhouri')}} {{timeScope.row.sun}}</p>
+                </el-popover>
               </template>
             </el-table-column>
               
@@ -98,11 +112,9 @@
                   </el-form-item>
 
                   <el-form-item label="关联人员" prop="persionIds">
-                    <el-button type="primary" @click="showSelPerson">请选择</el-button>
-                    <span>
-                        {{selPersons.length> 0 ? selPersons[0].name : ''}}
-                        <span v-show="selPersons.length > 0">...</span>
-                    </span>
+                    <el-button type="primary" @click="showSelPerson">
+                      {{selPersons.length > 0 ? selPersons[0].name : '请选择'}}
+                    </el-button>
                   </el-form-item>
 
                   <el-form-item label="是否允许同行" prop="allow">
@@ -114,11 +126,19 @@
                     </template>
                   </el-form-item>
     
-                  <el-form-item label="可通行设备" prop="deviceIds">
-                    <el-button type="primary" @click="showDialogDivice">请选择</el-button>
-                    <span>{{selDevices.length > 0 ? selDevices[0].deviceName : ''}}
-                      <span v-show="selDevices.length > 0">...</span>
-                    </span>
+                  <el-form-item label="是否告警" prop="deviceIds" v-if="jurRuleForm.allow === '2'">
+                     <el-select v-model="jurRuleForm.alarm" placeholder="请选择">
+                        <el-option
+                          v-for="item in alermOptions"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value">
+                        </el-option>
+                      </el-select>
+                  </el-form-item>
+
+                  <el-form-item label="可通行设备" prop="deviceIds" v-if="jurRuleForm.allow === '1'">
+                    <el-button type="primary" @click="showDialogDivice">{{selDevices.length > 0 ? selDevices[0].deviceName : '请选择'}}</el-button>
                   </el-form-item>
 
                   <el-form-item label="通行方式" prop="passageMode" v-if="jurRuleForm.allow === '1'">
@@ -290,13 +310,13 @@ export default {
       },
       isShowDivice: {
           Visible: false,
-          Title: '新增门禁设备',
+          Title: '选择门禁设备',
           Width: '674px',
           isshowfooter: true
       },
       isShowPerson: {
           Visible: false,
-          Title: '关联人员',
+          Title: '选择关联人员',
           Width: '1030px',
           isshowfooter: true
       },
@@ -369,6 +389,14 @@ export default {
       selPersons: [],
       selDevices: [],
       waysArr: [],
+      alermOptions: [{
+        label: '告警',
+        value: 1
+      },
+      {
+        label: '不告警',
+        value: 0
+      }],
       passcheckList:[],
       seletJurs: [], // 选中得门禁
       setWeekTime: {}, // 编辑得时候设时间
@@ -540,6 +568,7 @@ export default {
     },
     // 编辑权限组
     editJur(row) {
+      this.isDShow.Title = '编辑权限组'
       // 后台会将allow转成int类型
       row.allow = String(row.allow)
       this.jurRuleForm = row
@@ -563,7 +592,6 @@ export default {
       this.setWeekTime = t
 
       // 关联的人员
-    
       this.selPersons = row.personBasicInfos
 
       this.setSelPersons = this.selPersons
@@ -723,8 +751,10 @@ export default {
     initAddForm() {
       this.selDevices = []
       this.selPersons = []
+      this.passcheckList = []
     },
     addJur() {
+      this.isDShow.Title = '新增权限组'
       this.initAddForm()
       this.jurRuleForm = JSON.parse(JSON.stringify(this.initRuleForm))
       this.setWeekTime = {

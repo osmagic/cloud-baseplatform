@@ -10,7 +10,7 @@
       </el-header>
       <el-container>
         <el-aside width="244px">
-          <Menu active-name="1" width="244px">
+          <Menu :active-name="activeName" width="244px">
             <MenuItem name="1" style="margin:20px 0 10px 0" to="/accessMonitor/index">
               <Icon type="md-document" />
               主页
@@ -50,11 +50,33 @@
 export default {
   data() {
     return {
+      activeName: '1'
     };
   },
   methods:{
     toIndex(){
       this.$router.push('/appList')
+    }
+  },
+  mounted() {
+    let path = this.$route.path
+    console.log(path)
+    switch(path) {
+      case '/accessMonitor/index':
+        this.activeName = '1'
+        break;
+      case '/accessMonitor/accessDevice':
+        this.activeName = '2'
+        break;
+      case '/accessMonitor/accessAuth':
+        this.activeName = '3'
+        break;
+      case '/accessMonitor/accessRecord':
+        this.activeName = '4'
+        break;
+      case '/accessMonitor/alarmRecord':
+        this.activeName = '5'
+        break;
     }
   }
 };

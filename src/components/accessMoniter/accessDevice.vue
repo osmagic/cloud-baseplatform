@@ -28,7 +28,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item
+        <!-- <el-form-item
           label="门禁功能"
           label-width="100"
           style="margin-top:10px"
@@ -40,17 +40,7 @@
               active-text="开"
               inactive-text="关">
             </el-switch>
-        </el-form-item>
-
-        <el-form-item
-          label="门禁控制器"
-          label-width="100"
-          style="margin-top:10px"
-          >
-          <div>{{settingForm}}</div>
-          <el-input style="width: 200px" v-model="settingForm.controlInput" placeholder="请输入门禁id"></el-input>
-        </el-form-item>
-
+        </el-form-item> -->
       </el-form>
       <div style="padding-left: 26px">
          <el-button type="primary" @click="settingSubmit">{{$t('accessSystem.queding')}}</el-button>
@@ -100,7 +90,9 @@
           <el-button @click="openAdd"  size="small">{{$t('accessSystem.xinzeng')}}</el-button>
           <el-button @click="moreDelete"  size="small">{{$t('accessSystem.shanchu')}}</el-button>
           <el-button @click="openSetting"  size="small">{{$t('accessSystem.shezhi')}}</el-button>
-          <el-button @click="openAll" size="small">{{$t('accessSystem.xiaofangkaimen')}}</el-button>
+          <el-button @click="openAll" size="small" :type="this.isOpenDoor === 1 ? 'primary' : ''">
+            {{this.isOpenDoor === 1 ? '消防关门' : '消防开门'}}
+          </el-button>
         </div>
       </div>
      
@@ -119,8 +111,21 @@
         <el-table-column prop="deviceName" :label="$t('accessSystem.shebeimingcheng')"></el-table-column>
         <el-table-column prop="deviceType" label="设备类型" :formatter="formatType"></el-table-column>
 
-        <el-table-column prop="inOut" label="进出类型" :formatter="formatInOut"></el-table-column>
-        <el-table-column prop="accessControl" label="门禁功能">
+        <el-table-column prop="inOut" label="进出类型">
+            <template slot-scope="scope">
+                  <el-switch
+                    @change="changeControl(scope.row)"
+                    v-model="scope.row.inOut"
+                    :active-value="1"
+                    :inactive-value="0"
+                    active-text="进"
+                    inactive-text="出">
+                  </el-switch>
+              </template> 
+            </el-table-column>
+
+        </el-table-column>
+        <!-- <el-table-column prop="accessControl" label="门禁功能">
            <template slot-scope="scope">
               <el-switch
                 @change="changeControl(scope.row)"
@@ -131,7 +136,7 @@
                 inactive-text="关">
               </el-switch>
            </template> 
-        </el-table-column>
+        </el-table-column> -->
 
         <!-- <el-table-column :label="$t('accessSystem.gongzuoshijian')">
           <template slot-scope="timeScope">
@@ -152,11 +157,11 @@
 
         <el-table-column :label="$t('accessSystem.caozuo')">
           <template slot-scope="deviceScope">
-            <el-button
+            <!-- <el-button
               size="small"
               type="text"
               @click="openSetting(deviceScope.row)"
-            >{{$t('accessSystem.shezhi')}}</el-button>
+            >{{$t('accessSystem.shezhi')}}</el-button> -->
             <!-- @click="handleEdit(scope.$index, scope.row)" -->
             <el-button
               size="small"
@@ -245,6 +250,12 @@
          
     </dialog-container>
 
+    <dialog-container :di="isDShowDoor" @saveDialog="saveDoorDialog" @closeDialog="closeDoorDialog">
+        <div slot="container" class="add-door-dialog">
+          <el-input placeholder="请输入控制器的六位数id" v-model.trim="accessId" style="width: 300px"/>
+        </div>
+    </dialog-container>
+
   </div>
 </template>
 <script>
@@ -261,9 +272,17 @@ export default {
   },
   data() {
     return {
+      selectDivice: '',
+      accessId: '',
       isDShow: {
           Visible: false,
           Title: '新增权限组',
+          Width: '900px',
+          isshowfooter: true
+      },
+      isDShowDoor: {
+          Visible: false,
+          Title: '新增门禁',
           Width: '900px',
           isshowfooter: true
       },
@@ -376,20 +395,41 @@ export default {
         tue: "00:00-24:00",
         wed: "00:00-24:00"
       },
-      weekTime:{}
+      weekTime:{},
+      isOpenDoor: 0
     };
   },
   created() {
-    // this.netAPI = APICONFIG().get("accessSystem");
     this.getDeviceList();
-    // this.getDevices();
   },
   mounted() {
     console.log(this.$store.state.sccessDevice.accessManage.deviceType);
   },
   methods: {
-    addContro() {
-
+    saveDoorDialog() {
+      if(this.accessId.length !== 6) {
+         this.$message.success('请输入六位数id')
+        return
+      }
+      console.log(this.selectDivice)
+        this.$http.addAccessContro({
+          doorDeviceId: this.selectDivice.id,
+          deviceId: this.selectDivice.deviceId,
+          ip: this.accessId
+        }).then((res) => {
+           if(res.data.status === 200) {
+             this.$message.success('新增成功')
+              this.isDShowDoor.Visible = false
+           } 
+        })
+    },
+    closeDoorDialog() {
+        this.isDShowDoor.Visible = false
+    },
+    addContro(row) {
+       console.log(row)
+       this.selectDivice = row
+       this.isDShowDoor.Visible = true
     },
     saveFixDialog() {
       this.isDShow.Visible = false
@@ -474,61 +514,74 @@ export default {
     },
     // 切换设备种类
     tabclick(val) {
-      console.log(this.$store.state.sccessDevice.accessManage.deviceType);
-      const promise = new Promise((resolve, reject) => {
-        this.$http
-          .findAllDevice({
-            groupNo: this.$store.state.sccessDevice.accessManage.groupData
-              .groupNo,
-            type: this.$store.state.sccessDevice.accessManage.deviceType
+       this.$http
+          .getDeviceList({
+              groupNo: this.$store.state.sccessDevice.accessManage.groupData,
+              type: this.$store.state.sccessDevice.accessManage.deviceType
           })
           .then(res => {
             if (res.data.status == 200) {
-              this.$store.state.sccessDevice.accessManage.deviceList =
-                res.data.data;
-              resolve(res.data.data);
+              // this.$store.state.selectGroupStore.accessManage.deviceList = res.data.data;
+              this.$store.state.sccessDevice.accessManage.deviceList = res.data.data;
             } else {
               this.$message.error(res.data.message);
             }
           });
-      });
-      promise.then(res => {
-        this.$http
-          .findDeviceAll({
-            pageSize: 1000,
-            pageNo: 1
-          })
-          .then(res => {
-            for (const key in res.data.data) {
-              if (res.data.data.hasOwnProperty(key)) {
-                const element = res.data.data[key];
-                // this.addList.push({
-                //   name: element.deviceName,
-                //   id: element.deviceId
-                // });
-                for (const key2 in this.$store.state.sccessDevice.accessManage
-                  .deviceList) {
-                  if (
-                    this.$store.state.sccessDevice.accessManage.deviceList.hasOwnProperty(
-                      key2
-                    )
-                  ) {
-                    const device = this.$store.state.sccessDevice.accessManage
-                      .deviceList[key2];
-                    if (element.deviceId == device.id) {
-                      // device.isAdd = false;
+      // console.log(this.$store.state.sccessDevice.accessManage.deviceType);
+      // const promise = new Promise((resolve, reject) => {
+      //   this.$http
+      //     .getDeviceList({
+      //       groupNo: this.$store.state.sccessDevice.accessManage.groupData
+      //         .groupNo,
+      //       type: this.$store.state.sccessDevice.accessManage.deviceType
+      //     })
+      //     .then(res => {
+      //       if (res.data.status == 200) {
+      //         this.$store.state.sccessDevice.accessManage.deviceList =
+      //           res.data.data;
+      //         resolve(res.data.data);
+      //       } else {
+      //         this.$message.error(res.data.message);
+      //       }
+      //     });
+      // });
+      // promise.then(res => {
+      //   this.$http
+      //     .findDeviceAll({
+      //       pageSize: 1000,
+      //       pageNo: 1
+      //     })
+      //     .then(res => {
+      //       for (const key in res.data.data) {
+      //         if (res.data.data.hasOwnProperty(key)) {
+      //           const element = res.data.data[key];
+      //           // this.addList.push({
+      //           //   name: element.deviceName,
+      //           //   id: element.deviceId
+      //           // });
+      //           for (const key2 in this.$store.state.sccessDevice.accessManage
+      //             .deviceList) {
+      //             if (
+      //               this.$store.state.sccessDevice.accessManage.deviceList.hasOwnProperty(
+      //                 key2
+      //               )
+      //             ) {
+      //               const device = this.$store.state.sccessDevice.accessManage
+      //                 .deviceList[key2];
+      //               if (element.deviceId == device.id) {
+      //                 // device.isAdd = false;
 
-                      this.$set(device, "isAdd", "true");
-                    }
-                  }
-                }
-              }
-            }
+      //                 this.$set(device, "isAdd", "true");
+      //               }
+      //             }
+      //           }
+      //         }
+      //       }
 
-            // this.pageNumber = res.data.pageNumber;
-          });
-        console.log(this.$store.state.sccessDevice.accessManage.deviceList);
-      });
+      //       // this.pageNumber = res.data.pageNumber;
+      //     });
+      //   console.log(this.$store.state.sccessDevice.accessManage.deviceList);
+      // });
     },
     // 添加设备对话框关闭前处理
     addClose() {
@@ -537,9 +590,16 @@ export default {
     },
     //消防开门
     openAll() {
-      this.$http.openDoor([]).then(res => {
+      this.$http.fireDoor({
+        fireAction: this.isOpenDoor === 0 ? 1 : 0
+      }).then(res => {
         if (res.data.status == 200) {
-          this.$message.success(this.$t("accessSystem.yikaimen"));
+          if(this.isOpenDoor === 0) {
+            this.$message.success('消防开门成功');
+          } else if (this.isOpenDoor === 1) {
+            this.$message.success('消防关门成功');
+          }
+          this.getDeviceList()
         } else {
           this.$message.error(res.data.message);
         }
@@ -637,6 +697,7 @@ export default {
       this.curryOutSubmit()
     },
     curryOutSubmit() {
+      console.log(this.settingForm)
         this.$http.updateDevice(this.settingForm).then(res => {
         if (res.data.status == 200) {
           this.$message.success(this.$t("accessSystem.shezhichenggong"));
@@ -770,21 +831,18 @@ export default {
        }
       }else{
        this. setWeekTime= {
-        fri: "00:00-24:00",
-        mon: "00:00-24:00",
-        sat: "00:00-24:00",
-        sun: "00:00-24:00",
-        thu: "00:00-24:00",
-        tue: "00:00-24:00",
-        wed: "00:00-24:00"
+          fri: "00:00-24:00",
+          mon: "00:00-24:00",
+          sat: "00:00-24:00",
+          sun: "00:00-24:00",
+          thu: "00:00-24:00",
+          tue: "00:00-24:00",
+          wed: "00:00-24:00"
+        }
       }
-      }
-      console.log(row)
-
-      // this.timeDataTransfer(row);
-      
       this.settingForm.inOut = row.inOut;
-      this.settingForm.accessControl = row.accessControl;
+      // this.settingForm.accessControl = row.accessControl;
+      this.settingForm.accessControl = 0
     },
     handleClose() {
       this.settingDialogVisible = false;
@@ -814,6 +872,9 @@ export default {
           console.log(res);
           this.tableData = res.data.data;
           this.total = res.data.total;
+          if(this.tableData.length > 0) {
+            this.isOpenDoor = this.tableData[0].fireAction !== null ? this.tableData[0].fireAction : 0
+          }
           // if(this.pageNumber-res.data.pageNumber==1){
           //   this.pageNumber--
           //   this.getDeviceList()
