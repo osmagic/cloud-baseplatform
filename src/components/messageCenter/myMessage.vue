@@ -1,12 +1,12 @@
 <template>
   <el-card class="myMessage">
     <div class="head">
-      <p>权限分配</p>
+      <p>我的消息</p>
     </div>
-    <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="全部消息" name="allNews"><allNews></allNews></el-tab-pane>
-      <el-tab-pane label="未读消息" name="unreadNews"><unreadNews></unreadNews></el-tab-pane>
-      <el-tab-pane label="已读消息" name="readNews"><readNews></readNews></el-tab-pane>
+    <el-tabs v-model="activeName" @tab-click="handleClick" lazy>
+      <el-tab-pane label="全部消息" name="allNews"><allNews ref="allNews"></allNews></el-tab-pane>
+      <el-tab-pane label="未读消息" name="unreadNews"><unreadNews ref="unreadNews"></unreadNews></el-tab-pane>
+      <el-tab-pane label="已读消息" name="readNews"><readNews ref="readNews"></readNews></el-tab-pane>
     </el-tabs>
   </el-card>
 </template>
@@ -25,7 +25,15 @@
     },
     methods:{
       handleClick(tab, event) {
-        console.log(tab, event);
+        if(tab.name == 'unreadNews'){
+          this.$refs.unreadNews.getMessageList()
+        }
+        if(tab.name == 'readNews'){
+ this.$refs.readNews.getMessageList()
+        }
+         if(tab.name == 'allNews'){
+ this.$refs.allNews.getMessageList()
+        }
       }
     },
   }

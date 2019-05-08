@@ -442,6 +442,15 @@ getEchartsData(param){
 //操作日志查询
 getOperationLogs(param){
   return instance.get('/api/v2/operation-log/find',  {params:param})
+},
+getMessage(param){
+  return instance.get('/api/v2/alarm-log/find',  {params:param})
+},
+changeMassage(param){
+  return instance.post('/api/v2/alarm-log/modify',  param)
+},
+deleteMessage(param){
+  return instance.post('/api/v2/alarm-log/remove',  param)
 }
 //startTime finishTime 2019-00-00 00:00:00
 //设备激活

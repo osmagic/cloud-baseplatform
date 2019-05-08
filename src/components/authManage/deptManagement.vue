@@ -9,10 +9,12 @@
           <span>顶部logo</span>
           <el-upload
             class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            action
             :show-file-list="false"
-            :on-success="handleAvatarUpSuccess"
+        
+            :on-change="upLogo"
             :before-upload="beforeAvatarUpload"
+            :auto-upload="false"
           >
             <img v-if="imageUpUrl" :src="imageUpUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -26,10 +28,12 @@
           <span>主页logo</span>
           <el-upload
             class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            action
             :show-file-list="false"
-            :on-success="handleAvatarIndexSuccess"
+           
+            :on-change="indexLogo"
             :before-upload="beforeAvatarUpload"
+            :auto-upload="false"
           >
             <img v-if="imageIndexUrl" :src="imageIndexUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -41,7 +45,12 @@
         </div>
         <div class="item">
           <span>公司简介</span>
-          <el-input placeholder="请输入公司简介" style="width: 300px" type="textarea" v-model="unitform.biography"></el-input>
+          <el-input
+            placeholder="请输入公司简介"
+            style="width: 300px"
+            type="textarea"
+            v-model="unitform.biography"
+          ></el-input>
         </div>
 
         <div class="img-list-box">
@@ -65,7 +74,6 @@
                         style="font-size:20px"
                         icon="el-icon-delete"
                         @click="remove(o)"
-                     
                       ></el-button>
                       <el-button
                         type="text"
@@ -73,14 +81,13 @@
                         style="font-size:20px"
                         icon="el-icon-edit"
                         @click="showEditDialog(o)"
-                     
                       ></el-button>
                     </div>
                   </div>
                 </el-card>
               </el-col>
             </el-row>
-            <el-button icon="el-icon-upload" @click="createDialog = true">上传</el-button>
+            <el-button icon="el-icon-upload" @click="createDialog = true;this.editFileBinary=[]">上传</el-button>
           </div>
         </div>
       </div>
@@ -191,7 +198,7 @@ export default {
     };
     return {
       imageUpUrl: "",
-      imageIndexUrl:'',
+      imageIndexUrl: "",
       imgArr: [
         { url: "./../../assets/img/pic.png" },
         { url: "./../../assets/img/pic.png" },
@@ -201,7 +208,7 @@ export default {
       unitform: {
         description: "",
         biography: "",
-        name:''
+        name: ""
       },
       createFrom: {
         name: "",
@@ -232,46 +239,88 @@ export default {
       },
       imgdialogVisible: false,
       dialogImageUrl: "",
-      companyId:'',
-      fileListId:'',
-      editFileBinary:[],
-      isEdit:false
+      companyId: "",
+      fileListId: "",
+      editFileBinary: [],
+      isEdit: false,
+      upLogoBinary: "",
+      indexLogoBinary: ""
     };
   },
-  created(){
+  created() {
     this.unitformSubmit();
   },
   mounted() {
     this.getPictureList();
   },
-  methods:{
-    submitAll(){
-      if(isEdit){
-        
-      }else{
+  methods: {
+    upLogo(file, fileList) {
+      this.upLogoBinary = file.raw;
+       this.imageUpUrl = URL.createObjectURL(file.raw);
+    },
+    indexLogo(file, fileList) {
+      this.indexLogoBinary = file.raw;
+      this.imageIndexUrl = URL.createObjectURL(file.raw);
+    },
+    submitAll() {
+      let Allform = new FormData();
+      Allform.append("name", this.unitform.name);
+      Allform.append("description", this.unitform.description);
+      if(this.upLogoBinary!=''){
+ Allform.append("logoBinary", this.upLogoBinary);
+      }
+      if(this.indexLogoBinary!=''){
+Allform.append("brandBinary", this.indexLogoBinary);
+      }
+     
+      
+      Allform.append("biography", this.unitform.biography);
 
+      if (this.isEdit) {
+        Allform.append("companyId", this.companyId);
+        this.$http.companyModify(Allform).then(res => {
+          if (res.data.status == 200) {
+            this.unitformSubmit();
+            this.upLogoBinary='';
+            this.indexLogoBinary='';
+             this.$message.success(this.$t("common.updateSuccess"))
+          } else {
+            this.$message.error(res.data.message);
+          }
+        });
+      } else {
+        this.$http.companyInsert(Allform).then(res => {
+          if (res.data.status == 200) {
+            this.unitformSubmit();
+            this.upLogoBinary='';
+            this.indexLogoBinary='';
+             this.$t("common.updateSuccess")
+          } else {
+            this.$message.error(res.data.message);
+          }
+        });
       }
     },
-    handleAvatarUpSuccess(res, file){
+    handleAvatarUpSuccess(file,fileList) {
       this.imageUpUrl = URL.createObjectURL(file.raw);
     },
-    handleAvatarUpSuccess(res, file){
-        this.imageIndexUrl = URL.createObjectURL(file.raw);
+    beforeAvatarUpload(){},
+    handleAvatarUpSuccess(file,fileList) {
+      this.imageIndexUrl = URL.createObjectURL(file.raw);
     },
     unitformSubmit() {
       this.$http.getCompanyDetail().then(
         res => {
           if (res.data.status == 200) {
             this.unitform.biography = res.data.data[0].biography;
-            this.unitform.description =
-              res.data.data[0].description;
-            this.unitform.name =  res.data.data[0].name;
-            this.unitform.imageUpUrl = res.data.data[0].brandUrl
-            this.imageIndexUrl = res.data.data[0].logoUrl;
+            this.unitform.description = res.data.data[0].description;
+            this.unitform.name = res.data.data[0].name;
+            this.imageUpUrl = res.data.data[0].logoUrl;
+            this.imageIndexUrl = res.data.data[0].brandUrl;
             this.pictureList = res.data.data[0].scenes;
             this.companyId = res.data.data[0].companyId;
-            if(res,data.data.length>0){
-              this.isEdit = true
+            if ((res.data.data.length > 0)) {
+              this.isEdit = true;
             }
           }
         },
@@ -309,7 +358,7 @@ export default {
             this.$set(item, "imgList", "");
             this.addPicture(item);
           }
-          console.log(this.pictureList)
+          console.log(this.pictureList);
         }
       });
     },
@@ -342,11 +391,10 @@ export default {
 
               break;
             case "editExhibition":
-            console.log(this.editFileNum)
-          
-             this.editExhibition()
-           
-                
+              console.log(this.editFileNum);
+
+              this.editExhibition();
+
               break;
             default:
               break;
@@ -364,46 +412,47 @@ export default {
     createHandleRemove() {
       this.createFileNum--;
     },
-    editFilesChange(file,fileList) {
-      console.log(file)
-      console.log(fileList)
-      this.editFileBinary.push(file.raw)
+    editFilesChange(file, fileList) {
+      console.log(file);
+      console.log(fileList);
+      this.editFileBinary.push(file.raw);
       this.editFileNum++;
-       this.fileListId=''
+      this.fileListId = "";
       for (let index = 0; index < fileList.length; index++) {
         const element = fileList[index];
-        if(!element.raw){
-          if(this.fileListId==''){
-           this.fileListId = element.url.split('attr=')[1]
-         }else{
-           this.fileListId = ','+this.fileListId
-         }
-        }   
+        if (!element.raw) {
+          if (this.fileListId == "") {
+            this.fileListId = element.url.split("attr=")[1];
+          } else {
+            this.fileListId = "," + this.fileListId;
+          }
+        }
       }
     },
-    filesRemove(file,fileList) {
+    filesRemove(file, fileList) {
       //file name 就是ID
-      console.log(file)
-      if(file.raw){
-        this.editFileBinary.pop()
+      console.log(file);
+      if (file.raw) {
+        console.log(this.editFileBinary)
+        this.editFileBinary.pop();
       }
-      this.fileListId=''
+      this.fileListId = "";
       for (let index = 0; index < fileList.length; index++) {
         const element = fileList[index];
-        if(!element.raw){
-          if(this.fileListId==''){
-           this.fileListId = element.url.split('attr=')[1]
-         }else{
-           this.fileListId = ','+this.fileListId
-         }
-        }   
+        if (!element.raw) {
+          if (this.fileListId == "") {
+            this.fileListId = element.url.split("attr=")[1];
+          } else {
+            this.fileListId = "," + this.fileListId;
+          }
+        }
       }
       this.editFileNum++;
     },
     //第一次上传
     createExhibition(content) {
-      console.log('上传')
-      console.log(content.file)
+      console.log("上传");
+      console.log(content.file);
       //倒计数
       if (this.createFileNum > 1) {
         this.createFrom.files.push(content.file);
@@ -414,22 +463,19 @@ export default {
       this.createFrom.files.push(content.file);
       let from = new FormData();
       from.append("description", this.createFrom.description);
-       from.append("companyId", this.companyId);
-      from.append(
-        "name",
-        this.createFrom.name
-      );
+      from.append("companyId", this.companyId);
+      from.append("name", this.createFrom.name);
       from.append("vrPics", this.createFrom.vrPics);
       for (let file of this.createFrom.files) {
         from.append("files", file);
       }
-      console.log(from.get("file"))
+      console.log(from.get("file"));
 
       this.$http.companySceneInsert(from).then(
         res => {
           if (res.data.status == 200) {
             // this.getPictureList();
-            this.unitformSubmit()
+            this.unitformSubmit();
             this.createExhibitionClose();
           }
         },
@@ -444,35 +490,33 @@ export default {
     //修改编辑
     editExhibition() {
       // 数据修改  发布数据不知道
-        
-      let editForm = new FormData()
-      editForm.append('companyId',this.companyId)
-      editForm.append('description',this.editForm.description)
-      editForm.append('name',this.editForm.name)
-      editForm.append('csId',this.editForm.csId)
-      editForm.append('picture',this.fileListId)
 
-    for (let index = 0; index < this.editFileBinary.length; index++) {
-      const element = this.editFileBinary[index];
-       editForm.append('files',element)
-    }
-    this.$http.companySceneModify(editForm).then(res=>{
-      if(res.data.status==200){
-        this.editDialogClose();
+      let editForm = new FormData();
+      editForm.append("companyId", this.companyId);
+      editForm.append("description", this.editForm.description);
+      editForm.append("name", this.editForm.name);
+      editForm.append("csId", this.editForm.csId);
+      editForm.append("picture", this.fileListId);
+
+      for (let index = 0; index < this.editFileBinary.length; index++) {
+        const element = this.editFileBinary[index];
+        editForm.append("files", element);
+      }
+      this.$http.companySceneModify(editForm).then(res => {
+        if (res.data.status == 200) {
+          this.editDialogClose();
           this.unitformSubmit();
           this.$message.success(this.$t("common.updateSuccess"));
-      }else{
-        this.editDialogClose();
-        this.$message.error(res.data.message)
-      }
-    })
-        // Promise.all([uptext, del, file]).then(result => {
-        //   this.editDialogClose();
-        //   this.getPictureList();
-        //   this.$message.success(this.$t("common.updateSuccess"));
-        // });
-      
-     
+        } else {
+          this.editDialogClose();
+          this.$message.error(res.data.message);
+        }
+      });
+      // Promise.all([uptext, del, file]).then(result => {
+      //   this.editDialogClose();
+      //   this.getPictureList();
+      //   this.$message.success(this.$t("common.updateSuccess"));
+      // });
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
@@ -480,10 +524,10 @@ export default {
       this.imgdialogVisible = true;
     },
     handlePictureCardPreview1(file) {
-      console.log(file)
+      console.log(file);
     },
     editFilesChange1(file) {
-      console.log(file)
+      console.log(file);
     },
     createExhibitionClose() {
       //关闭并且清空
@@ -500,26 +544,26 @@ export default {
       this.$refs.createFile.clearFiles();
     },
     showEditDialog(obj) {
-      console.log(obj)
+      this.editFileBinary=[]
+      console.log(obj);
       this.editDialog = true;
       this.editForm.id = obj.id;
       this.editForm.name = obj.name;
       this.editForm.description = obj.description;
-      this.editForm.csId = obj.csId
+      this.editForm.csId = obj.csId;
       this.editForm.fileList = [];
       this.editForm.files = [];
       this.editForm.readyDel = [];
       obj.urls.map(item => {
         this.editForm.fileList.push({
-          
           url: item
         });
-      })
+      });
     },
     editDialogClose() {
       //关闭并且清空
       this.editDialog = false;
-      this.fileListId = ''
+      this.fileListId = "";
       // this.nulltoForm(this.editForm, "editExhibition");
       this.$refs.editFile.clearFiles();
     },
@@ -534,42 +578,37 @@ export default {
         distinguishCancelAndClose: true,
         confirmButtonText: this.$t("common.delete"),
         cancelButtonText: this.$t("delete.cancel"),
-        type: 'warning',
-      }).then(
-        () => {
+        type: "warning"
+      })
+        .then(() => {
           //先删除图片再删除相册
           this.beforeRemoveImgList(obj, _ => {
             //作为图片删除成功的回调
-           
-                    _.$message.success("相册删除成功！");
-                    // _.getPictureList();
-                    _.unitformSubmit()
-              
+
+            _.$message.success("相册删除成功！");
+            // _.getPictureList();
+            _.unitformSubmit();
           });
-        }
-      ).catch(() => {
-        this.$message({
-          type: "info",
-          message: "已取消操作"
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消操作"
+          });
         });
-      });
-      
     },
     beforeRemoveImgList(obj, callback) {
-      console.log(obj)
-     
+      console.log(obj);
 
       //先删除图片
-      this.$http.companySceneDelete({csId:obj.csId}).then(
-        res => {
-          if (res.data.status == 200) {
-            callback(this);
-          }
+      this.$http.companySceneDelete({ csId: obj.csId }).then(res => {
+        if (res.data.status == 200) {
+          callback(this);
         }
-      );
+      });
     },
     pictureHandleRemove() {}
-}
+  }
 };
 </script>
 <style scoped lang="scss">
@@ -649,7 +688,7 @@ export default {
 
 .avatar {
   width: 60px;
- height: 60px;
+  height: 60px;
   display: block;
 }
 .imgOuter {
@@ -726,7 +765,6 @@ export default {
     width: 100%;
   }
   .img-info-label {
-    
   }
   .img-info-box {
     flex: 9;
@@ -784,14 +822,14 @@ export default {
   }
 }
 .submit {
- text-align: right;
- width: 1044px;
+  text-align: right;
+  width: 1044px;
   @media screen and(max-width:1450px ) {
-    width:100%
+    width: 100%;
   }
 }
 .time {
-  display:block;
+  display: block;
   font-size: 13px;
   color: #999;
   margin-bottom: 3px;
@@ -878,41 +916,41 @@ export default {
 .card:hover {
   box-shadow: 6px 8px 37px -2px;
 }
-.unit_manage-page{
+.unit_manage-page {
   width: 100%;
   height: 100%;
   position: relative;
-  .unit_manage-main{
+  .unit_manage-main {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 30px;
     // margin: auto;
-    background:rgba(255,255,255,1);
-    border:1px solid rgba(233,233,233,1);
-    box-shadow:#D1D1D1 0 2px 4px 0;
-    border-radius:5px;
+    background: rgba(255, 255, 255, 1);
+    border: 1px solid rgba(233, 233, 233, 1);
+    box-shadow: #d1d1d1 0 2px 4px 0;
+    border-radius: 5px;
     box-sizing: border-box;
     padding: 20px;
     padding-top: 40px;
-    .blue{
-        width:12px;
-        height:20px;
-        background:rgba(67,131,220,1);
-        border-radius:0px 3px 3px 0px;
-        position: absolute;
-        left: 0;
-        top: 19px;
+    .blue {
+      width: 12px;
+      height: 20px;
+      background: rgba(67, 131, 220, 1);
+      border-radius: 0px 3px 3px 0px;
+      position: absolute;
+      left: 0;
+      top: 19px;
     }
-    .title{
-        position: absolute;
-        left: 20px;
-        top: 18px;
-        font-size: 20px;
-        font-weight: 600;
+    .title {
+      position: absolute;
+      left: 20px;
+      top: 18px;
+      font-size: 20px;
+      font-weight: 600;
     }
-    .main-content{
+    .main-content {
       width: 100%;
       // height: 100%;
       height: 770px;
@@ -921,18 +959,18 @@ export default {
       padding-bottom: 0;
       display: flex;
       flex-direction: column;
-      @media screen and(max-width:1680px ){
+      @media screen and(max-width:1680px ) {
         padding: 50px 20px;
       }
-      .unit-info{
+      .unit-info {
         height: 45%;
-        .demo-form-inline{
-          p{
+        .demo-form-inline {
+          p {
             margin: 0;
           }
         }
       }
-      .img-list-box{
+      .img-list-box {
         margin-left: -10px;
         // width: 100%;
         width: 1044px;
@@ -941,62 +979,61 @@ export default {
         @media screen and(max-width: 1450px) {
           width: 100%;
         }
-        .img-info-label{
+        .img-info-label {
           flex: 1.5;
         }
-        .img-info-box{
+        .img-info-box {
           flex: 9;
           height: 100%;
           overflow-x: hidden;
-          .el-row{
+          .el-row {
             display: flex;
             flex-wrap: wrap;
-           >.card{
-             width: 230px;
-             height: 280px;
-             margin: 0;
-             margin-right: 6px;
-             margin-top: 5px;
-           }
-          .add-icon {
-            margin-top: 89px;
-            margin-left: 7.48095%;
-            text-align: center;
-            width: 3.5%;
-            cursor: pointer;
-            transition: all 0.4s;
-            width: 147px;
-            height: 147px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            // margin-top: 100px;
-            // margin-bottom: 40px;
-            cursor: pointer;
-            transition: all 0.4s;
-            position: relative;
-            &.add-icon:hover {
-              box-shadow: 6px 8px 37px -2px;
+            > .card {
+              width: 230px;
+              height: 280px;
+              margin: 0;
+              margin-right: 6px;
+              margin-top: 5px;
             }
-            .el-card{
-              width: 100%;
-              height:100%;
-                i{
-                // height: 67px;
-                height: 100%;
+            .add-icon {
+              margin-top: 89px;
+              margin-left: 7.48095%;
+              text-align: center;
+              width: 3.5%;
+              cursor: pointer;
+              transition: all 0.4s;
+              width: 147px;
+              height: 147px;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              // margin-top: 100px;
+              // margin-bottom: 40px;
+              cursor: pointer;
+              transition: all 0.4s;
+              position: relative;
+              &.add-icon:hover {
+                box-shadow: 6px 8px 37px -2px;
+              }
+              .el-card {
                 width: 100%;
-                color: rgb(222, 222, 222);
-                font-size: 28px;
-                // line-height: 67px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                // text-align: center;
+                height: 100%;
+                i {
+                  // height: 67px;
+                  height: 100%;
+                  width: 100%;
+                  color: rgb(222, 222, 222);
+                  font-size: 28px;
+                  // line-height: 67px;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  // text-align: center;
+                }
               }
             }
-          }
-
           }
         }
       }
@@ -1009,7 +1046,7 @@ export default {
   .el-card.is-always-shadow,
   .el-card.is-hover-shadow:focus,
   .el-card.is-hover-shadow:hover {
-    height: 100% ;
+    height: 100%;
     .el-card__body {
       display: flex;
       flex-direction: column;

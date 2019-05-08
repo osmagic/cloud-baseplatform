@@ -157,16 +157,17 @@ font-family:PingFang SC;float:right;margin-right:20px"
                 >更多</span>
               </div>
               <div class="messageList">
-                <div class="messageItem">
+                <div class="messageItem"  v-for="(item,index) in messageListN" :key="index">
                   <div class="mitemL">
-                    <div class="itemL1">设备告警</div>
-                    <div class="itemL2">啦啦啦啦啦啦啦啦啦啦</div>
+                    <div class="itemL1">{{item.eventName}}</div>
+                    <div class="itemL2">{{item.eventDetail}}</div>
                   </div>
                   <div class="mitenR">
-                    <span class="mtime">2019-04-19</span>
+                    <span class="mtime">{{item.updateTime}}</span>
                     <el-button round>待处理</el-button>
                   </div>
                 </div>
+               
               </div>
             </div>
           </el-col>
@@ -202,6 +203,7 @@ export default {
       tableData: [],
       totalForm: {},
       echartsData: [],
+      messageListN:[],
       showPersonMore: false,
       showManagerMore: false,
       showDeviceMore: false
@@ -242,8 +244,20 @@ export default {
     this.getTotalData();
     this.getOperationLogs();
     this.getEchartsData();
+    this.getMessageLogs()
+   
   },
   methods: {
+    getMessageLogs(){
+      this.$http.getMessage({status:0}).then(res=>{
+        if(res.data.status==200){
+          for (let index = 0; index < 3; index++) {
+            const element = res.data.data[index];
+            this.messageListN.push(element)
+          }
+        }
+      })
+    },
     getOperationLogs() {
       this.$http.getOperationLogs().then(res => {
         if (res.data.status == 200) {
@@ -382,10 +396,10 @@ export default {
           {
             data: yData,
             type: "line",
-            lineStyle:{
-              color:'#A3A0FB'
+            lineStyle: {
+              color: "#A3A0FB"
             },
-            color:'#A3A0FB',
+            color: "#A3A0FB",
             areaStyle: {
               color: {
                 type: "linear",
@@ -426,6 +440,11 @@ export default {
     font-weight: bold;
     cursor: pointer;
     float: right;
+  }
+  .messageItem{
+    overflow: hidden;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(241,241,243,1);
   }
   .totalC {
     display: flex;

@@ -16,6 +16,7 @@
             由国家“千人计划”特聘专家、澳大利亚昆士兰大学教授、电子科技大学计算机技术
             与工程学院院长、教授、博士生导师、未来媒体研究中心主任申恒涛领衔16位海外
             名校博士创立。
+            
           </p>
           <p>
             成都考拉悠然科技有限公司，是一家专注于人工智能技术研究和应用的高科技企业。
@@ -60,7 +61,34 @@
 
 <script>
   export default {
-    name: "comShow"
+    name: "comShow",
+    data(){
+      return{
+        urls:[],
+        detail:''
+      }
+    },
+    created(){
+      this.$http.getCompanyDetail().then(res=>{
+        if(res.data.status==200){
+          this.detail = res.data.data[0].biography
+          for (let index = 0; index < res.data.data[0].scenes.length; index++) {
+            const element = res.data.data[0].scenes[index].urls;
+            for (let indexA = 0; indexA < element.length; indexA++) {
+              const elementA = element[indexA];
+              this.urls.push(elementA)
+            }
+          }
+        }
+      })
+      console.log(this.urls)
+    },
+    mounted(){
+
+    },
+    methods:{
+
+    }
   }
 </script>
 
